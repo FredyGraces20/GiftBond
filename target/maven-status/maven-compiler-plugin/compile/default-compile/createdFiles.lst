@@ -1,0 +1,15 @@
+com\fredygraces\giftbond\commands\RegaloCommand.class
+com\fredygraces\giftbond\GiftBond.class
+com\fredygraces\giftbond\commands\SaveDataCommand.class
+com\fredygraces\giftbond\managers\DatabaseManager$1.class
+com\fredygraces\giftbond\managers\DatabaseManager.class
+com\fredygraces\giftbond\managers\EconomyManager.class
+com\fredygraces\giftbond\commands\AmistadCommand.class
+com\fredygraces\giftbond\commands\TopRegalosCommand.class
+com\fredygraces\giftbond\menus\GiftMenu.class
+com\fredygraces\giftbond\managers\FriendshipManager.class
+com\fredygraces\giftbond\models\GiftItem$ItemRequirement.class
+com\fredygraces\giftbond\events\GiftMenuListener.class
+com\fredygraces\giftbond\managers\DatabaseManager$FriendshipPair.class
+com\fredygraces\giftbond\managers\GiftManager.class
+com\fredygraces\giftbond\models\GiftItem.class

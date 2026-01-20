@@ -1,0 +1,44 @@
+name: GiftBond
+version: 1.0.0
+main: com.fredygraces.giftbond.GiftBond
+api-version: 1.21
+depend: [PlaceholderAPI]
+softdepend: [Vault]
+commands:
+  amistad:
+    description: Ver tus puntos de amistad
+    usage: /amistad
+  regalo:
+    description: Enviar un regalo a otro jugador
+    usage: /regalo <jugador> <cantidad>
+  topregalos:
+    description: Ver las parejas con más puntos de amistad
+    usage: /topregalos
+  giftbond:
+    description: Comando principal de administración de GiftBond
+    usage: /giftbond <reload|savedata|points|boost>
+    permission: giftbond.admin
+permissions:
+  giftbond.use:
+    description: Permiso para usar el plugin
+    default: true
+  giftbond.savedata:
+    description: Permiso para crear backups manuales de la base de datos
+    default: op
+  giftbond.admin.points:
+    description: Permiso para administrar puntos personales
+    default: op
+  giftbond.admin.boost:
+    description: Permiso para dar boosts temporales a jugadores
+    default: op
+  giftbond.admin.reload:
+    description: Permiso para recargar el plugin
+    default: op
+  giftbond.admin:
+    description: Permiso principal de administración
+    default: op
+    children:
+      giftbond.admin.reload: true
+      giftbond.savedata: true
+      giftbond.admin.points: true
+      giftbond.admin.boost: true

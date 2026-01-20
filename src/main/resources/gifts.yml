@@ -1,0 +1,210 @@
+# ═══════════════════════════════════════════════════════════════
+# 🎁 GIFTS.YML - Sistema de Regalos
+# ═══════════════════════════════════════════════════════════════
+# Configuración completa del sistema de regalos
+# ═══════════════════════════════════════════════════════════════
+
+# Modo de operación: "auto" o "manual"
+# - auto: El sistema detecta la versión y genera regalos aleatorios
+# - manual: Usa la lista de regalos definida manualmente abajo
+mode: "auto"
+
+# Versión específica para usar (cuando se desea sobreescribir la detección automática)
+# Deja vacío "" para usar detección automática, o pon la versión específica como "1.20.6" o "1.21.1"
+force_selected_version: ""
+
+# ═══════════════════════════════════════════════════════════════
+# 🎲 MODO AUTOMÁTICO - Regalos Aleatorios
+# ═══════════════════════════════════════════════════════════════
+
+auto_mode:
+  enabled: true
+  
+  # Detección automática de versión del servidor
+  detect_version: true
+  # Versión manual (solo si detect_version = false)
+  # Formato: "1.21" o "1.20.4"
+  force_version: "1.21"
+  
+  # Blacklist de items (nunca aparecerán como regalos)
+  # Puedes agregar más items aquí si quieres excluir algo específico
+  exclude_items:
+    # Items de creativo/comandos
+    - BARRIER
+    - STRUCTURE_VOID
+    - STRUCTURE_BLOCK
+    - COMMAND_BLOCK
+    - CHAIN_COMMAND_BLOCK
+    - REPEATING_COMMAND_BLOCK
+    - COMMAND_BLOCK_MINECART
+    - DEBUG_STICK
+    - JIGSAW
+    - LIGHT
+    - KNOWLEDGE_BOOK
+    
+    # Spawners y eggs de spawn
+    - SPAWNER
+    - "*_SPAWN_EGG"  # Todos los spawn eggs
+    
+    # Bloques técnicos
+    - AIR
+    - CAVE_AIR
+    - VOID_AIR
+    - BEDROCK
+    - END_PORTAL_FRAME
+    - END_PORTAL
+    - NETHER_PORTAL
+    
+    # Items muy raros o únicos
+    - DRAGON_EGG  # Solo hay 1 por mundo
+  
+  # Categorías permitidas (puedes desactivar algunas)
+  allowed_categories:
+    food: true          # Comida (beef, bread, apple, etc)
+    blocks: true        # Bloques (stone, wood, dirt, etc)
+    resources: true     # Recursos (iron, gold, diamond, etc)
+    tools: true         # Herramientas (pickaxe, axe, shovel)
+    weapons: true       # Armas (sword, bow, trident)
+    armor: true         # Armaduras (helmet, chestplate, etc)
+    potions: true       # Pociones y brewing
+    plants: true        # Plantas, flores, seeds
+    misc: true          # Otros items (arrow, string, etc)
+  
+  # Rotación de regalos
+  rotation:
+    enabled: true
+    # Intervalo de rotación en minutos (cada cuánto cambian los regalos)
+    interval: 60
+    # Cuántos regalos diferentes mostrar al mismo tiempo
+    active_gifts: 9
+    # Notificar a todos cuando los regalos cambien
+    broadcast_on_change: true
+  
+  # Rango de puntos que pueden dar los regalos
+  points:
+    min: 10
+    max: 100
+  
+  # Rango de cantidad de items requeridos
+  items:
+    min: 1
+    max: 64
+
+# ═══════════════════════════════════════════════════════════════
+# 📝 MODO MANUAL - Lista Fija de Regalos
+# ═══════════════════════════════════════════════════════════════
+
+manual_mode:
+  enabled: false
+  
+  # Lista manual de regalos predefinidos
+  gifts:
+    # Puntos de Amistad - Regalo básico
+    friendship_points:
+      name: "&dPuntos de Amistad"
+      points: 10
+      items_required:
+        - material: PAPER
+          amount: 1
+      description:
+        - "&7Enviar puntos de amistad"
+        - "&7Premio: 10 puntos"
+        - "&7Requiere: 1 Papel"
+    
+    # Corazón - Regalo romántico
+    heart:
+      name: "&cCorazón"
+      points: 20
+      items_required:
+        - material: RED_DYE
+          amount: 2
+      description:
+        - "&7Enviar un regalo de corazón"
+        - "&7Premio: 20 puntos"
+        - "&7Requiere: 2 Tinte Rojo"
+    
+    # Flores - Regalo clásico
+    flowers:
+      name: "&dFlores"
+      points: 15
+      items_required:
+        - material: POPPY
+          amount: 3
+      description:
+        - "&7Enviar un ramo de flores"
+        - "&7Premio: 15 puntos"
+        - "&7Requiere: 3 Amapolas"
+    
+    # Comida - Regalo útil
+    food:
+      name: "&6Comida"
+      points: 12
+      items_required:
+        - material: COOKED_BEEF
+          amount: 2
+      description:
+        - "&7Enviar un regalo de comida"
+        - "&7Premio: 12 puntos"
+        - "&7Requiere: 2 Filete"
+    
+    # Arco - Regalo aventurero
+    bow:
+      name: "&eArco"
+      points: 25
+      items_required:
+        - material: BOW
+          amount: 1
+        - material: ARROW
+          amount: 5
+      description:
+        - "&7Enviar un arco como regalo"
+        - "&7Premio: 25 puntos"
+        - "&7Requiere: 1 Arco + 5 Flechas"
+    
+    # Diamante - Regalo valioso
+    diamond:
+      name: "&bDiamante"
+      points: 30
+      items_required:
+        - material: DIAMOND
+          amount: 1
+      description:
+        - "&7Enviar un diamante como regalo"
+        - "&7Premio: 30 puntos"
+        - "&7Requiere: 1 Diamante"
+    
+    # Libro - Regalo educativo
+    book:
+      name: "&9Libro"
+      points: 18
+      items_required:
+        - material: BOOK
+          amount: 1
+      description:
+        - "&7Enviar un libro como regalo"
+        - "&7Premio: 18 puntos"
+        - "&7Requiere: 1 Libro"
+    
+    # Pastel - Regalo dulce
+    cake:
+      name: "&6Pastel"
+      points: 22
+      items_required:
+        - material: CAKE
+          amount: 1
+      description:
+        - "&7Enviar un pastel como regalo"
+        - "&7Premio: 22 puntos"
+        - "&7Requiere: 1 Pastel"
+    
+    # Cofre - Regalo sorpresa
+    chest:
+      name: "&eCofre"
+      points: 35
+      items_required:
+        - material: CHEST
+          amount: 1
+      description:
+        - "&7Enviar un cofre como regalo"
+        - "&7Premio: 35 puntos"
+        - "&7Requiere: 1 Cofre"

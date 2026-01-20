@@ -1,0 +1,142 @@
+# ═══════════════════════════════════════════════════════════════
+# 💬 MESSAGES.YML - Mensajes del Plugin GiftBond
+# ═══════════════════════════════════════════════════════════════
+# Todos los mensajes editables del plugin
+# Soporta códigos de color con '&' o '§'
+# Usa {prefix} para insertar el prefix del plugin
+# ═══════════════════════════════════════════════════════════════
+
+# Prefix del plugin (se usa en todos los mensajes con {prefix})
+prefix: "&d[GiftBond] &r"
+
+# ═══════════════════════════════════════════════════════════════
+# 🚫 MENSAJES DE ERROR
+# ═══════════════════════════════════════════════════════════════
+
+errors:
+  no_permission: "{prefix}&cNo tienes permiso para usar este comando."
+  player_only: "{prefix}&cSolo los jugadores pueden usar este comando."
+  player_not_found: "{prefix}&cJugador no encontrado: {player}"
+  player_offline: "{prefix}&cEl jugador ya no está en línea."
+  no_self_gift: "{prefix}&cNo puedes enviarte regalos a ti mismo."
+  cooldown: "{prefix}&cDebes esperar {seconds} segundos antes de enviar otro regalo."
+  daily_limit: "{prefix}&cHas alcanzado el límite diario de {limit} regalos. ¡Vuelve mañana!"
+  min_hours_sender: "{prefix}&cDebes tener al menos {min} horas jugadas para enviar regalos. (Tienes {current} horas)"
+  min_hours_receiver: "{prefix}&cEl jugador {player} debe tener al menos {min} horas jugadas para recibir regalos."
+  insufficient_items: "{prefix}&cNo tienes los items necesarios para enviar este regalo."
+
+# ═══════════════════════════════════════════════════════════════
+# ✅ MENSAJES DE ÉXITO
+# ═══════════════════════════════════════════════════════════════
+
+success:
+  gift_sent: "{prefix}&eHas enviado un regalo de &f{gift} &e({points} puntos) a &f{receiver}"
+  gift_received: "{prefix}&eHas recibido un regalo de &f{gift} &e({points} puntos) de &f{sender}"
+  boost_granted: "{prefix}&a✨ Boost x{multiplier} otorgado a {player} por {duration}"
+  boost_expired: "{prefix}&7Tu boost ha expirado."
+  config_reloaded: "{prefix}&aConfiguración recargada correctamente."
+  data_saved: "{prefix}&aDatos guardados correctamente."
+
+# ═══════════════════════════════════════════════════════════════
+# 📢 BROADCASTS Y ANUNCIOS
+# ═══════════════════════════════════════════════════════════════
+
+broadcasts:
+  # Broadcast cuando una pareja alcanza el Top 1
+  top1_achieved: "&d✨ ¡{player1} y {player2} son ahora la pareja Nº1 con {points} puntos! ✨"
+  
+  # Broadcast cuando los regalos aleatorios cambian (modo auto)
+  gifts_rotated: "&e&l⚡ ¡Los regalos han cambiado! &7Usa &f/regalo &7para ver los nuevos."
+
+# ═══════════════════════════════════════════════════════════════
+# 📊 MENSAJES DE INFORMACIÓN
+# ═══════════════════════════════════════════════════════════════
+
+info:
+  # Comando /amistad
+  friendship_header: "&d&m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+  friendship_title: "&d&l💕 PUNTOS DE AMISTAD"
+  friendship_your_points: "&7Tus puntos totales: &f{points}"
+  friendship_friend_entry: "&e{rank}. &f{player1} &7y &f{player2} &7- &a{points} puntos"
+  friendship_no_friends: "&7Aún no tienes amigos con puntos."
+  friendship_footer: "&d&m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+  
+  # Comando /topregalos
+  top_header: "&6&m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+  top_title: "&6&l🏆 TOP 10 PAREJAS"
+  top_entry: "&e{rank}. &f{player1} &7y &f{player2} &7- &a{points} puntos"
+  top_footer: "&6&m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+  
+  # Información de boost
+  boost_active: "&a💫 Boost Activo: x{multiplier}"
+  boost_time_left: "&7Tiempo restante: {time}"
+  boost_none: "&7Sin boost activo"
+  
+  # Sistema de puntos personales
+  personal_points: "&e💰 Puntos Personales: &f{points}"
+  personal_points_added: "{prefix}&a+{points} puntos personales"
+  personal_points_spent: "{prefix}&c-{points} puntos personales gastados"
+  personal_points_insufficient: "{prefix}&cNo tienes suficientes puntos personales. Necesitas: {required}, Tienes: {current}"
+
+# ═══════════════════════════════════════════════════════════════
+# 🎮 MENSAJES DE GUI
+# ═══════════════════════════════════════════════════════════════
+
+gui:
+  # Menú de regalos
+  gift_menu_title: "Enviar regalo a {player}"
+  gift_available: "&a✓ Disponible"
+  gift_unavailable: "&c✗ No tienes los items necesarios"
+  gift_click_to_send: "&7Clic para enviar este regalo"
+  gift_locked: "&7Consigue los items requeridos para desbloquear"
+  
+  # Item de rotación (modo auto)
+  rotation_info_title: "&e&l⏰ Rotación de Regalos"
+  rotation_info_lore:
+    - "&7Los regalos cambian automáticamente"
+    - "&7cada cierto tiempo."
+    - ""
+    - "&ePróximo cambio: &f{time}"
+    - ""
+    - "&7¡Aprovecha los regalos actuales!"
+  
+  # Menú de historial
+  history_menu_title: "Historial de Regalos - Pág {page}"
+  history_no_records: "&7No hay registros de regalos."
+  history_next_page: "&aNext Page →"
+  history_previous_page: "&c← Previous Page"
+
+# ═══════════════════════════════════════════════════════════════
+# 🎁 MENSAJES DE REGALOS ALEATORIOS
+# ═══════════════════════════════════════════════════════════════
+
+random_gifts:
+  # Lore de regalos aleatorios (modo auto)
+  item_name: "&6&l✦ &e{item} &6&l✦"
+  lore_separator: "&8&m━━━━━━━━━━━━━━━━━━━━"
+  lore_title: "&7&o🎁 Regalo del Momento"
+  lore_reward: "&a&l💰 Premio: &f{points} puntos"
+  lore_cost: "&c&l📦 Costo: &f{amount}x &e{item}"
+  lore_rotation: "&7⏰ Los regalos rotan cada hora"
+  lore_footer: "&7&o¡Aprovecha esta oportunidad!"
+
+# ═══════════════════════════════════════════════════════════════
+# ⚙️ MENSAJES DE COMANDOS
+# ═══════════════════════════════════════════════════════════════
+
+commands:
+  # Uso de comandos
+  usage_amistad: "&cUso: /amistad [jugador]"
+  usage_regalo: "&cUso: /regalo <jugador>"
+  usage_boost: "&cUso: /giftbond boost <jugador> <multiplicador> <duración_minutos>"
+  usage_points: "&cUso: /giftbond points <add|remove|set> <jugador> <cantidad>"
+  usage_savedata: "&cUso: /giftbond savedata"
+  
+  # Ayuda de comandos
+  help_header: "&d&m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+  help_title: "&d&lGIFTBOND - COMANDOS"
+  help_amistad: "&e/amistad &7- Ver tus puntos de amistad"
+  help_regalo: "&e/regalo <jugador> &7- Enviar un regalo"
+  help_topregalos: "&e/topregalos &7- Ver top 10 parejas"
+  help_giftbond: "&e/giftbond &7- Comandos de administración"
+  help_footer: "&d&m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
