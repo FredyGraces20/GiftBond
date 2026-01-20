@@ -24,7 +24,7 @@ public class VersionDetector {
         // Esto permite al usuario elegir una versión específica independientemente de la versión del servidor
         String forcedVersion = plugin.getConfigManager().getGiftsConfig().getString("force_selected_version", "");
                 
-        if (!forcedVersion.isEmpty()) {
+        if (forcedVersion != null && !forcedVersion.isEmpty()) {
             // Usar la versión forzada por el usuario
             this.serverVersion = forcedVersion;
             String[] parts = forcedVersion.split("\\.");
@@ -61,8 +61,8 @@ public class VersionDetector {
                 } else {
                     // Último fallback: usar versión configurada manualmente
                     String manualVersion = plugin.getConfigManager().getGiftsConfig().getString("auto_mode.force_version", "1.21");
-                    this.serverVersion = manualVersion;
-                    String[] parts = manualVersion.split("\\.");
+                    this.serverVersion = manualVersion != null ? manualVersion : "1.21";
+                    String[] parts = this.serverVersion.split("\\.");
                     this.majorVersion = parts.length > 0 ? Integer.parseInt(parts[0]) : 1;
                     this.minorVersion = parts.length > 1 ? Integer.parseInt(parts[1]) : 21;
                     this.patchVersion = parts.length > 2 ? Integer.parseInt(parts[2]) : 0;
@@ -117,7 +117,7 @@ public class VersionDetector {
      */
     public boolean isVersionOrHigher(int major, int minor) {
         if (this.majorVersion > major) return true;
-        if (this.majorVersion == major && this.minorVersion >= minor) return true;
+        if (this.minorVersion >= minor) return true;
         return false;
     }
     
@@ -131,14 +131,11 @@ public class VersionDetector {
      */
     public boolean isVersionOrHigher(int major, int minor, int patch) {
         if (this.majorVersion > major) return true;
-        if (this.majorVersion == major && this.minorVersion > minor) return true;
-        if (this.majorVersion == major && this.minorVersion == minor && this.patchVersion >= patch) return true;
+        if (this.minorVersion > minor) return true;
+        if (this.minorVersion == minor && this.patchVersion >= patch) return true;
         return false;
     }
     
-    /**
-     * Obtiene una representación legible de la versión
-     */
     /**
      * Verifica si el servidor está en el rango de versiones soportadas (1.20.4 - 1.21.11)
      * 
@@ -168,7 +165,7 @@ public class VersionDetector {
     public boolean isAtLeast1_20_4() {
         if (majorVersion > 1) return true;
         if (majorVersion == 1 && minorVersion > 20) return true;
-        if (majorVersion == 1 && minorVersion == 20 && patchVersion >= 4) return true;
+        if (minorVersion == 20 && patchVersion >= 4) return true;
         return false;
     }
     
@@ -179,7 +176,7 @@ public class VersionDetector {
      */
     public boolean isAtLeast1_21() {
         if (majorVersion > 1) return true;
-        if (majorVersion == 1 && minorVersion >= 21) return true;
+        if (minorVersion >= 21) return true;
         return false;
     }
     
@@ -190,8 +187,8 @@ public class VersionDetector {
      */
     public boolean isAtMost1_21_11() {
         if (majorVersion < 1) return true;
-        if (majorVersion == 1 && minorVersion < 21) return true;
-        if (majorVersion == 1 && minorVersion == 21 && patchVersion <= 11) return true;
+        if (minorVersion < 21) return true;
+        if (minorVersion == 21 && patchVersion <= 11) return true;
         return false;
     }
     

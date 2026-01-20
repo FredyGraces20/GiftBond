@@ -208,6 +208,13 @@ public class GiftManager {
         }
 
         String placeholder = plugin.getConfigManager().getMainConfig().getString("settings.hours_played_placeholder", "%statistic_hours_played%");
+        
+        // Safety check: ensure placeholder is not null
+        if (placeholder == null) {
+            plugin.getLogger().warning("Placeholder configuration is null, using default value");
+            placeholder = "%statistic_hours_played%";
+        }
+        
         String value = PlaceholderAPI.setPlaceholders(player, placeholder);
         
         plugin.getLogger().info("[DEBUG] Using placeholder: " + placeholder);
@@ -237,6 +244,13 @@ public class GiftManager {
         }
 
         String placeholder = plugin.getConfigManager().getMainConfig().getString("settings.hours_played_placeholder", "%statistic_hours_played%");
+        
+        // Safety check: ensure placeholder is not null
+        if (placeholder == null) {
+            plugin.getLogger().warning("Placeholder configuration is null in getPlayerHours, using default value");
+            placeholder = "%statistic_hours_played%";
+        }
+        
         String value = PlaceholderAPI.setPlaceholders(player, placeholder);
         
         try {

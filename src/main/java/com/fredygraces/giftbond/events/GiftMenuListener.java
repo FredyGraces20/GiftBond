@@ -128,6 +128,10 @@ public class GiftMenuListener implements Listener {
         }
         
         // Eliminar los items requeridos del inventario
+        plugin.getLogger().info("[DEBUG] Removing required items for gift: " + selectedGift.getId());
+        for (GiftItem.ItemRequirement req : selectedGift.getRequiredItems()) {
+            plugin.getLogger().info("[DEBUG]   Requiring: " + req.getAmount() + "x " + req.getMaterial());
+        }
         giftManager.removeRequiredItems(sender, selectedGift);
         
         // Agregar puntos de amistad
@@ -135,7 +139,9 @@ public class GiftMenuListener implements Listener {
         String receiverUUID = receiver.getUniqueId().toString();
         int points = selectedGift.getPoints();
         
+        plugin.getLogger().info("[DEBUG] Adding friendship points: " + points + " (base points)");
         int finalPoints = friendshipManager.addFriendshipPoints(senderUUID, receiverUUID, points);
+        plugin.getLogger().info("[DEBUG] Final points awarded: " + finalPoints + " (after boost)");
         
         // Guardar en historial
         String giftName = ChatColor.stripColor(ChatColor.translateAlternateColorCodes('&', selectedGift.getName()));

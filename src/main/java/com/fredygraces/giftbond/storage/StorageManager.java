@@ -40,13 +40,9 @@ public class StorageManager implements StorageProvider {
         
         // Configuración local (SQLite)
         localEnabled = dbConfig.getBoolean("local.enabled", true);
-        String localDbName = dbConfig.getString("local.database", "friendships.db");
         
         // Configuración remota (H2)
         remoteEnabled = dbConfig.getBoolean("remote.enabled", false);
-        String remoteType = dbConfig.getString("remote.type", "h2");
-        String h2FileName = dbConfig.getString("remote.h2.file", "friendships");
-        String h2Mode = dbConfig.getString("remote.h2.mode", "file");
         
         // Configuración de sincronización
         syncEnabled = dbConfig.getBoolean("sync.enabled", true);

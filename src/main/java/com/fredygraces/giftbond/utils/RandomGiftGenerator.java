@@ -130,9 +130,13 @@ public class RandomGiftGenerator {
     public List<GiftItem> getCurrentGiftsAsGiftItems() {
         List<GiftItem> giftItems = new ArrayList<>();
         
+        plugin.getLogger().info("[AUTO GIFT DEBUG] Converting " + currentGifts.size() + " random gifts to GiftItems");
+        
         for (RandomGift randomGift : currentGifts) {
             String key = "random_" + randomGift.getMaterial().name().toLowerCase();
             String friendlyName = itemFilter.getFriendlyName(randomGift.getMaterial());
+            
+            plugin.getLogger().info("[AUTO GIFT DEBUG] Creating gift: " + key + ", Material: " + randomGift.getMaterial() + ", Amount: " + randomGift.getAmount() + ", Points: " + randomGift.getPoints());
             
             GiftItem giftItem = new GiftItem(
                 key,

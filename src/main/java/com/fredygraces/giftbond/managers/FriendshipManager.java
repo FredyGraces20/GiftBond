@@ -23,7 +23,9 @@ public class FriendshipManager {
 
     public int addFriendshipPoints(String senderUUID, String receiverUUID, int points) {
         double multiplier = getActiveMultiplier(senderUUID);
+        plugin.getLogger().info("[BOOST DEBUG] Base points: " + points + ", Multiplier: " + multiplier);
         int finalPoints = (int) (points * multiplier);
+        plugin.getLogger().info("[BOOST DEBUG] Final points calculated: " + finalPoints);
         
         databaseManager.saveFriendshipPoints(senderUUID, receiverUUID, finalPoints);
         
