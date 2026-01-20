@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import com.fredygraces.giftbond.GiftBond;
@@ -34,12 +35,23 @@ public class StorageManager implements StorageProvider {
     
     @Override
     public boolean initialize() {
-        // Leer configuración
-        localEnabled = plugin.getConfigManager().getMainConfig().getBoolean("storage.local.enabled", true);
-        remoteEnabled = plugin.getConfigManager().getMainConfig().getBoolean("storage.remote.enabled", false);
-        syncEnabled = plugin.getConfigManager().getMainConfig().getBoolean("storage.sync.enabled", true);
-        syncDirection = plugin.getConfigManager().getMainConfig().getString("storage.sync.direction", "bidirectional");
-        syncInterval = plugin.getConfigManager().getMainConfig().getInt("storage.sync.interval", 5);
+        // Leer configuración de database.yml
+        FileConfiguration dbConfig = plugin.getConfigManager().getDatabaseConfig();
+        
+        // Configuración local (SQLite)
+        localEnabled = dbConfig.getBoolean("local.enabled", true);
+        String localDbName = dbConfig.getString("local.database", "friendships.db");
+        
+        // Configuración remota (H2)
+        remoteEnabled = dbConfig.getBoolean("remote.enabled", false);
+        String remoteType = dbConfig.getString("remote.type", "h2");
+        String h2FileName = dbConfig.getString("remote.h2.file", "friendships");
+        String h2Mode = dbConfig.getString("remote.h2.mode", "file");
+        
+        // Configuración de sincronización
+        syncEnabled = dbConfig.getBoolean("sync.enabled", true);
+        syncDirection = dbConfig.getString("sync.direction", "bidirectional");
+        syncInterval = dbConfig.getInt("sync.interval", 5);
         
         plugin.getLogger().info("=== Storage Configuration ===");
         plugin.getLogger().info("Local (SQLite): " + (localEnabled ? "ENABLED" : "DISABLED"));

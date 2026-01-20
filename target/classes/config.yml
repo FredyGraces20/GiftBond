@@ -33,6 +33,10 @@ settings:
   # Requisito mínimo de horas jugadas para enviar/recibir regalos
   min_hours_played: 12
   
+  # Activar/desactivar el requisito de horas jugadas
+  # Si es false, se ignora el requisito de horas mínimas
+  enable_min_hours_requirement: true
+  
   # Placeholder para las horas jugadas (requiere PlaceholderAPI y la expansión Statistic)
   hours_played_placeholder: "%statistic_hours_played%"
   

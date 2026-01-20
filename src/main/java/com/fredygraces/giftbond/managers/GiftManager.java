@@ -171,24 +171,63 @@ public class GiftManager {
     }
 
     public boolean hasMinimumPlaytime(Player player) {
-        if (!plugin.getConfigManager().getMainConfig().getBoolean("settings.enabled", true)) return true;
+        // Debug logging
+        boolean masterEnabled = plugin.getConfigManager().getMainConfig().getBoolean("settings.enabled", true);
+        boolean hoursRequirementEnabled = plugin.getConfigManager().getMainConfig().getBoolean("settings.enable_min_hours_requirement", true);
         int minHours = plugin.getConfigManager().getMainConfig().getInt("settings.min_hours_played", 0);
-        if (minHours <= 0) return true;
+        
+        plugin.getLogger().info("[DEBUG] Checking hours requirement for " + player.getName() + ":");
+        plugin.getLogger().info("[DEBUG]   Master enabled: " + masterEnabled);
+        plugin.getLogger().info("[DEBUG]   Hours requirement enabled: " + hoursRequirementEnabled);
+        plugin.getLogger().info("[DEBUG]   Min hours required: " + minHours);
+        
+        // Si las configuraciones principales están desactivadas, permitir todo
+        if (!masterEnabled) {
+            plugin.getLogger().info("[DEBUG] Master settings disabled - allowing gift");
+            return true;
+        }
+        
+        // Si el requisito de horas está desactivado, permitir
+        if (!hoursRequirementEnabled) {
+            plugin.getLogger().info("[DEBUG] Hours requirement disabled - allowing gift");
+            return true;
+        }
+        
+        if (minHours <= 0) {
+            plugin.getLogger().info("[DEBUG] Min hours is " + minHours + " - allowing gift");
+            return true;
+        }
 
-        if (!Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
-            return true; // Si no hay PlaceholderAPI, ignorar el requisito o permitir
+        // Verificar que PlaceholderAPI esté instalado
+        boolean placeholderAPIEnabled = Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI");
+        plugin.getLogger().info("[DEBUG] PlaceholderAPI enabled: " + placeholderAPIEnabled);
+        
+        if (!placeholderAPIEnabled) {
+            plugin.getLogger().warning("PlaceholderAPI no encontrado - el requisito de horas será ignorado");
+            return true; // Si no hay PlaceholderAPI, permitir por compatibilidad
         }
 
         String placeholder = plugin.getConfigManager().getMainConfig().getString("settings.hours_played_placeholder", "%statistic_hours_played%");
         String value = PlaceholderAPI.setPlaceholders(player, placeholder);
         
+        plugin.getLogger().info("[DEBUG] Using placeholder: " + placeholder);
+        plugin.getLogger().info("[DEBUG] Placeholder returned: '" + value + "'");
+        
         try {
             int hours = Integer.parseInt(value);
-            return hours >= minHours;
+            boolean meetsRequirement = hours >= minHours;
+            
+            // Log para debugging (solo en modo verbose)
+            if (!meetsRequirement) {
+                plugin.getLogger().fine("Jugador " + player.getName() + " no cumple requisito: " + hours + " < " + minHours + " horas");
+            }
+            
+            return meetsRequirement;
         } catch (NumberFormatException e) {
-            // Si el placeholder no devuelve un número (ej. expansion no instalada), ignorar
-            plugin.getLogger().warning("No se pudo convertir el placeholder " + placeholder + " a número: " + value);
-            return true;
+            // Si el placeholder no devuelve un número válido
+            plugin.getLogger().warning("Placeholder " + placeholder + " devolvió valor no numérico: '" + value + "' para jugador " + player.getName());
+            plugin.getLogger().warning("Verifica que la expansión Statistic esté instalada: /papi ecloud download Statistic");
+            return false; // Ser estricto: si no podemos verificar, denegar
         }
     }
 
@@ -203,6 +242,8 @@ public class GiftManager {
         try {
             return Integer.parseInt(value);
         } catch (NumberFormatException e) {
+            // Log para debugging
+            plugin.getLogger().fine("No se pudo parsear horas para " + player.getName() + ": '" + value + "'");
             return 0;
         }
     }

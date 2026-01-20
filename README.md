@@ -1,10 +1,11 @@
 # GiftBond
 
-Advanced friendship and gift system for Minecraft (Spigot/Paper).
+Advanced friendship and gift system for Minecraft (Spigot/Paper) with modular configuration and PlaceholderAPI integration.
 
 ## 🌟 Features
 
-*   **Configurable Prefix**: Customize the plugin's message prefix (e.g., `[GiftBond]`, `[San Valentín]`, etc.) from config.yml.
+*   **Modular Configuration System**: Split configuration into dedicated YAML files (`config.yml`, `messages.yml`, `gifts.yml`, `database.yml`) that auto-generate on first load.
+*   **Configurable Prefix**: Customize the plugin's message prefix (e.g., `[GiftBond]`, `[San Valentín]`, etc.) from messages.yml.
 *   **Dual Boost System**: Combine permanent permission-based boosts with temporary admin-granted boosts that multiply together for maximum flexibility.
     *   **Permission Boosts**: Permanent multipliers for VIP ranks, event groups, etc. (configured in config.yml)
     *   **Temporal Boosts**: Admin command to grant temporary boosts to specific players that stack with permission boosts
@@ -16,10 +17,14 @@ Advanced friendship and gift system for Minecraft (Spigot/Paper).
 *   **Master Switch**: Toggle all plugin restrictions (cooldowns, playtime, etc.) globally from the config.
 *   **Interactive Gift Menu**: `/regalo <player>` opens a GUI with configurable gift items.
 *   **Inventory Payment**: Gifts can require specific items from the player's inventory as payment.
-*   **Playtime Requirement**: Configurable minimum playtime (e.g., 12 hours) to send or receive gifts using PlaceholderAPI.
+*   **Playtime Requirement**: Configurable minimum playtime (e.g., 12 hours) to send or receive gifts using PlaceholderAPI with enable/disable toggle.
 *   **Dynamic UI**: Menu descriptions update automatically to show boosted rewards.
-*   **Automated Backups**: Hourly snapshots and final shutdown backups of the SQLite database.
+*   **Automated Backups**: Hourly snapshots and final shutdown backups of the SQLite/H2 database.
 *   **Color Support**: Full support for `&` and `§` color codes in configuration and menus.
+*   **PlaceholderAPI Integration**: Comprehensive placeholder support for displaying rankings and points.
+*   **Auto/Manual Gift Modes**: Choose between automatic randomized gifts or manual configuration.
+*   **Version Compatibility**: Automatic Minecraft version detection with manual override option (1.20.4 to 1.21.11).
+*   **Multi-Database Support**: SQLite and H2 database providers with automatic backup system.
 
 ## 📜 Commands
 
@@ -34,6 +39,7 @@ Advanced friendship and gift system for Minecraft (Spigot/Paper).
 *   **/giftbond savedata**: Force a manual backup of the database.
 *   **/giftbond points <jugador> <view|add|remove|set> [cantidad]**: Manage any player's personal point balance.
 *   **/giftbond boost <jugador> <multiplicador> [minutos]**: Grant a temporary boost to a specific player (default: 60 minutes).
+*   **/giftbond random**: Generate new random gifts (in auto mode).
 
 ## 🔑 Permissions
 
@@ -133,13 +139,128 @@ Both boost types **multiply together**:
 
 **Key Point:** Changes apply **immediately** on the next gift sent (no restart needed).
 
+## 🏆 PlaceholderAPI Integration
+
+GiftBond provides comprehensive PlaceholderAPI support for displaying rankings and player statistics:
+
+### Top Couples Placeholders
+
+Display the top 5 couples and their points:
+
+*   **%giftbond_couple_top_1%** → "Player1 & Player2" (1st place couple)
+*   **%giftbond_couple_top_2%** → "Player3 & Player4" (2nd place couple)
+*   **%giftbond_couple_top_3%** → "Player5 & Player6" (3rd place couple)
+*   **%giftbond_couple_top_4%** → "Player7 & Player8" (4th place couple)
+*   **%giftbond_couple_top_5%** → "Player9 & Player10" (5th place couple)
+
+### Top Points Placeholder
+
+Display points for each top couple:
+
+*   **%giftbond_points_top_1%** → Points for 1st place couple
+*   **%giftbond_points_top_2%** → Points for 2nd place couple
+*   **%giftbond_points_top_3%** → Points for 3rd place couple
+*   **%giftbond_points_top_4%** → Points for 4th place couple
+*   **%giftbond_points_top_5%** → Points for 5th place couple
+
+### Personal Points Placeholder
+
+*   **%giftbond_personal_points%** → Player's personal points balance
+
+### Usage Examples
+
+**Scoreboard Example:**
+```
+Top Parejas:
+1. %giftbond_couple_top_1% - %giftbond_points_top_1% pts
+2. %giftbond_couple_top_2% - %giftbond_points_top_2% pts
+```
+
+**Chat Message Example:**
+```
+¡Felicitaciones a %giftbond_couple_top_1% por alcanzar el Top 1 con %giftbond_points_top_1% puntos!
+```
+
+**Player Stats Example:**
+```
+Tus puntos personales: %giftbond_personal_points%
+```
+
+### Features
+
+*   ✅ **Automatic Registration**: Placeholders register automatically when PlaceholderAPI is detected
+*   ✅ **Offline Player Support**: Works with both online and offline players
+*   ✅ **Safe Defaults**: Returns appropriate defaults when data is unavailable
+*   ✅ **Performance Optimized**: Efficient database queries with proper limits
+
+## 🎲 Auto/Manual Gift Modes
+
+GiftBond supports two operational modes for gift configuration:
+
+### Auto Mode (Recommended)
+
+Automatic gift generation with version compatibility:
+
+```yaml
+# gifts.yml
+mode: "auto"
+
+auto_mode:
+  enabled: true
+  # Automatic server version detection
+  detect_version: true
+  # Manual override (leave empty "" for auto-detection)
+  force_version: ""
+  
+  # Item filtering by category
+  allowed_categories:
+    food: true
+    blocks: true
+    tools: true
+    weapons: true
+    # ... other categories
+  
+  # Automatic rotation settings
+  rotation:
+    enabled: true
+    interval: 60  # minutes
+    active_gifts: 9
+    broadcast_on_change: true
+```
+
+**Features:**
+*   🔄 Automatic item randomization based on server version
+*   🎯 Version-aware item filtering (1.20.4 to 1.21.11)
+*   ⏰ Configurable rotation intervals
+*   📢 Broadcast notifications on gift changes
+*   ⚙️ Manual version override capability
+
+### Manual Mode
+
+Traditional fixed gift configuration:
+
+```yaml
+mode: "manual"
+
+manual_mode:
+  enabled: true
+  gifts:
+    diamante:
+      name: "Diamante"
+      points: 50
+      material: "DIAMOND"
+      amount: 1
+      description: "Un regalo brillante y valioso"
+    # ... other gifts
+```
+
 ## 🛠️ Configuration
 
 The `config.yml` allows you to customize:
 *   **Prefix**: Custom plugin prefix for all messages (e.g., `[GiftBond]`, `[San Valentín]`, etc.).
 *   **Boosts**: Define unlimited permission-based boost tiers with custom multipliers and permission nodes.
 *   **Gifts**: Name, points, required items, and description.
-*   **Requirements**: Minimum hours played and the PlaceholderAPI placeholder to use.
+*   **Requirements**: Minimum hours played with enable/disable toggle and the PlaceholderAPI placeholder to use.
 *   **Settings**: Master enabled toggle, dual personal points reward, boost for receivers, cooldowns, self-gifting, daily gift limit, top 1 broadcast, and max friends display.
 *   **Messages**: Full translation support for all plugin alerts and notifications using the `{prefix}` placeholder.
 
@@ -186,6 +307,22 @@ settings:
 
 ## 📋 Requirements
 
-*   **Spigot/Paper**: 1.21+
-*   **PlaceholderAPI**: Required for playtime verification.
+*   **Spigot/Paper**: 1.20.4 - 1.21.11 (version-aware item compatibility)
+*   **PlaceholderAPI**: Required for playtime verification and placeholders.
 *   **Statistic Expansion**: Needed for `%statistic_hours_played%` (Install with `/papi ecloud download Statistic`).
+
+### Optional Dependencies
+
+*   **Vault**: For economy integration (optional)
+*   **DiscordSRV**: For Discord notifications (works with top1_commands)
+
+## 📁 Configuration Files
+
+On first load, GiftBond automatically generates these modular configuration files:
+
+*   **`config.yml`** - Main plugin settings and boost configuration
+*   **`messages.yml`** - All user-facing messages and translations
+*   **`gifts.yml`** - Gift system configuration (auto/manual modes)
+*   **`database.yml`** - Database and backup settings
+
+All files include comprehensive default configurations and comments for easy customization.

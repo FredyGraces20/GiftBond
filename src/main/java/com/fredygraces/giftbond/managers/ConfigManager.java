@@ -331,13 +331,20 @@ public class ConfigManager {
      * Recarga todos los archivos de configuración
      */
     public void reloadConfigs() {
+        // Recargar config.yml principal
         plugin.reloadConfig();
+        mainConfig = plugin.getConfig();
         
+        // Recargar archivos secundarios
         messagesConfig = YamlConfiguration.loadConfiguration(messagesFile);
         giftsConfig = YamlConfiguration.loadConfiguration(giftsFile);
         databaseConfig = YamlConfiguration.loadConfiguration(databaseFile);
         
-        plugin.getLogger().info("Configuraciones recargadas");
+        plugin.getLogger().info("✓ Configuración principal recargada");
+        plugin.getLogger().info("✓ messages.yml recargado");
+        plugin.getLogger().info("✓ gifts.yml recargado");
+        plugin.getLogger().info("✓ database.yml recargado");
+        plugin.getLogger().info("✓ Todas las configuraciones actualizadas");
     }
     
     /**
