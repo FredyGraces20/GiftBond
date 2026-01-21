@@ -10,22 +10,25 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 import com.fredygraces.giftbond.GiftBond;
+import com.fredygraces.giftbond.utils.DebugLogger;
 
 public class FriendshipManager {
     private final GiftBond plugin;
     private final DatabaseManager databaseManager;
+    private final DebugLogger debugLogger;
     private String lastTop1Key = "";
 
     public FriendshipManager(GiftBond plugin) {
+        this.debugLogger = new DebugLogger(plugin);
         this.plugin = plugin;
         this.databaseManager = plugin.getDatabaseManager();
     }
 
     public int addFriendshipPoints(String senderUUID, String receiverUUID, int points) {
         double multiplier = getActiveMultiplier(senderUUID);
-        plugin.getLogger().info("[BOOST DEBUG] Base points: " + points + ", Multiplier: " + multiplier);
+        debugLogger.debug("[BOOST] Base points: " + points + ", Multiplier: " + multiplier);
         int finalPoints = (int) (points * multiplier);
-        plugin.getLogger().info("[BOOST DEBUG] Final points calculated: " + finalPoints);
+        debugLogger.debug("[BOOST] Final points calculated: " + finalPoints);
         
         databaseManager.saveFriendshipPoints(senderUUID, receiverUUID, finalPoints);
         

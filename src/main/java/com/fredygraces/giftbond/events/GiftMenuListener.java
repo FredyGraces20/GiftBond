@@ -11,21 +11,31 @@ import com.fredygraces.giftbond.GiftBond;
 import com.fredygraces.giftbond.managers.FriendshipManager;
 import com.fredygraces.giftbond.managers.GiftManager;
 import com.fredygraces.giftbond.models.GiftItem;
+import com.fredygraces.giftbond.utils.DebugLogger;
+import com.fredygraces.giftbond.utils.GiftSessionManager;
 
 public class GiftMenuListener implements Listener {
     private final GiftBond plugin;
     private final FriendshipManager friendshipManager;
     private final GiftManager giftManager;
 
+    private final GiftSessionManager sessionManager;
+    private final DebugLogger debugLogger;
+    
     public GiftMenuListener(GiftBond plugin) {
         this.plugin = plugin;
         this.friendshipManager = plugin.getFriendshipManager();
         this.giftManager = plugin.getGiftManager();
+        this.sessionManager = GiftSessionManager.getInstance();
+        this.debugLogger = new DebugLogger(plugin);
     }
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
-        if (event.getView().getTitle().startsWith("Enviar regalo a ")) {
+        String title = event.getView().getTitle();
+        boolean isGiftMenu = title.startsWith("Enviar regalo a ") || title.startsWith("Regalos - Rotan en");
+        
+        if (isGiftMenu) {
             event.setCancelled(true);
             
             Player player = (Player) event.getWhoClicked();
@@ -35,17 +45,28 @@ public class GiftMenuListener implements Listener {
                 return;
             }
             
-            // Obtener el nombre del jugador receptor del título del inventario
-            String title = event.getView().getTitle();
-            String receiverName = title.substring("Enviar regalo a ".length());
-            Player receiver = plugin.getServer().getPlayer(receiverName);
+            // Obtener el nombre del jugador receptor
+            Player receiver = null;
+            if (title.startsWith("Enviar regalo a ")) {
+                String receiverName = title.substring("Enviar regalo a ".length());
+                receiver = plugin.getServer().getPlayer(receiverName);
+            } else if (title.startsWith("Regalos - Rotan en")) {
+                // Para modo auto, usar el sistema de sesiones
+                String receiverName = sessionManager.getReceiverName(player);
+                if (receiverName != null) {
+                    receiver = plugin.getServer().getPlayer(receiverName);
+                    // Limpiar la sesión después de usarla
+                    sessionManager.endGiftSession(player);
+                }
+            }
             
+            // Si aún no tenemos receptor, mostrar error
             if (receiver == null) {
-                player.sendMessage(ChatColor.RED + "El jugador ya no está en línea.");
+                player.sendMessage(ChatColor.RED + "❌ Error: No se pudo determinar el destinatario del regalo.");
                 player.closeInventory();
                 return;
             }
-
+                        
             // Verificar cooldown
             if (giftManager.isOnCooldown(player)) {
                 int remaining = giftManager.getRemainingCooldown(player);
@@ -98,39 +119,50 @@ public class GiftMenuListener implements Listener {
     }
     
     private void processGiftSelection(Player sender, Player receiver, ItemStack item) {
+        debugLogger.debug("Processing gift selection for " + sender.getName() + " -> " + receiver.getName());
+        debugLogger.debug("Clicked item: " + (item.hasItemMeta() ? item.getItemMeta().getDisplayName() : item.getType().name()));
+        
         // Buscar el regalo correspondiente por nombre
         String itemName = ChatColor.stripColor(item.getItemMeta().getDisplayName());
+        debugLogger.debug("Item name (stripped): '" + itemName + "'");
         
         // Remover indicadores de disponibilidad
         if (itemName.endsWith(" (Bloqueado)")) {
             itemName = itemName.substring(0, itemName.length() - 12);
+            debugLogger.debug("Removed 'Bloqueado' suffix, new name: '" + itemName + "'");
         }
         
         GiftItem selectedGift = findGiftByName(itemName);
         
         if (selectedGift == null) {
-            sender.sendMessage(ChatColor.RED + "Regalo no encontrado.");
+            sender.sendMessage(ChatColor.RED + "❌ Error: Regalo no encontrado. Por favor, contacta a un administrador.");
+            debugLogger.severe("Gift not found: '" + itemName + "' - This shouldn't happen!");
+            sender.closeInventory();
             return;
         }
         
+        debugLogger.debug("Found gift: " + selectedGift.getId() + " (" + selectedGift.getName() + ")");
+        
         // Verificar si el regalo está disponible (no es barrera)
         if (item.getType() == org.bukkit.Material.BARRIER) {
-            sender.sendMessage(ChatColor.RED + "No tienes los items necesarios para este regalo.");
+            sender.sendMessage(ChatColor.RED + "🚫 No tienes los items necesarios para este regalo.");
             sender.closeInventory();
             return;
         }
         
         // Verificar nuevamente si tiene los items requeridos
         if (!giftManager.hasRequiredItems(sender, selectedGift)) {
-            sender.sendMessage(ChatColor.RED + "Ya no tienes los items necesarios para este regalo.");
+            sender.sendMessage(ChatColor.RED + "⚠️ Ya no tienes los items necesarios para este regalo.");
             sender.closeInventory();
             return;
         }
         
+        debugLogger.debug("Player has required items, proceeding with gift...");
+        
         // Eliminar los items requeridos del inventario
-        plugin.getLogger().info("[DEBUG] Removing required items for gift: " + selectedGift.getId());
+        debugLogger.debug("Removing required items for gift: " + selectedGift.getId());
         for (GiftItem.ItemRequirement req : selectedGift.getRequiredItems()) {
-            plugin.getLogger().info("[DEBUG]   Requiring: " + req.getAmount() + "x " + req.getMaterial());
+            debugLogger.debug("  Requiring: " + req.getAmount() + "x " + req.getMaterial());
         }
         giftManager.removeRequiredItems(sender, selectedGift);
         
@@ -139,9 +171,9 @@ public class GiftMenuListener implements Listener {
         String receiverUUID = receiver.getUniqueId().toString();
         int points = selectedGift.getPoints();
         
-        plugin.getLogger().info("[DEBUG] Adding friendship points: " + points + " (base points)");
+        debugLogger.debug("Adding friendship points: " + points + " (base points)");
         int finalPoints = friendshipManager.addFriendshipPoints(senderUUID, receiverUUID, points);
-        plugin.getLogger().info("[DEBUG] Final points awarded: " + finalPoints + " (after boost)");
+        debugLogger.debug("Final points awarded: " + finalPoints + " (after boost)");
         
         // Guardar en historial
         String giftName = ChatColor.stripColor(ChatColor.translateAlternateColorCodes('&', selectedGift.getName()));
@@ -155,13 +187,13 @@ public class GiftMenuListener implements Listener {
         
         // Enviar mensajes de confirmación usando la configuración
         String giftSentMessage = plugin.getMessage("messages.gift_sent", 
-            "{prefix}&eHas enviado un regalo de &f{gift} &e({points} puntos) a &f{receiver}");
+            "{prefix}&a✅ Has enviado un regalo de &f{gift} &a({points} puntos) a &f{receiver}");
         giftSentMessage = giftSentMessage.replace("{gift}", ChatColor.stripColor(selectedGift.getName()))
                                          .replace("{points}", String.valueOf(finalPoints))
                                          .replace("{receiver}", receiver.getName());
         
         String giftReceivedMessage = plugin.getMessage("messages.gift_received",
-            "{prefix}&eHas recibido un regalo de &f{gift} &e({points} puntos) de &f{sender}");
+            "{prefix}&a🎉 Has recibido un regalo de &f{gift} &a({points} puntos) de &f{sender}");
         giftReceivedMessage = giftReceivedMessage.replace("{gift}", ChatColor.stripColor(selectedGift.getName()))
                                                 .replace("{points}", String.valueOf(finalPoints))
                                                 .replace("{sender}", sender.getName());
@@ -169,17 +201,48 @@ public class GiftMenuListener implements Listener {
         sender.sendMessage(ChatColor.translateAlternateColorCodes('&', giftSentMessage));
         receiver.sendMessage(ChatColor.translateAlternateColorCodes('&', giftReceivedMessage));
         
+        debugLogger.info("[SUCCESS] Gift sent successfully from " + sender.getName() + " to " + receiver.getName());
+        
         // Cerrar inventario
         sender.closeInventory();
     }
     
     private GiftItem findGiftByName(String name) {
+        // Primero intentar búsqueda exacta
         for (GiftItem gift : giftManager.getAllGifts()) {
             String giftName = ChatColor.stripColor(ChatColor.translateAlternateColorCodes('&', gift.getName()));
             if (giftName.equals(name)) {
                 return gift;
             }
         }
+        
+        // Si no encuentra por nombre exacto, intentar búsqueda por material (modo auto)
+        if (giftManager.isAutoMode()) {
+            try {
+                // Convertir el nombre mostrado al material correspondiente
+                String materialName = name.toUpperCase().replace(" ", "_");
+                org.bukkit.Material material = org.bukkit.Material.valueOf(materialName);
+                
+                // Buscar un regalo que tenga este material como requerimiento
+                for (GiftItem gift : giftManager.getAllGifts()) {
+                    for (GiftItem.ItemRequirement req : gift.getRequiredItems()) {
+                        if (req.getMaterial() == material) {
+                            return gift;
+                        }
+                    }
+                }
+            } catch (IllegalArgumentException e) {
+                // Material no encontrado, continuar
+                debugLogger.debugWarning("No se pudo encontrar material para: " + name);
+            }
+        }
+        
+        debugLogger.debugWarning("Regalo no encontrado: " + name);
+        debugLogger.debugWarning("Regalos disponibles: " + giftManager.getAllGifts().size());
+        for (GiftItem gift : giftManager.getAllGifts()) {
+            debugLogger.debugWarning("  - " + ChatColor.stripColor(ChatColor.translateAlternateColorCodes('&', gift.getName())));
+        }
+        
         return null;
     }
 }

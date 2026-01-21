@@ -25,6 +25,9 @@ Advanced friendship and gift system for Minecraft (Spigot/Paper) with modular co
 *   **Auto/Manual Gift Modes**: Choose between automatic randomized gifts or manual configuration.
 *   **Version Compatibility**: Automatic Minecraft version detection with manual override option (1.20.4 to 1.21.11).
 *   **Multi-Database Support**: SQLite and H2 database providers with automatic backup system.
+*   **🔧 Debug Mode**: Advanced debugging system with `/giftbond debug` command to enable/disable console logging.
+*   **🔄 Auto-Gift Session Management**: Seamless gift sending in auto mode with proper recipient tracking.
+*   **🛡️ Conditional Logging**: All debug messages respect the `debug.enabled` configuration flag.
 
 ## 📜 Commands
 
@@ -40,6 +43,7 @@ Advanced friendship and gift system for Minecraft (Spigot/Paper) with modular co
 *   **/giftbond points <jugador> <view|add|remove|set> [cantidad]**: Manage any player's personal point balance.
 *   **/giftbond boost <jugador> <multiplicador> [minutos]**: Grant a temporary boost to a specific player (default: 60 minutes).
 *   **/giftbond random**: Generate new random gifts (in auto mode).
+*   **/giftbond debug <on|off>**: Enable or disable debug mode for detailed console logging.
 
 ## 🔑 Permissions
 
@@ -49,6 +53,7 @@ Advanced friendship and gift system for Minecraft (Spigot/Paper) with modular co
 *   `giftbond.admin.reload`: Permission to use `/giftbond reload` (Default: op).
 *   `giftbond.admin.points`: Permission to use `/giftbond points` (Default: op).
 *   `giftbond.admin.boost`: Permission to use `/giftbond boost` (Default: op).
+*   `giftbond.admin`: Permission to use `/giftbond debug` (Default: op).
 
 ### Boost Permissions (Permanent)
 Configure permanent boost permissions in `config.yml`. Examples:
@@ -58,140 +63,45 @@ Configure permanent boost permissions in `config.yml`. Examples:
 
 You can create unlimited custom boost tiers with any permission name and multiplier.
 
-## 🚀 Boost System Explained
+## 🚀 Debug System
 
-The plugin features a **dual boost system** that combines two types of multipliers:
+GiftBond includes an advanced debugging system that can be toggled on/off:
 
-### 1️⃣ Permission-Based Boosts (Permanent)
-Configured in `config.yml`:
-```yaml
-boosts:
-  vip:
-    multiplier: 1.5
-    permission: "giftbond.boost.vip"
-  premium:
-    multiplier: 2.0
-    permission: "giftbond.boost.premium"
-  evento:
-    multiplier: 2.5
-    permission: "giftbond.boost.evento"
-```
-
-**How to grant:**
+### 🔧 Debug Command
 ```bash
-# Using LuckPerms
-/lp user PlayerName permission set giftbond.boost.vip true
-/lp group VIP permission set giftbond.boost.vip true
-
-# For server-wide events
-/lp group default permission set giftbond.boost.evento true
-```
-
-**Characteristics:**
-- ✅ Permanent (until permission is removed)
-- ✅ Persists through restarts
-- ✅ If player has multiple boost permissions, uses the highest one
-- ✅ Managed through your permission plugin
-
-### 2️⃣ Temporal Boosts (Admin Command)
-Granted via command:
-```bash
-/giftbond boost <player> <multiplier> [minutes]
+/giftbond debug <on|off>
 
 # Examples:
-/giftbond boost Notch 2.0 30      # 2.0x for 30 minutes
-/giftbond boost Steve 1.5         # 1.5x for 60 minutes (default)
+/giftbond debug on     # Enable debug mode
+/giftbond debug off    # Disable debug mode
+/giftbond debug        # Show current debug status
 ```
 
-**Characteristics:**
-- ⏱️ Time-limited (auto-expires)
-- ✅ Persists through restarts (saved in database)
-- ✅ Works for online and offline players
-- ✅ Player receives notification if online
+### 📊 What Debug Mode Shows
+When enabled, debug mode displays detailed information about:
+*   **Gift Processing**: Item validation, point calculations, inventory operations
+*   **Player Verification**: Playtime requirements, permission checks, boost calculations
+*   **Auto-Gift Generation**: Random gift creation, material filtering, point assignment
+*   **Session Management**: Gift session tracking, recipient validation
+*   **Database Operations**: Save operations, query performance
 
-### 🔢 How Boosts Combine (Multiplication)
+### 🛡️ Production Safety
+*   **Default OFF**: Debug mode is disabled by default in production
+*   **Configuration Controlled**: All debug output respects `debug.enabled` in config.yml
+*   **Zero Spam**: No debug messages appear in console when disabled
+*   **Immediate Effect**: Changes take effect immediately without restart
 
-Both boost types **multiply together**:
-
-**Formula:** `Permission Boost × Temporal Boost = Final Multiplier`
-
-**Examples:**
-
-| Scenario | Permission | Temporal | Result |
-|----------|------------|----------|--------|
-| Only permission | x2.0 (Premium) | x1.0 | **x2.0** |
-| Only temporal | x1.0 | x1.5 | **x1.5** |
-| Both combined | x2.0 (Premium) | x1.5 | **x3.0** ✨ |
-| Maximum power | x3.0 (Ultra) | x2.0 | **x6.0** 🚀 |
-
-### ⏰ Expiration Behavior
-
-**When temporal boost expires:**
-- Player keeps their permission boost (if they have one)
-- Example: `x2.0 (permission) × x1.0 (expired) = x2.0`
-
-**When permission is removed:**
-- Player keeps their temporal boost (if still active)
-- Example: `x1.0 × x1.5 (temporal) = x1.5`
-
-**When both end:**
-- Returns to normal: `x1.0 × x1.0 = x1.0`
-
-**Key Point:** Changes apply **immediately** on the next gift sent (no restart needed).
-
-## 🏆 PlaceholderAPI Integration
-
-GiftBond provides comprehensive PlaceholderAPI support for displaying rankings and player statistics:
-
-### Top Couples Placeholders
-
-Display the top 5 couples and their points:
-
-*   **%giftbond_couple_top_1%** → "Player1 & Player2" (1st place couple)
-*   **%giftbond_couple_top_2%** → "Player3 & Player4" (2nd place couple)
-*   **%giftbond_couple_top_3%** → "Player5 & Player6" (3rd place couple)
-*   **%giftbond_couple_top_4%** → "Player7 & Player8" (4th place couple)
-*   **%giftbond_couple_top_5%** → "Player9 & Player10" (5th place couple)
-
-### Top Points Placeholder
-
-Display points for each top couple:
-
-*   **%giftbond_points_top_1%** → Points for 1st place couple
-*   **%giftbond_points_top_2%** → Points for 2nd place couple
-*   **%giftbond_points_top_3%** → Points for 3rd place couple
-*   **%giftbond_points_top_4%** → Points for 4th place couple
-*   **%giftbond_points_top_5%** → Points for 5th place couple
-
-### Personal Points Placeholder
-
-*   **%giftbond_personal_points%** → Player's personal points balance
-
-### Usage Examples
-
-**Scoreboard Example:**
+### 🎯 Example Output (Debug ON)
 ```
-Top Parejas:
-1. %giftbond_couple_top_1% - %giftbond_points_top_1% pts
-2. %giftbond_couple_top_2% - %giftbond_points_top_2% pts
+[GiftBond] [DEBUG] Processing gift selection for Notch -> Steve
+[GiftBond] [DEBUG] Checking hours requirement for Notch:
+[GiftBond] [DEBUG]   Master enabled: true
+[GiftBond] [DEBUG]   Hours requirement enabled: true
+[GiftBond] [DEBUG]   Min hours required: 1
+[GiftBond] [BOOST] Base points: 25, Multiplier: 2.0
+[GiftBond] [BOOST] Final points calculated: 50
+[GiftBond] [AUTO GIFT] Creating gift: random_diamond, Material: DIAMOND, Amount: 1, Points: 75
 ```
-
-**Chat Message Example:**
-```
-¡Felicitaciones a %giftbond_couple_top_1% por alcanzar el Top 1 con %giftbond_points_top_1% puntos!
-```
-
-**Player Stats Example:**
-```
-Tus puntos personales: %giftbond_personal_points%
-```
-
-### Features
-
-*   ✅ **Automatic Registration**: Placeholders register automatically when PlaceholderAPI is detected
-*   ✅ **Offline Player Support**: Works with both online and offline players
-*   ✅ **Safe Defaults**: Returns appropriate defaults when data is unavailable
-*   ✅ **Performance Optimized**: Efficient database queries with proper limits
 
 ## 🎲 Auto/Manual Gift Modes
 
@@ -234,6 +144,7 @@ auto_mode:
 *   ⏰ Configurable rotation intervals
 *   📢 Broadcast notifications on gift changes
 *   ⚙️ Manual version override capability
+*   🔧 Session management for proper recipient tracking
 
 ### Manual Mode
 
@@ -263,6 +174,13 @@ The `config.yml` allows you to customize:
 *   **Requirements**: Minimum hours played with enable/disable toggle and the PlaceholderAPI placeholder to use.
 *   **Settings**: Master enabled toggle, dual personal points reward, boost for receivers, cooldowns, self-gifting, daily gift limit, top 1 broadcast, and max friends display.
 *   **Messages**: Full translation support for all plugin alerts and notifications using the `{prefix}` placeholder.
+*   **Debug**: Enable/disable debug mode for development and troubleshooting.
+
+### Debug Configuration
+```yaml
+debug:
+  enabled: false  # Set to true for development/troubleshooting
+```
 
 ### Example Boost Configuration
 ```yaml

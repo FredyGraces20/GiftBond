@@ -9,6 +9,7 @@ import org.bukkit.entity.Player;
 import com.fredygraces.giftbond.GiftBond;
 import com.fredygraces.giftbond.managers.GiftManager;
 import com.fredygraces.giftbond.menus.GiftMenu;
+import com.fredygraces.giftbond.utils.GiftSessionManager;
 
 public class RegaloCommand implements CommandExecutor {
     private final GiftBond plugin;
@@ -21,6 +22,7 @@ public class RegaloCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        GiftSessionManager sessionManager = GiftSessionManager.getInstance();
         if (!(sender instanceof Player)) {
             sender.sendMessage("§cSolo los jugadores pueden usar este comando.");
             return true;
@@ -75,6 +77,9 @@ public class RegaloCommand implements CommandExecutor {
                 msg.replace("{min}", String.valueOf(minHours)).replace("{player}", targetPlayer.getName())));
             return true;
         }
+        
+        // Registrar la sesión antes de abrir el menú
+        sessionManager.startGiftSession(player, targetPlayer.getName());
         
         // Abrir el menú de regalos
         giftMenu.openGiftMenu(player, targetPlayer);

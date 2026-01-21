@@ -14,6 +14,7 @@ import org.bukkit.inventory.ItemStack;
 
 import com.fredygraces.giftbond.GiftBond;
 import com.fredygraces.giftbond.models.GiftItem;
+import com.fredygraces.giftbond.utils.DebugLogger;
 import com.fredygraces.giftbond.utils.RandomGiftGenerator;
 
 import me.clip.placeholderapi.PlaceholderAPI;
@@ -24,8 +25,10 @@ public class GiftManager {
     private final Map<UUID, Long> cooldowns;
     private RandomGiftGenerator randomGiftGenerator;  // Sistema de regalos aleatorios
     private boolean autoMode;  // true = auto, false = manual
+    private final DebugLogger debugLogger;
 
     public GiftManager(GiftBond plugin) {
+        this.debugLogger = new DebugLogger(plugin);
         this.plugin = plugin;
         this.giftItems = new HashMap<>();
         this.cooldowns = new HashMap<>();
@@ -176,31 +179,31 @@ public class GiftManager {
         boolean hoursRequirementEnabled = plugin.getConfigManager().getMainConfig().getBoolean("settings.enable_min_hours_requirement", true);
         int minHours = plugin.getConfigManager().getMainConfig().getInt("settings.min_hours_played", 0);
         
-        plugin.getLogger().info("[DEBUG] Checking hours requirement for " + player.getName() + ":");
-        plugin.getLogger().info("[DEBUG]   Master enabled: " + masterEnabled);
-        plugin.getLogger().info("[DEBUG]   Hours requirement enabled: " + hoursRequirementEnabled);
-        plugin.getLogger().info("[DEBUG]   Min hours required: " + minHours);
+        debugLogger.debug("Checking hours requirement for " + player.getName() + ":");
+        debugLogger.debug("  Master enabled: " + masterEnabled);
+        debugLogger.debug("  Hours requirement enabled: " + hoursRequirementEnabled);
+        debugLogger.debug("  Min hours required: " + minHours);
         
         // Si las configuraciones principales están desactivadas, permitir todo
         if (!masterEnabled) {
-            plugin.getLogger().info("[DEBUG] Master settings disabled - allowing gift");
+            debugLogger.debug("Master settings disabled - allowing gift");
             return true;
         }
         
         // Si el requisito de horas está desactivado, permitir
         if (!hoursRequirementEnabled) {
-            plugin.getLogger().info("[DEBUG] Hours requirement disabled - allowing gift");
+            debugLogger.debug("Hours requirement disabled - allowing gift");
             return true;
         }
         
         if (minHours <= 0) {
-            plugin.getLogger().info("[DEBUG] Min hours is " + minHours + " - allowing gift");
+            debugLogger.debug("Min hours is " + minHours + " - allowing gift");
             return true;
         }
 
         // Verificar que PlaceholderAPI esté instalado
         boolean placeholderAPIEnabled = Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI");
-        plugin.getLogger().info("[DEBUG] PlaceholderAPI enabled: " + placeholderAPIEnabled);
+        debugLogger.debug("PlaceholderAPI enabled: " + placeholderAPIEnabled);
         
         if (!placeholderAPIEnabled) {
             plugin.getLogger().warning("PlaceholderAPI no encontrado - el requisito de horas será ignorado");
@@ -217,8 +220,8 @@ public class GiftManager {
         
         String value = PlaceholderAPI.setPlaceholders(player, placeholder);
         
-        plugin.getLogger().info("[DEBUG] Using placeholder: " + placeholder);
-        plugin.getLogger().info("[DEBUG] Placeholder returned: '" + value + "'");
+        debugLogger.debug("Using placeholder: " + placeholder);
+        debugLogger.debug("Placeholder returned: '" + value + "'");
         
         try {
             int hours = Integer.parseInt(value);

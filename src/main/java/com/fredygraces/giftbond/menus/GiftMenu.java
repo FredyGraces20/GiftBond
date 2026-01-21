@@ -40,7 +40,7 @@ public class GiftMenu {
         Inventory inventory = Bukkit.createInventory(null, 27, title);
         
         // Crear items de regalos basados en la configuración
-        ItemStack[] giftItems = createConfigurableGiftItems(sender, receiver);
+        ItemStack[] giftItems = createConfigurableGiftItems(sender);
         
         // Añadir items al inventario
         for (int i = 0; i < giftItems.length && i < 27; i++) {
@@ -62,7 +62,9 @@ public class GiftMenu {
     private ItemStack createRotationInfoItem() {
         ItemStack item = new ItemStack(Material.CLOCK);
         ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName("§e§l⏰ Rotación de Regalos");
+        if (meta != null) {
+            meta.setDisplayName("§e§l⏰ Rotación de Regalos");
+        }
         
         List<String> lore = new java.util.ArrayList<>();
         lore.add("§7Los regalos cambian automáticamente");
@@ -77,12 +79,14 @@ public class GiftMenu {
         lore.add("");
         lore.add("§7¡Aprovecha los regalos actuales!");
         
-        meta.setLore(lore);
-        item.setItemMeta(meta);
+        if (meta != null) {
+            meta.setLore(lore);
+            item.setItemMeta(meta);
+        }
         return item;
     }
     
-    private ItemStack[] createConfigurableGiftItems(Player sender, Player receiver) {
+    private ItemStack[] createConfigurableGiftItems(Player sender) {
         Collection<GiftItem> gifts = giftManager.getAllGifts();
         ItemStack[] items = new ItemStack[gifts.size()];
         
@@ -95,7 +99,7 @@ public class GiftMenu {
             if (giftManager.hasRequiredItems(sender, gift)) {
                 item = createAvailableGiftItem(sender, displayMaterial, gift);
             } else {
-                item = createUnavailableGiftItem(sender, displayMaterial, gift);
+                item = createUnavailableGiftItem(sender, gift);
             }
             
             items[index++] = item;
@@ -113,24 +117,26 @@ public class GiftMenu {
         }
         
         // Modo manual: mapear tipos de regalo a materiales visuales
-        switch (gift.getId()) {
-            case "friendship_points": return Material.PAPER;
-            case "heart": return Material.RED_DYE;
-            case "flowers": return Material.POPPY;
-            case "food": return Material.COOKED_BEEF;
-            case "bow": return Material.BOW;
-            case "diamond": return Material.DIAMOND;
-            case "book": return Material.BOOK;
-            case "cake": return Material.CAKE;
-            case "chest": return Material.CHEST;
-            default: return Material.STONE;
-        }
+        return switch (gift.getId()) {
+            case "friendship_points" -> Material.PAPER;
+            case "heart" -> Material.RED_DYE;
+            case "flowers" -> Material.POPPY;
+            case "food" -> Material.COOKED_BEEF;
+            case "bow" -> Material.BOW;
+            case "diamond" -> Material.DIAMOND;
+            case "book" -> Material.BOOK;
+            case "cake" -> Material.CAKE;
+            case "chest" -> Material.CHEST;
+            default -> Material.STONE;
+        };
     }
     
     private ItemStack createAvailableGiftItem(Player sender, Material material, GiftItem gift) {
         ItemStack item = new ItemStack(material);
         ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', gift.getName()));
+        if (meta != null) {
+            meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', gift.getName()));
+        }
         
         double multiplier = plugin.getFriendshipManager().getActiveMultiplier(sender.getUniqueId().toString());
         boolean hasBoost = multiplier > 1.0;
@@ -154,15 +160,19 @@ public class GiftMenu {
         lore.add("§a✓ Disponible");
         lore.add("§7Clic para enviar este regalo");
         
-        meta.setLore(lore);
-        item.setItemMeta(meta);
+        if (meta != null) {
+            meta.setLore(lore);
+            item.setItemMeta(meta);
+        }
         return item;
     }
     
-    private ItemStack createUnavailableGiftItem(Player sender, Material material, GiftItem gift) {
+    private ItemStack createUnavailableGiftItem(Player sender, GiftItem gift) {
         ItemStack item = new ItemStack(Material.BARRIER); // Usar barrera para indicar no disponible
         ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', "&c" + gift.getName() + " &7(Bloqueado)"));
+        if (meta != null) {
+            meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', "&c" + gift.getName() + " &7(Bloqueado)"));
+        }
         
         double multiplier = plugin.getFriendshipManager().getActiveMultiplier(sender.getUniqueId().toString());
         boolean hasBoost = multiplier > 1.0;
@@ -186,8 +196,10 @@ public class GiftMenu {
         lore.add("§c✗ No tienes los items necesarios");
         lore.add("§7Consigue los items requeridos para desbloquear");
         
-        meta.setLore(lore);
-        item.setItemMeta(meta);
+        if (meta != null) {
+            meta.setLore(lore);
+            item.setItemMeta(meta);
+        }
         return item;
     }
     

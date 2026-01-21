@@ -20,6 +20,7 @@ public class GiftBondCommand implements CommandExecutor, TabCompleter {
     private final SaveDataCommand saveDataHandler;
     private final PersonalPointsCommand pointsHandler;
     private final BoostCommand boostHandler;
+    private final DebugCommand debugHandler;
 
     public GiftBondCommand(GiftBond plugin) {
         this.plugin = plugin;
@@ -27,6 +28,7 @@ public class GiftBondCommand implements CommandExecutor, TabCompleter {
         this.saveDataHandler = new SaveDataCommand(plugin);
         this.pointsHandler = new PersonalPointsCommand(plugin);
         this.boostHandler = new BoostCommand(plugin);
+        this.debugHandler = new DebugCommand(plugin);
     }
 
     @Override
@@ -48,6 +50,8 @@ public class GiftBondCommand implements CommandExecutor, TabCompleter {
                 return pointsHandler.onCommand(sender, command, label, subArgs);
             case "boost":
                 return boostHandler.onCommand(sender, command, label, subArgs);
+            case "debug":
+                return debugHandler.onCommand(sender, command, label, subArgs);
             default:
                 sendHelp(sender);
                 return true;
@@ -60,13 +64,14 @@ public class GiftBondCommand implements CommandExecutor, TabCompleter {
         sender.sendMessage(ChatColor.YELLOW + "/giftbond savedata " + ChatColor.GRAY + "- Backup manual de BD");
         sender.sendMessage(ChatColor.YELLOW + "/giftbond points <jugador> <view|add|remove|set> [cantidad] " + ChatColor.GRAY + "- Gestionar puntos");
         sender.sendMessage(ChatColor.YELLOW + "/giftbond boost <jugador> <multiplicador> [minutos] " + ChatColor.GRAY + "- Boost temporal");
+        sender.sendMessage(ChatColor.YELLOW + "/giftbond debug <on|off> " + ChatColor.GRAY + "- Activar/desactivar mensajes debug");
     }
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         if (args.length == 1) {
             List<String> completions = new ArrayList<>();
-            List<String> cmds = Arrays.asList("reload", "savedata", "points", "boost");
+            List<String> cmds = Arrays.asList("reload", "savedata", "points", "boost", "debug");
             StringUtil.copyPartialMatches(args[0], cmds, completions);
             Collections.sort(completions);
             return completions;

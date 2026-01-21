@@ -18,6 +18,7 @@ public class RandomGiftGenerator {
     
     private final GiftBond plugin;
     private final ItemFilter itemFilter;
+    private final DebugLogger debugLogger;
     private final Random random;
     private List<Material> validItems;
     private List<RandomGift> currentGifts;
@@ -26,6 +27,7 @@ public class RandomGiftGenerator {
     public RandomGiftGenerator(GiftBond plugin, ItemFilter itemFilter) {
         this.plugin = plugin;
         this.itemFilter = itemFilter;
+        this.debugLogger = new DebugLogger(plugin);
         this.random = new Random();
         this.validItems = new ArrayList<>();
         this.currentGifts = new ArrayList<>();
@@ -130,13 +132,13 @@ public class RandomGiftGenerator {
     public List<GiftItem> getCurrentGiftsAsGiftItems() {
         List<GiftItem> giftItems = new ArrayList<>();
         
-        plugin.getLogger().info("[AUTO GIFT DEBUG] Converting " + currentGifts.size() + " random gifts to GiftItems");
+        debugLogger.debug("[AUTO GIFT] Converting " + currentGifts.size() + " random gifts to GiftItems");
         
         for (RandomGift randomGift : currentGifts) {
             String key = "random_" + randomGift.getMaterial().name().toLowerCase();
             String friendlyName = itemFilter.getFriendlyName(randomGift.getMaterial());
             
-            plugin.getLogger().info("[AUTO GIFT DEBUG] Creating gift: " + key + ", Material: " + randomGift.getMaterial() + ", Amount: " + randomGift.getAmount() + ", Points: " + randomGift.getPoints());
+            debugLogger.debug("[AUTO GIFT] Creating gift: " + key + ", Material: " + randomGift.getMaterial() + ", Amount: " + randomGift.getAmount() + ", Points: " + randomGift.getPoints());
             
             GiftItem giftItem = new GiftItem(
                 key,
