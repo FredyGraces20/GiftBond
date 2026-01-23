@@ -12,7 +12,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import com.fredygraces.giftbond.GiftBond;
+import com.fredygraces.giftbond.logging.GiftBondLogger;
 import com.fredygraces.giftbond.models.MailboxGift;
+import com.fredygraces.giftbond.permissions.PermissionManager;
 import com.fredygraces.giftbond.storage.MailboxDAO;
 import com.fredygraces.giftbond.utils.DebugLogger;
 
@@ -47,9 +49,13 @@ public class MailboxCommand implements CommandExecutor {
         Player player = (Player) sender;
         UUID playerUUID = player.getUniqueId();
 
-        // Verificar permisos
-        if (!player.hasPermission("giftbond.use")) {
-            player.sendMessage(plugin.getPrefix() + ChatColor.RED + "No tienes permiso para usar este comando.");
+        // Verificar permisos usando el sistema profesional
+        if (!PermissionManager.canRedeemGifts(player)) {
+            player.sendMessage(plugin.getPrefix() + 
+                ChatColor.translateAlternateColorCodes('&', 
+                    PermissionManager.getPermissionDeniedMessage(PermissionManager.COMMAND_REDEEM)));
+            GiftBondLogger.warn(String.format("Player '%s' attempted to use /mailbox without permission", 
+                player.getName()));
             return true;
         }
 

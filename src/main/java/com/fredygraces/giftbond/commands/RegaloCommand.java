@@ -7,8 +7,10 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import com.fredygraces.giftbond.GiftBond;
+import com.fredygraces.giftbond.logging.GiftBondLogger;
 import com.fredygraces.giftbond.managers.GiftManager;
 import com.fredygraces.giftbond.menus.GiftMenu;
+import com.fredygraces.giftbond.permissions.PermissionManager;
 import com.fredygraces.giftbond.utils.GiftSessionManager;
 
 public class RegaloCommand implements CommandExecutor {
@@ -31,9 +33,13 @@ public class RegaloCommand implements CommandExecutor {
 
         Player player = (Player) sender;
         
-        // Verificar permisos básicos
-        if (!player.hasPermission("giftbond.use")) {
-            player.sendMessage(plugin.getPrefix() + ChatColor.RED + "No tienes permiso para usar este comando.");
+        // Verificar permisos usando el sistema profesional
+        if (!PermissionManager.canSendGifts(player)) {
+            player.sendMessage(plugin.getPrefix() + 
+                ChatColor.translateAlternateColorCodes('&', 
+                    PermissionManager.getPermissionDeniedMessage(PermissionManager.COMMAND_SEND)));
+            GiftBondLogger.warn(String.format("Player '%s' attempted to use /regalo without permission", 
+                player.getName()));
             return true;
         }
 
@@ -79,8 +85,25 @@ public class RegaloCommand implements CommandExecutor {
     }
 
     private boolean handleGiftSending(Player player, String[] args) {
-        GiftSessionManager sessionManager = GiftSessionManager.getInstance();
+        // Validar argumentos de entrada
+        if (args.length == 0) {
+            GiftBondLogger.warn(String.format("Player '%s' used /regalo without target player", 
+                player.getName()));
+            return false;
+        }
+        
         String targetPlayerName = args[0];
+        
+        // Validar nombre del jugador objetivo
+        var validationResult = com.fredygraces.giftbond.validation.InputValidator.validatePlayerName(targetPlayerName);
+        if (!validationResult.isValid()) {
+            player.sendMessage(plugin.getPrefix() + ChatColor.RED + validationResult.getErrorMessage());
+            GiftBondLogger.warn(String.format("Player '%s' attempted to send gift to invalid player name: %s", 
+                player.getName(), targetPlayerName));
+            return true;
+        }
+        
+        GiftSessionManager sessionManager = GiftSessionManager.getInstance();
         Player targetPlayer = plugin.getServer().getPlayer(targetPlayerName);
         
         if (targetPlayer == null) {
@@ -125,6 +148,10 @@ public class RegaloCommand implements CommandExecutor {
         
         // Registrar la sesión antes de abrir el menú
         sessionManager.startGiftSession(player, targetPlayer.getName());
+        
+        // Loggear el evento de inicio de envío de regalo
+        GiftBondLogger.info(String.format("Player '%s' initiated gift sending to '%s'", 
+            player.getName(), targetPlayer.getName()));
         
         // Abrir el menú de regalos
         giftMenu.openGiftMenu(player, targetPlayer);

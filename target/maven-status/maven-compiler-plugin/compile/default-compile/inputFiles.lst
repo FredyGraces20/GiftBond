@@ -1,9 +1,12 @@
 C:\Users\fredy\OneDrive\Desktop\Sistema energía tierra\SanValentin\GiftBond-Maven\src\main\java\com\fredygraces\giftbond\commands\MailboxCommand.java
+C:\Users\fredy\OneDrive\Desktop\Sistema energía tierra\SanValentin\GiftBond-Maven\src\main\java\com\fredygraces\giftbond\commands\MetricsCommand.java
+C:\Users\fredy\OneDrive\Desktop\Sistema energía tierra\SanValentin\GiftBond-Maven\src\main\java\com\fredygraces\giftbond\validation\InputValidator.java
 C:\Users\fredy\OneDrive\Desktop\Sistema energía tierra\SanValentin\GiftBond-Maven\src\main\java\com\fredygraces\giftbond\compression\DataCompression.java
 C:\Users\fredy\OneDrive\Desktop\Sistema energía tierra\SanValentin\GiftBond-Maven\src\main\java\com\fredygraces\giftbond\utils\VersionDetector.java
 C:\Users\fredy\OneDrive\Desktop\Sistema energía tierra\SanValentin\GiftBond-Maven\src\main\java\com\fredygraces\giftbond\commands\TopRegalosCommand.java
 C:\Users\fredy\OneDrive\Desktop\Sistema energía tierra\SanValentin\GiftBond-Maven\src\main\java\com\fredygraces\giftbond\events\HistoryMenuListener.java
 C:\Users\fredy\OneDrive\Desktop\Sistema energía tierra\SanValentin\GiftBond-Maven\src\main\java\com\fredygraces\giftbond\security\LicenseChecker.java
+C:\Users\fredy\OneDrive\Desktop\Sistema energía tierra\SanValentin\GiftBond-Maven\src\main\java\com\fredygraces\giftbond\permissions\PermissionManager.java
 C:\Users\fredy\OneDrive\Desktop\Sistema energía tierra\SanValentin\GiftBond-Maven\src\main\java\com\fredygraces\giftbond\security\StringProtector.java
 C:\Users\fredy\OneDrive\Desktop\Sistema energía tierra\SanValentin\GiftBond-Maven\src\main\java\com\fredygraces\giftbond\commands\ReloadCommand.java
 C:\Users\fredy\OneDrive\Desktop\Sistema energía tierra\SanValentin\GiftBond-Maven\src\main\java\com\fredygraces\giftbond\GiftBond.java
@@ -26,6 +29,8 @@ C:\Users\fredy\OneDrive\Desktop\Sistema energía tierra\SanValentin\GiftBond-Mav
 C:\Users\fredy\OneDrive\Desktop\Sistema energía tierra\SanValentin\GiftBond-Maven\src\main\java\com\fredygraces\giftbond\commands\RegaloCommand.java
 C:\Users\fredy\OneDrive\Desktop\Sistema energía tierra\SanValentin\GiftBond-Maven\src\main\java\com\fredygraces\giftbond\storage\StorageProvider.java
 C:\Users\fredy\OneDrive\Desktop\Sistema energía tierra\SanValentin\GiftBond-Maven\src\main\java\com\fredygraces\giftbond\managers\GiftManager.java
+C:\Users\fredy\OneDrive\Desktop\Sistema energía tierra\SanValentin\GiftBond-Maven\src\main\java\com\fredygraces\giftbond\health\HealthCheckManager.java
+C:\Users\fredy\OneDrive\Desktop\Sistema energía tierra\SanValentin\GiftBond-Maven\src\main\java\com\fredygraces\giftbond\metrics\MetricsManager.java
 C:\Users\fredy\OneDrive\Desktop\Sistema energía tierra\SanValentin\GiftBond-Maven\src\main\java\com\fredygraces\giftbond\managers\EconomyManager.java
 C:\Users\fredy\OneDrive\Desktop\Sistema energía tierra\SanValentin\GiftBond-Maven\src\main\java\com\fredygraces\giftbond\commands\GiftBondCommand.java
 C:\Users\fredy\OneDrive\Desktop\Sistema energía tierra\SanValentin\GiftBond-Maven\src\main\java\com\fredygraces\giftbond\menus\HistoryMenu.java
@@ -37,5 +42,6 @@ C:\Users\fredy\OneDrive\Desktop\Sistema energía tierra\SanValentin\GiftBond-Mav
 C:\Users\fredy\OneDrive\Desktop\Sistema energía tierra\SanValentin\GiftBond-Maven\src\main\java\com\fredygraces\giftbond\commands\PersonalPointsCommand.java
 C:\Users\fredy\OneDrive\Desktop\Sistema energía tierra\SanValentin\GiftBond-Maven\src\main\java\com\fredygraces\giftbond\commands\SaveDataCommand.java
 C:\Users\fredy\OneDrive\Desktop\Sistema energía tierra\SanValentin\GiftBond-Maven\src\main\java\com\fredygraces\giftbond\utils\RandomGiftGenerator.java
+C:\Users\fredy\OneDrive\Desktop\Sistema energía tierra\SanValentin\GiftBond-Maven\src\main\java\com\fredygraces\giftbond\logging\GiftBondLogger.java
 C:\Users\fredy\OneDrive\Desktop\Sistema energía tierra\SanValentin\GiftBond-Maven\src\main\java\com\fredygraces\giftbond\utils\ItemFilter.java
 C:\Users\fredy\OneDrive\Desktop\Sistema energía tierra\SanValentin\GiftBond-Maven\src\main\java\com\fredygraces\giftbond\storage\MailboxDAO.java
