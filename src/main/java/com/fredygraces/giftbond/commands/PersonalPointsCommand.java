@@ -78,9 +78,16 @@ public class PersonalPointsCommand implements CommandExecutor {
             // Jugador offline - buscar por nombre usando UUID si está disponible
             // Para comandos administrativos, primero intentamos obtener UUID del nombre
             try {
-                // NOTA: Bukkit.getOfflinePlayer(String) está deprecated, pero no hay alternativa directa
-                // para buscar por nombre sin UUID. Este uso es aceptable en comandos admin.
-                target = Bukkit.getOfflinePlayer(targetName);
+                // SUPPRESS-WARNING: Uso aceptable de método deprecated en contexto administrativo
+                // Justificación: Comando admin donde se requiere búsqueda por nombre de jugador
+                // Alternativas evaluadas:
+                // 1. Bukkit.getPlayerExact() - solo para jugadores online
+                // 2. Bukkit.getOfflinePlayer(UUID) - requiere conocer UUID previamente
+                // 3. APIs externas - complejidad innecesaria para función administrativa
+                // La validación hasPlayedBefore() mitiga riesgos de nombres inválidos
+                @SuppressWarnings("deprecation")
+                OfflinePlayer tempTarget = Bukkit.getOfflinePlayer(targetName);
+                target = tempTarget;
                 
                 if (!target.hasPlayedBefore()) {
                     sender.sendMessage(plugin.getPrefix() + ChatColor.RED + "El jugador " + targetName + " nunca ha jugado en este servidor.");

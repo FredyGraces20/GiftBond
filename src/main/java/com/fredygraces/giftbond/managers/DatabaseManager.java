@@ -37,7 +37,7 @@ public class DatabaseManager {
     public Connection getConnection() {
         return connection;
     }
-    
+
     /**
      * Verifica si la conexión está activa y reconecta si es necesario
      * @return true si la conexión está disponible, false si falla
@@ -59,24 +59,24 @@ public class DatabaseManager {
     public boolean initialize() {
         try {
             Class.forName("org.sqlite.JDBC");
-            
+
             // Asegurar que el directorio de datos existe
             File dataFolder = plugin.getDataFolder();
             if (!dataFolder.exists()) {
                 dataFolder.mkdirs();
             }
-            
+
             // Asegurar que el directorio de backups existe
             File backupFolder = new File(dataFolder, BACKUP_FOLDER);
             if (!backupFolder.exists()) {
                 backupFolder.mkdirs();
             }
-            
+
             String url = "jdbc:sqlite:" + new File(dataFolder, DATABASE_NAME).getAbsolutePath();
             connection = DriverManager.getConnection(url);
-            
+
             createTables();
-            
+
             return true;
         } catch (ClassNotFoundException | SQLException e) {
             plugin.getLogger().log(Level.SEVERE, "Failed to initialize database", e);
@@ -94,11 +94,11 @@ public class DatabaseManager {
                 PRIMARY KEY (sender_uuid, receiver_uuid)
             )
             """;
-        
+
         try (Statement stmt = connection.createStatement()) {
             stmt.execute(createTableSQL);
         }
-        
+
         // Create indexes for better performance
         String createIndexSQL = "CREATE INDEX IF NOT EXISTS idx_receiver_points ON friendships(receiver_uuid, points)";
         try (Statement stmt = connection.createStatement()) {
@@ -170,12 +170,12 @@ public class DatabaseManager {
     // Métodos para friendship points
     public void saveFriendshipPoints(String senderUUID, String receiverUUID, int points) {
         String sql = """
-            INSERT INTO friendships (sender_uuid, receiver_uuid, points, last_interaction) 
-            VALUES (?, ?, ?, ?) 
-            ON CONFLICT(sender_uuid, receiver_uuid) 
+            INSERT INTO friendships (sender_uuid, receiver_uuid, points, last_interaction)
+            VALUES (?, ?, ?, ?)
+            ON CONFLICT(sender_uuid, receiver_uuid)
             DO UPDATE SET points = points + excluded.points, last_interaction = excluded.last_interaction
             """;
-        
+
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
             pstmt.setString(1, senderUUID);
             pstmt.setString(2, receiverUUID);
@@ -189,11 +189,11 @@ public class DatabaseManager {
 
     public int getFriendshipPoints(String senderUUID, String receiverUUID) {
         String sql = "SELECT points FROM friendships WHERE sender_uuid = ? AND receiver_uuid = ?";
-        
+
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
             pstmt.setString(1, senderUUID);
             pstmt.setString(2, receiverUUID);
-            
+
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
                     return rs.getInt("points");
@@ -207,13 +207,13 @@ public class DatabaseManager {
 
     public Map<String, Integer> getPlayerFriendsWithPoints(String playerUUID) {
         Map<String, Integer> friends = new HashMap<>();
-        
+
         // Obtener puntos de regalos RECIBIDOS (donde el jugador es receiver)
         String receivedSql = "SELECT sender_uuid, points FROM friendships WHERE receiver_uuid = ?";
-        
+
         try (PreparedStatement pstmt = connection.prepareStatement(receivedSql)) {
             pstmt.setString(1, playerUUID);
-            
+
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
                     String friendUUID = rs.getString("sender_uuid");
@@ -224,13 +224,13 @@ public class DatabaseManager {
         } catch (SQLException e) {
             plugin.getLogger().log(Level.WARNING, "Error getting received friendship points", e);
         }
-        
+
         // Obtener puntos de regalos ENVIADOS (donde el jugador es sender)
         String sentSql = "SELECT receiver_uuid, points FROM friendships WHERE sender_uuid = ?";
-        
+
         try (PreparedStatement pstmt = connection.prepareStatement(sentSql)) {
             pstmt.setString(1, playerUUID);
-            
+
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
                     String friendUUID = rs.getString("receiver_uuid");
@@ -241,16 +241,16 @@ public class DatabaseManager {
         } catch (SQLException e) {
             plugin.getLogger().log(Level.WARNING, "Error getting sent friendship points", e);
         }
-        
+
         return friends;
     }
 
     public int getTotalFriendshipPoints(String playerUUID) {
         String sql = "SELECT COALESCE(SUM(points), 0) as total FROM friendships WHERE receiver_uuid = ?";
-        
+
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
             pstmt.setString(1, playerUUID);
-            
+
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
                     return rs.getInt("total");
@@ -265,15 +265,15 @@ public class DatabaseManager {
     public List<FriendshipPair> getTopFriendshipPairs(int limit) {
         List<FriendshipPair> pairs = new ArrayList<>();
         String sql = """
-            SELECT sender_uuid, receiver_uuid, points 
-            FROM friendships 
-            ORDER BY points DESC 
+            SELECT sender_uuid, receiver_uuid, points
+            FROM friendships
+            ORDER BY points DESC
             LIMIT ?
             """;
-        
+
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
             pstmt.setInt(1, limit);
-            
+
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
                     pairs.add(new FriendshipPair(
@@ -286,19 +286,19 @@ public class DatabaseManager {
         } catch (SQLException e) {
             plugin.getLogger().log(Level.WARNING, "Error getting top friendship pairs", e);
         }
-        
+
         return pairs;
     }
 
     // Métodos para puntos personales
     public void addPersonalPoints(String playerUUID, int points) {
         String sql = """
-            INSERT INTO player_points (player_uuid, points) 
-            VALUES (?, ?) 
-            ON CONFLICT(player_uuid) 
+            INSERT INTO player_points (player_uuid, points)
+            VALUES (?, ?)
+            ON CONFLICT(player_uuid)
             DO UPDATE SET points = points + excluded.points
             """;
-        
+
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
             pstmt.setString(1, playerUUID);
             pstmt.setInt(2, points);
@@ -310,10 +310,10 @@ public class DatabaseManager {
 
     public int getPersonalPoints(String playerUUID) {
         String sql = "SELECT points FROM player_points WHERE player_uuid = ?";
-        
+
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
             pstmt.setString(1, playerUUID);
-            
+
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
                     return rs.getInt("points");
@@ -327,12 +327,12 @@ public class DatabaseManager {
 
     public void setPersonalPoints(String playerUUID, int points) {
         String sql = """
-            INSERT INTO player_points (player_uuid, points) 
-            VALUES (?, ?) 
-            ON CONFLICT(player_uuid) 
+            INSERT INTO player_points (player_uuid, points)
+            VALUES (?, ?)
+            ON CONFLICT(player_uuid)
             DO UPDATE SET points = excluded.points
             """;
-        
+
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
             pstmt.setString(1, playerUUID);
             pstmt.setInt(2, points);
@@ -354,12 +354,12 @@ public class DatabaseManager {
     // Métodos para boosts
     public void setPersonalBoost(String playerUUID, double multiplier, long expiry) {
         String sql = """
-            INSERT INTO player_boosts (player_uuid, multiplier, expiry) 
-            VALUES (?, ?, ?) 
-            ON CONFLICT(player_uuid) 
+            INSERT INTO player_boosts (player_uuid, multiplier, expiry)
+            VALUES (?, ?, ?)
+            ON CONFLICT(player_uuid)
             DO UPDATE SET multiplier = excluded.multiplier, expiry = excluded.expiry
             """;
-        
+
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
             pstmt.setString(1, playerUUID);
             pstmt.setDouble(2, multiplier);
@@ -376,12 +376,12 @@ public class DatabaseManager {
             plugin.getLogger().warning("Cannot get personal boost: database connection failed");
             return 1.0;
         }
-        
+
         String sql = "SELECT multiplier, expiry FROM player_boosts WHERE player_uuid = ?";
-        
+
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
             pstmt.setString(1, playerUUID);
-            
+
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
                     long expiry = rs.getLong("expiry");
@@ -402,7 +402,7 @@ public class DatabaseManager {
             INSERT INTO gift_history (sender_uuid, receiver_uuid, gift_name, points_earned, timestamp)
             VALUES (?, ?, ?, ?, ?)
             """;
-        
+
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
             pstmt.setString(1, senderUUID);
             pstmt.setString(2, receiverUUID);
@@ -435,13 +435,13 @@ public class DatabaseManager {
             ORDER BY gh.timestamp DESC
             LIMIT ? OFFSET ?
             """;
-            
+
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
             pstmt.setString(1, playerUUID);
             pstmt.setString(2, playerUUID);
             pstmt.setInt(3, limit);
             pstmt.setInt(4, offset);
-                
+
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
                     // Si no tenemos los nombres, usar los UUIDs
@@ -449,12 +449,12 @@ public class DatabaseManager {
                     if (senderName == null || senderName.equals(rs.getString("sender_uuid"))) {
                         senderName = getPlayerName(rs.getString("sender_uuid"));
                     }
-                        
+
                     String receiverName = rs.getString("receiver_name");
                     if (receiverName == null || receiverName.equals(rs.getString("receiver_uuid"))) {
                         receiverName = getPlayerName(rs.getString("receiver_uuid"));
                     }
-                        
+
                     entries.add(new GiftHistoryEntry(
                         senderName,
                         receiverName,
@@ -467,10 +467,10 @@ public class DatabaseManager {
         } catch (SQLException e) {
             plugin.getLogger().log(Level.WARNING, "Error getting gift history with names", e);
         }
-            
+
         return entries;
     }
-        
+
     private String getPlayerName(String uuid) {
         try {
             OfflinePlayer player = Bukkit.getOfflinePlayer(java.util.UUID.fromString(uuid));
@@ -482,11 +482,11 @@ public class DatabaseManager {
 
     public int getGiftHistoryCount(String playerUUID) {
         String sql = "SELECT COUNT(*) as count FROM gift_history WHERE sender_uuid = ? OR receiver_uuid = ?";
-        
+
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
             pstmt.setString(1, playerUUID);
             pstmt.setString(2, playerUUID);
-            
+
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
                     return rs.getInt("count");
@@ -502,11 +502,11 @@ public class DatabaseManager {
     public int getDailyGiftCount(String playerUUID) {
         String today = java.time.LocalDate.now().toString();
         String sql = "SELECT gift_count FROM daily_gifts WHERE player_uuid = ? AND date = ?";
-        
+
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
             pstmt.setString(1, playerUUID);
             pstmt.setString(2, today);
-            
+
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
                     return rs.getInt("gift_count");
@@ -521,12 +521,12 @@ public class DatabaseManager {
     public void incrementDailyGiftCount(String playerUUID) {
         String today = java.time.LocalDate.now().toString();
         String sql = """
-            INSERT INTO daily_gifts (player_uuid, date, gift_count) 
-            VALUES (?, ?, 1) 
-            ON CONFLICT(player_uuid, date) 
+            INSERT INTO daily_gifts (player_uuid, date, gift_count)
+            VALUES (?, ?, 1)
+            ON CONFLICT(player_uuid, date)
             DO UPDATE SET gift_count = gift_count + 1
             """;
-        
+
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
             pstmt.setString(1, playerUUID);
             pstmt.setString(2, today);
@@ -539,7 +539,7 @@ public class DatabaseManager {
     public void resetDailyGiftCounts() {
         String yesterday = java.time.LocalDate.now().minusDays(1).toString();
         String sql = "DELETE FROM daily_gifts WHERE date < ?";
-        
+
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
             pstmt.setString(1, yesterday);
             pstmt.executeUpdate();
@@ -547,38 +547,38 @@ public class DatabaseManager {
             plugin.getLogger().log(Level.WARNING, "Error resetting daily gift counts", e);
         }
     }
-    
+
     public boolean createManualBackup() {
         try {
             File dataFolder = plugin.getDataFolder();
             File originalDB = new File(dataFolder, DATABASE_NAME);
             File backupFolder = new File(dataFolder, BACKUP_FOLDER);
-            
+
             if (!originalDB.exists()) {
                 plugin.getLogger().warning("Database file not found for backup");
                 return false;
             }
-            
+
             // Crear nombre de archivo con timestamp
             String timestamp = new java.text.SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new java.util.Date());
             String backupFileName = DATABASE_NAME + "_manual_" + timestamp + ".bak";
             File backupFile = new File(backupFolder, backupFileName);
-            
+
             // Copiar la base de datos
             Files.copy(originalDB.toPath(), backupFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-            
+
             plugin.getLogger().info(() -> "Manual backup created successfully: " + backupFileName);
             return true;
-            
+
         } catch (IOException | SecurityException e) {
             plugin.getLogger().log(Level.WARNING, "Error creating manual backup", e);
             return false;
         }
     }
 
-    public boolean savePendingGift(String senderUUID, String senderName, String receiverUUID, 
-                                  String receiverName, String giftId, String giftName, 
-                                  List<ItemStack> originalItems, List<ItemStack> sharedItems, 
+    public boolean savePendingGift(String senderUUID, String senderName, String receiverUUID,
+                                  String receiverName, String giftId, String giftName,
+                                  List<ItemStack> originalItems, List<ItemStack> sharedItems,
                                   int basePoints, int pointsAwarded) {
         // Crear objeto MailboxGift
         MailboxGift gift = new MailboxGift(
@@ -593,7 +593,7 @@ public class DatabaseManager {
             basePoints,
             pointsAwarded
         );
-        
+
         // Usar MailboxDAO para guardar
         MailboxDAO mailboxDAO = new MailboxDAO(plugin);
         return mailboxDAO.saveGift(gift);
@@ -637,7 +637,7 @@ public class DatabaseManager {
         public int getPointsEarned() { return pointsEarned; }
         public long getTimestamp() { return timestamp; }
     }
-    
+
     public static class GiftHistoryEntry {
         private final String senderName;
         private final String receiverName;
