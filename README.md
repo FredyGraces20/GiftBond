@@ -1,10 +1,10 @@
-# GiftBond v1.1.0 - Advanced Gift and Friendship System
+# GiftBond v1.4.0 - Advanced Gift and Friendship System
 
 Advanced friendship and gift system for Minecraft (Spigot/Paper) with modular configuration, PlaceholderAPI integration, mailbox system, dynamic points calculation, and plugin protection.
 
 **License:** GNU General Public License v3.0  
 **Author:** Fredy_Graces  
-**Version:** 1.1.0
+**Version:** 1.4.0
 
 ## 🛡️ Security and Protection
 
