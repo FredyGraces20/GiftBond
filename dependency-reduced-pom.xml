@@ -4,7 +4,7 @@
   <groupId>com.fredygraces</groupId>
   <artifactId>GiftBond</artifactId>
   <name>GiftBond</name>
-  <version>1.0.0</version>
+  <version>1.1.0</version>
   <description>Advanced friendship and gift system with points, economy integration, and top rankings</description>
   <build>
     <sourceDirectory>src/main/java</sourceDirectory>
@@ -22,6 +22,10 @@
         <version>3.8.1</version>
         <configuration>
           <release>17</release>
+          <compilerArgs>
+            <arg>-Xlint:deprecation</arg>
+            <arg>-Xlint:unchecked</arg>
+          </compilerArgs>
         </configuration>
       </plugin>
       <plugin>
@@ -46,6 +50,36 @@
             </configuration>
           </execution>
         </executions>
+      </plugin>
+      <plugin>
+        <groupId>com.github.wvengen</groupId>
+        <artifactId>proguard-maven-plugin</artifactId>
+        <version>2.6.0</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>proguard</goal>
+            </goals>
+          </execution>
+        </executions>
+        <dependencies>
+          <dependency>
+            <groupId>com.guardsquare</groupId>
+            <artifactId>proguard-base</artifactId>
+            <version>7.2.2</version>
+          </dependency>
+        </dependencies>
+        <configuration>
+          <proguardVersion>7.2.2</proguardVersion>
+          <injar>${project.build.finalName}.jar</injar>
+          <outjar>${project.build.finalName}-protected.jar</outjar>
+          <outputDirectory>${project.build.directory}</outputDirectory>
+          <proguardInclude>${basedir}/proguard.conf</proguardInclude>
+          <libs>
+            <lib>${java.home}/lib/rt.jar</lib>
+          </libs>
+        </configuration>
       </plugin>
     </plugins>
   </build>

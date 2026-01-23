@@ -22,24 +22,69 @@ public class RegaloCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        GiftSessionManager sessionManager = GiftSessionManager.getInstance();
         if (!(sender instanceof Player)) {
-            sender.sendMessage("§cSolo los jugadores pueden usar este comando.");
+            if (sender != null) {
+                sender.sendMessage("§cSolo los jugadores pueden usar este comando.");
+            }
             return true;
         }
 
         Player player = (Player) sender;
         
+        // Verificar permisos básicos
+        if (!player.hasPermission("giftbond.use")) {
+            player.sendMessage(plugin.getPrefix() + ChatColor.RED + "No tienes permiso para usar este comando.");
+            return true;
+        }
+
+        // Si no hay argumentos, mostrar ayuda
         if (args.length == 0) {
-            player.sendMessage("§cUso: /regalo <jugador>");
+            showHelp(player);
+            return true;
+        }
+
+        String action = args[0].toLowerCase();
+
+        // Manejar comando de reclamo
+        if (action.equals("reclamar") || action.equals("claim") || action.equals("redeem")) {
+            return handleMailboxCommand(player, args);
+        }
+
+        // Manejar envío de regalo (funcionalidad original)
+        return handleGiftSending(player, args);
+    }
+
+    private void showHelp(Player player) {
+        player.sendMessage(plugin.getPrefix() + ChatColor.GOLD + "Comandos disponibles:");
+        player.sendMessage(ChatColor.YELLOW + "/regalo <jugador>" + ChatColor.GRAY + " - Enviar un regalo");
+        player.sendMessage(ChatColor.YELLOW + "/regalo reclamar" + ChatColor.GRAY + " - Ver regalos pendientes");
+        player.sendMessage(ChatColor.YELLOW + "/regalo reclamar <nick>" + ChatColor.GRAY + " - Reclamar de alguien específico");
+        player.sendMessage(ChatColor.YELLOW + "/regalo reclamar all" + ChatColor.GRAY + " - Reclamar todos los regalos");
+    }
+
+    private boolean handleMailboxCommand(Player player, String[] args) {
+        // Obtener el comando mailbox ya registrado
+        Command mailboxCmd = plugin.getCommand("mailbox");
+        if (mailboxCmd == null) {
+            player.sendMessage(plugin.getPrefix() + ChatColor.RED + "❌ Comando mailbox no encontrado");
             return true;
         }
         
+        // Reindexar argumentos para el comando mailbox (eliminar "reclamar")
+        String[] mailboxArgs = new String[args.length - 1];
+        System.arraycopy(args, 1, mailboxArgs, 0, args.length - 1);
+        
+        // Ejecutar el comando mailbox
+        return mailboxCmd.execute(player, "mailbox", mailboxArgs);
+    }
+
+    private boolean handleGiftSending(Player player, String[] args) {
+        GiftSessionManager sessionManager = GiftSessionManager.getInstance();
         String targetPlayerName = args[0];
         Player targetPlayer = plugin.getServer().getPlayer(targetPlayerName);
         
         if (targetPlayer == null) {
-            player.sendMessage("§cJugador no encontrado: " + targetPlayerName);
+            player.sendMessage(plugin.getPrefix() + ChatColor.RED + "Jugador no encontrado: " + targetPlayerName);
             return true;
         }
 

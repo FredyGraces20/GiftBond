@@ -1,52 +1,70 @@
 # ═══════════════════════════════════════════════════════════════
-# 💬 MESSAGES.YML - Mensajes del Plugin GiftBond
+# 📋 MESSAGES.YML - System Messages
 # ═══════════════════════════════════════════════════════════════
-# Todos los mensajes editables del plugin
-# Soporta códigos de color con '&' o '§'
-# Usa {prefix} para insertar el prefix del plugin
+# Fully customizable messages file
+# You can edit any message using color codes & or §
+# Version: 1.1.0 | License: GPL v3.0
 # ═══════════════════════════════════════════════════════════════
 
-# Prefix del plugin (se usa en todos los mensajes con {prefix})
-prefix: "&d[GiftBond] &r"
+# ═══════════════════════════════════════════════════════════════
+# ⚙️ CONFIGURACIÓN GENERAL
+# ═══════════════════════════════════════════════════════════════
+
+# Prefijo del plugin (aparece al inicio de todos los mensajes)
+prefix: "&d&lGiftBond &8» &7"
 
 # ═══════════════════════════════════════════════════════════════
-# 🚫 MENSAJES DE ERROR
+# ❌ MENSAJES DE ERROR
 # ═══════════════════════════════════════════════════════════════
 
 errors:
+  # Permisos
   no_permission: "{prefix}&cNo tienes permiso para usar este comando."
-  player_only: "{prefix}&cSolo los jugadores pueden usar este comando."
+  no_permission_player_only: "{prefix}&cSolo los jugadores pueden usar este comando."
+  
+  # Jugadores
   player_not_found: "{prefix}&cJugador no encontrado: {player}"
-  player_offline: "{prefix}&cEl jugador ya no está en línea."
-  no_self_gift: "{prefix}&cNo puedes enviarte regalos a ti mismo."
-  cooldown: "{prefix}&cDebes esperar {seconds} segundos antes de enviar otro regalo."
-  daily_limit: "{prefix}&cHas alcanzado el límite diario de {limit} regalos. ¡Vuelve mañana!"
+  player_offline: "{prefix}&cEl jugador {player} no está conectado."
+  
+  # Regalos
+  gift_not_found: "{prefix}&cRegalo no encontrado."
+  gift_unavailable: "{prefix}&cNo tienes los items necesarios para este regalo."
+  gift_cooldown: "{prefix}&cDebes esperar {time} segundos antes de enviar otro regalo."
+  gift_self_not_allowed: "{prefix}&cNo puedes enviarte regalos a ti mismo."
+  gift_daily_limit: "{prefix}&cHas alcanzado el límite diario de regalos ({limit})."
+  
+  # Amistad
+  friendship_no_data: "{prefix}&7Aún no tienes datos de amistad."
+  
+  # Horas jugadas
   min_hours_sender: "{prefix}&cDebes tener al menos {min} horas jugadas para enviar regalos. (Tienes {current} horas)"
   min_hours_receiver: "{prefix}&cEl jugador {player} debe tener al menos {min} horas jugadas para recibir regalos."
-  insufficient_items: "{prefix}&cNo tienes los items necesarios para enviar este regalo."
+  
+  # Sistema
+  system_disabled: "{prefix}&cEl sistema está temporalmente deshabilitado."
+  unexpected_error: "{prefix}&cHa ocurrido un error inesperado. Por favor, contacta a un administrador."
 
 # ═══════════════════════════════════════════════════════════════
 # ✅ MENSAJES DE ÉXITO
 # ═══════════════════════════════════════════════════════════════
 
 success:
-  gift_sent: "{prefix}&eHas enviado un regalo de &f{gift} &e({points} puntos) a &f{receiver}"
-  gift_received: "{prefix}&eHas recibido un regalo de &f{gift} &e({points} puntos) de &f{sender}"
-  boost_granted: "{prefix}&a✨ Boost x{multiplier} otorgado a {player} por {duration}"
-  boost_expired: "{prefix}&7Tu boost ha expirado."
-  config_reloaded: "{prefix}&aConfiguración recargada correctamente."
-  data_saved: "{prefix}&aDatos guardados correctamente."
-
-# ═══════════════════════════════════════════════════════════════
-# 📢 BROADCASTS Y ANUNCIOS
-# ═══════════════════════════════════════════════════════════════
-
-broadcasts:
-  # Broadcast cuando una pareja alcanza el Top 1
-  top1_achieved: "&d✨ ¡{player1} y {player2} son ahora la pareja Nº1 con {points} puntos! ✨"
+  # Regalos
+  gift_sent: "{prefix}&aHas enviado un regalo a &f{receiver}&a! Recompensa: &f{points} puntos"
+  gift_received: "{prefix}&aHas recibido un regalo de &f{sender}&a! Recompensa: &f{points} puntos"
+  gift_received_notification: "{prefix}&a{sender} te ha enviado un regalo!"
   
-  # Broadcast cuando los regalos aleatorios cambian (modo auto)
-  gifts_rotated: "&e&l⚡ ¡Los regalos han cambiado! &7Usa &f/regalo &7para ver los nuevos."
+  # Amistad
+  friendship_updated: "{prefix}&aTus puntos de amistad han sido actualizados."
+  
+  # Boosts
+  boost_applied: "{prefix}&aBoost aplicado a {player}: x{multiplier} por {duration} minutos"
+  boost_removed: "{prefix}&aBoost removido de {player}"
+  boost_expired: "{prefix}&7Tu boost ha expirado."
+  
+  # Sistema
+  data_saved: "{prefix}&aDatos guardados exitosamente."
+  config_reloaded: "{prefix}&aConfiguración recargada."
 
 # ═══════════════════════════════════════════════════════════════
 # 📊 MENSAJES DE INFORMACIÓN
@@ -140,3 +158,85 @@ commands:
   help_topregalos: "&e/topregalos &7- Ver top 10 parejas"
   help_giftbond: "&e/giftbond &7- Comandos de administración"
   help_footer: "&d&m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+# ═══════════════════════════════════════════════════════════════
+# 📫 MENSAJES DEL SISTEMA DE MAILBOX
+# ═══════════════════════════════════════════════════════════════
+
+mailbox:
+  # Comandos
+  no_pending_gifts: "{prefix}&a📭 No tienes regalos pendientes."
+  pending_gifts_list: "{prefix}&a📬 Tienes regalos de:"
+  gift_claimed: "{prefix}&a✅ Has reclamado {count} regalo(s) de {sender}!"
+  all_gifts_claimed: "{prefix}&a✅ Has reclamado todos tus regalos pendientes!"
+  no_space_inventory: "{prefix}&c❌ No tienes suficiente espacio en el inventario!"
+  gift_not_found: "{prefix}&c❌ No tienes regalos pendientes de {sender}"
+  
+  # Notificaciones
+  gift_received_mailbox: "{prefix}&a📬 Has recibido un regalo de {sender}! Usa /regalo reclamar para verlo."
+  gift_claimed_notification: "{prefix}&a{claimer} ha reclamado tus regalos!"
+  
+  # Información
+  inventory_space_needed: "&7Necesitas {slots} espacios libres. Tienes {available} disponibles."
+  gift_summary: "&a{sender} &7({count} regalo{plural}) &8· &7{time}"
+  
+  # Comandos adicionales
+  usage_reclamar: "&cUso: /regalo reclamar [jugador|all]"
+  usage_redeem: "&cUso: /giftbond redeem [jugador|all]"
+  reclaim_success: "{prefix}&aHas reclamado {count} regalo(s) de {sender}"
+  reclaim_all_success: "{prefix}&aHas reclamado todos tus {count} regalos pendientes"
+  reclaim_failed: "{prefix}&cError al reclamar regalos. Contacta a un administrador."
+  reclaim_database_error: "{prefix}&cError de base de datos al reclamar regalos."
+  
+  # GUI de mailbox
+  mailbox_gui_title: "📬 Bandeja de Entrada"
+  mailbox_empty: "&7Tu bandeja está vacía"
+  mailbox_item_lore:
+    - "&7De: &f{sender}"
+    - "&7Fecha: &f{date}"
+    - "&7Items: &f{item_count}"
+    - "&7Puntos: &a{points} pts"
+    - ""
+    - "&eClick izquierdo &7para reclamar"
+    - "&eShift + Click derecho &7para ver detalles"
+  
+  # Errores de mailbox
+  mailbox_disabled: "{prefix}&cEl sistema de mailbox está deshabilitado."
+  mailbox_limit_reached: "{prefix}&cHas alcanzado el límite máximo de regalos pendientes ({limit})."
+  mailbox_storage_expired: "{prefix}&cAlgunos regalos han expirado y fueron eliminados."
+  mailbox_no_space_detailed: |
+    {prefix}&c❌ No tienes suficiente espacio en el inventario!
+    &7Necesitas &f{required_slots} &7espacios libres.
+    &7Tienes &f{available_slots} &7espacios disponibles.
+    
+    &eVacía algunos slots y usa:
+    &f/mailbox {command}
+  
+  # Confirmación
+  confirm_claim_title: "&e¿Confirmar reclamo?"
+  confirm_claim_message: "&7¿Quieres reclamar {count} regalo(s) de {sender}?"
+  confirm_yes: "&a&l✓ Sí, reclamar"
+  confirm_no: "&c&l✗ No, cancelar"
+
+# ═══════════════════════════════════════════════════════════════
+# 🔄 SISTEMA DE PUNTOS DINÁMICOS
+# ═══════════════════════════════════════════════════════════════
+
+dynamic_points:
+  # Mensajes cuando se reclaman puntos con boost dinámico
+  points_calculated_with_boost: |
+    {prefix}&a✅ Has recibido &f{points} puntos &ade amistad de &f{sender}&a!
+    &7(boost x{multiplier} aplicado en el momento del reclamo)
+  
+  points_calculated_without_boost: |
+    {prefix}&a✅ Has recibido &f{points} puntos &ade amistad de &f{sender}&a!
+    &7(Sin boost activo en el momento del reclamo)
+  
+  # Mensajes informativos
+  boost_status_check: "&7Verificando boost actual de {sender}..."
+  boost_detected: "&aBoost x{multiplier} detectado"
+  no_boost_detected: "&7No se detectó boost activo"
+  
+  # Errores
+  boost_calculation_error: "{prefix}&cError al calcular puntos con boost. Se otorgarán puntos base."
+  sender_offline_warning: "&7Advertencia: {sender} está desconectado. Se usará boost de última sesión."

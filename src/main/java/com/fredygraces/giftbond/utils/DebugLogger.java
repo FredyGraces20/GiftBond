@@ -5,15 +5,15 @@ import java.util.logging.Logger;
 import com.fredygraces.giftbond.GiftBond;
 
 /**
- * Utilidad de logging que respeta la configuración de debug
+ * Utilidad para logging condicional basado en configuración
+ * Solo imprime mensajes de debug si está activado en config.yml
  */
 public class DebugLogger {
     private final GiftBond plugin;
-    private final Logger logger;
+    private static final Logger logger = Logger.getLogger(DebugLogger.class.getName());
     
     public DebugLogger(GiftBond plugin) {
         this.plugin = plugin;
-        this.logger = plugin.getLogger();
     }
     
     /**
@@ -22,7 +22,7 @@ public class DebugLogger {
      */
     public void debug(String message) {
         if (isDebugEnabled()) {
-            logger.info("[DEBUG] " + message);
+            logger.info(() -> "[DEBUG] " + message);
         }
     }
     
@@ -32,7 +32,7 @@ public class DebugLogger {
      */
     public void debugWarning(String message) {
         if (isDebugEnabled()) {
-            logger.warning("[DEBUG] " + message);
+            logger.warning(() -> "[DEBUG] " + message);
         }
     }
     
@@ -42,7 +42,7 @@ public class DebugLogger {
      */
     public void debugSevere(String message) {
         if (isDebugEnabled()) {
-            logger.severe("[DEBUG] " + message);
+            logger.severe(() -> "[DEBUG] " + message);
         }
     }
     
@@ -52,7 +52,7 @@ public class DebugLogger {
      */
     public void debugFine(String message) {
         if (isDebugEnabled()) {
-            logger.fine("[DEBUG] " + message);
+            logger.fine(() -> "[DEBUG] " + message);
         }
     }
     

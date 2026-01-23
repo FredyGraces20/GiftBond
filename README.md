@@ -1,6 +1,25 @@
-# GiftBond
+# GiftBond v1.1.0 - Advanced Gift and Friendship System
 
-Advanced friendship and gift system for Minecraft (Spigot/Paper) with modular configuration and PlaceholderAPI integration.
+Advanced friendship and gift system for Minecraft (Spigot/Paper) with modular configuration, PlaceholderAPI integration, mailbox system, dynamic points calculation, and plugin protection.
+
+**License:** GNU General Public License v3.0  
+**Author:** Fredy_Graces  
+**Version:** 1.1.0
+
+## 🛡️ Security and Protection
+
+GiftBond v1.1.0 includes advanced security measures to protect the plugin:
+
+### 🔒 Anti-Decompilation Protection
+* **License Verification**: Runtime license verification system
+* **String Protection**: Basic encryption for sensitive strings
+* **Obfuscation**: ProGuard configuration to make reverse engineering difficult
+* **Integrity Validation**: Author and plugin name verification
+
+### ⚖️ License
+* **GPL v3.0**: Source code available under open-source license
+* **Copyright**: Protected by Fredy_Graces copyright
+* **Free Distribution**: Allows modification and redistribution under the same license
 
 ## 🌟 Features
 
@@ -28,6 +47,17 @@ Advanced friendship and gift system for Minecraft (Spigot/Paper) with modular co
 *   **🔧 Debug Mode**: Advanced debugging system with `/giftbond debug` command to enable/disable console logging.
 *   **🔄 Auto-Gift Session Management**: Seamless gift sending in auto mode with proper recipient tracking.
 *   **🛡️ Conditional Logging**: All debug messages respect the `debug.enabled` configuration flag.
+*   **📫 Advanced Mailbox System**: Store physical gifts until recipients claim them with SQLite database integration.
+    *   **Gift Storage**: Automatically saves expensive gifts until claimed
+    *   **Recipient Sharing**: Configurable percentage of gift cost shared with recipient
+    *   **Expiration System**: Automatic cleanup of old gifts (configurable duration)
+    *   **Inventory Protection**: Prevents duplicate claims and ensures proper space checking
+    *   **Multiple Claim Options**: Individual sender claims or bulk "all" claims
+*   **🔄 Dynamic Points System**: Points are calculated at claim time based on sender's current boost status
+    *   **Real-time Boost Calculation**: Points reflect sender's ACTIVE boost when gift is claimed
+    *   **Backward Compatible**: Existing gifts maintain original point values
+    *   **Configurable**: Toggle dynamic points system on/off in config.yml
+    *   **Fair Distribution**: Recipients benefit from sender's current boost level
 
 ## 📜 Commands
 
@@ -35,6 +65,8 @@ Advanced friendship and gift system for Minecraft (Spigot/Paper) with modular co
 *   **/amistad**: View your total friendship points, personal balance, and top friends.
 *   **/amistad historial**: View your complete gift history with pagination (sent and received gifts).
 *   **/regalo <jugador>**: Open the gift selection menu for a specific player.
+*   **/regalo reclamar [nick|all]**: Claim pending gifts from specific senders or all at once.
+*   **/mailbox [nick|all]**: Alternative command to claim pending gifts.
 *   **/topregalos**: Display the top 10 friendship pairs on the server.
 
 ### Admin Commands
@@ -63,6 +95,107 @@ Configure permanent boost permissions in `config.yml`. Examples:
 
 You can create unlimited custom boost tiers with any permission name and multiplier.
 
+## 📫 Mailbox System
+
+GiftBond includes an advanced mailbox system that stores physical gifts until recipients claim them:
+
+### 🎁 How It Works
+When players send expensive gifts, they're automatically stored in the recipient's mailbox instead of being delivered immediately. Recipients can claim gifts at their convenience.
+
+### 📋 Commands
+```bash
+/regalo reclamar           # View list of senders with pending gifts
+/regalo reclamar <nick>    # Claim gifts from a specific sender
+/regalo reclamar all       # Claim all pending gifts at once
+/mailbox                   # Alternative command (same functionality)
+```
+
+### ⚙️ Configuration
+```yaml
+# config.yml
+mailbox:
+  enabled: true
+  shared_percentage: 25    # Percentage of gift cost shared with recipient
+  auto_claim_free_gifts: true
+  storage_duration_days: 7 # 0 = permanent storage
+  max_pending_gifts: 50
+  cleanup_interval_minutes: 60
+```
+
+### 🛡️ Features
+*   **Anti-Dupe Protection**: Items are removed from sender's inventory only when claimed
+*   **Space Validation**: Checks recipient's inventory space before claiming
+*   **Notification System**: Sends notifications to both sender and recipient
+*   **Automatic Cleanup**: Removes expired gifts based on configured duration
+*   **Flexible Claiming**: Individual or bulk gift claiming options
+
+## 🔄 Dynamic Points System
+
+GiftBond v1.1.0 introduces a revolutionary dynamic points system that calculates friendship points at **claim time** based on the sender's **current boost status**.
+
+### 🎯 How It Works
+
+**Traditional System (v1.0.0):**
+```
+⏰ Send Time: Sender has x2.0 boost
+🎁 Sends gift worth 100 points
+📊 Points awarded: 200 points (calculated at send time)
+📥 Recipient claims: Receives items only
+```
+
+**Dynamic System (v1.1.0):**
+```
+⏰ Send Time: Sender has x2.0 boost
+🎁 Sends gift worth 100 points
+📊 Points stored: Base 100 + Boosted 200
+📥 Claim Time: System checks sender's CURRENT boost
+📈 If sender still has x2.0 boost: Recipient gets 200 points
+📉 If sender lost boost: Recipient gets 100 points
+📦 Recipient receives: Items + Dynamically calculated points
+```
+
+### ⚙️ Configuration
+
+```yaml
+# config.yml
+mailbox:
+  dynamic_points:
+    enabled: true  # Set to false for traditional behavior
+```
+
+### 🎁 Benefits
+
+*   **公平性**: Recipients benefit from sender's current boost level
+*   **激励保持**: Encourages players to maintain their boost status
+*   **实时计算**: Points reflect actual boost conditions at claim time
+*   **向后兼容**: Existing gifts work with original point values
+*   **可配置**: Server owners can choose preferred behavior
+
+### 📝 Example Scenarios
+
+**Scenario 1: Boost Maintained**
+```
+Day 1: Player A (x2.0 boost) sends gift to Player B
+Day 3: Player A still has x2.0 boost
+Day 5: Player B claims gift
+Result: Player B receives 200 points (100 base × 2.0 boost)
+```
+
+**Scenario 2: Boost Lost**
+```
+Day 1: Player A (x2.0 boost) sends gift to Player B  
+Day 3: Player A loses boost (back to x1.0)
+Day 5: Player B claims gift
+Result: Player B receives 100 points (100 base × 1.0 boost)
+```
+
+### 🛠️ Technical Details
+
+*   **数据存储**: Both base points and boosted points are stored
+*   **实时查询**: System queries sender's active boost at claim time
+*   **错误处理**: Graceful fallback to base points if boost calculation fails
+*   **性能优化**: Efficient database queries with proper indexing
+
 ## 🚀 Debug System
 
 GiftBond includes an advanced debugging system that can be toggled on/off:
@@ -84,6 +217,7 @@ When enabled, debug mode displays detailed information about:
 *   **Auto-Gift Generation**: Random gift creation, material filtering, point assignment
 *   **Session Management**: Gift session tracking, recipient validation
 *   **Database Operations**: Save operations, query performance
+*   **Mailbox Operations**: Gift storage, claiming, and cleanup processes
 
 ### 🛡️ Production Safety
 *   **Default OFF**: Debug mode is disabled by default in production
@@ -101,6 +235,7 @@ When enabled, debug mode displays detailed information about:
 [GiftBond] [BOOST] Base points: 25, Multiplier: 2.0
 [GiftBond] [BOOST] Final points calculated: 50
 [GiftBond] [AUTO GIFT] Creating gift: random_diamond, Material: DIAMOND, Amount: 1, Points: 75
+[GiftBond] [MAILBOX] Saved gift from Notch to Steve (ID: 123)
 ```
 
 ## 🎲 Auto/Manual Gift Modes
@@ -175,11 +310,23 @@ The `config.yml` allows you to customize:
 *   **Settings**: Master enabled toggle, dual personal points reward, boost for receivers, cooldowns, self-gifting, daily gift limit, top 1 broadcast, and max friends display.
 *   **Messages**: Full translation support for all plugin alerts and notifications using the `{prefix}` placeholder.
 *   **Debug**: Enable/disable debug mode for development and troubleshooting.
+*   **Mailbox**: Configure mailbox system behavior, sharing percentages, and cleanup settings.
 
 ### Debug Configuration
 ```yaml
 debug:
   enabled: false  # Set to true for development/troubleshooting
+```
+
+### Mailbox Configuration
+```yaml
+mailbox:
+  enabled: true
+  shared_percentage: 25    # Percentage shared with recipient
+  auto_claim_free_gifts: true
+  storage_duration_days: 7
+  max_pending_gifts: 50
+  cleanup_interval_minutes: 60
 ```
 
 ### Example Boost Configuration
@@ -226,13 +373,14 @@ settings:
 ## 📋 Requirements
 
 *   **Spigot/Paper**: 1.20.4 - 1.21.11 (version-aware item compatibility)
-*   **PlaceholderAPI**: Required for playtime verification and placeholders.
-*   **Statistic Expansion**: Needed for `%statistic_hours_played%` (Install with `/papi ecloud download Statistic`).
+*   **PlaceholderAPI**: Required for playtime verification and placeholders
+*   **Statistic Expansion**: Needed for `%statistic_hours_played%` (Install with `/papi ecloud download Statistic`)
 
 ### Optional Dependencies
 
 *   **Vault**: For economy integration (optional)
 *   **DiscordSRV**: For Discord notifications (works with top1_commands)
+*   **LuckPerms**: For permission management and permanent boosts
 
 ## 📁 Configuration Files
 
@@ -244,3 +392,33 @@ On first load, GiftBond automatically generates these modular configuration file
 *   **`database.yml`** - Database and backup settings
 
 All files include comprehensive default configurations and comments for easy customization.
+
+## 🔄 Version History
+
+### v1.1.0 (Current)
+*   ✅ **Dynamic Points System**: Points calculated at claim time based on sender's current boost status
+*   ✅ **Plugin Protection**: License verification system and anti-decompilation protection
+*   ✅ **Mailbox Improvements**: Precise inventory space validation (slots 0-35 only)
+*   ✅ **Code Optimization**: Performance improvements and code cleanup
+*   ✅ **Documentation Updates**: README and YAML files with new information
+
+### v1.0.0
+*   ✅ Base gift and friendship system
+*   ✅ PlaceholderAPI integration
+*   ✅ Mailbox system with SQLite
+*   ✅ Dual boost system (permissions + temporary)
+*   ✅ Auto/manual gift modes
+*   ✅ Advanced debug system
+
+## 📞 Support and Contributions
+
+To report bugs, suggest improvements, or contribute to development:
+
+*   **Issues**: [GitHub Repository](https://github.com/fredygraces/giftbond/issues)
+*   **Discord**: Official support server
+*   **Email**: fredy.graces@example.com
+
+---
+
+**© 2026 Fredy_Graces** - All rights reserved  
+**GPL v3.0 License** - Source code freely available

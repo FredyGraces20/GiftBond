@@ -1,11 +1,13 @@
 package com.fredygraces.giftbond;
 
 import org.bukkit.Bukkit;
+import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import com.fredygraces.giftbond.commands.AmistadCommand;
 import com.fredygraces.giftbond.commands.GiftBondCommand;
+import com.fredygraces.giftbond.commands.MailboxCommand;
 import com.fredygraces.giftbond.commands.RegaloCommand;
 import com.fredygraces.giftbond.commands.TopRegalosCommand;
 import com.fredygraces.giftbond.events.GiftMenuListener;
@@ -17,6 +19,7 @@ import com.fredygraces.giftbond.managers.FriendshipManager;
 import com.fredygraces.giftbond.managers.GiftManager;
 import com.fredygraces.giftbond.menus.GiftMenu;
 import com.fredygraces.giftbond.menus.HistoryMenu;
+import com.fredygraces.giftbond.security.LicenseChecker;
 import com.fredygraces.giftbond.storage.StorageManager;
 import com.fredygraces.giftbond.utils.ItemFilter;
 import com.fredygraces.giftbond.utils.RandomGiftGenerator;
@@ -42,6 +45,17 @@ public final class GiftBond extends JavaPlugin {
     @Override
     public void onEnable() {
         instance = this;
+        
+        // Verificar licencia y seguridad
+        if (!LicenseChecker.verifyLicense(getDescription())) {
+            getLogger().severe("❌ VERIFICACIÓN DE LICENCIA FALLIDA");
+            getLogger().severe("❌ Este plugin está protegido por derechos de autor");
+            getLogger().severe("❌ Uso no autorizado detectado - deshabilitando plugin");
+            getServer().getPluginManager().disablePlugin(this);
+            return;
+        }
+        
+        LicenseChecker.logSecurityInfo();
         
         // Inicializar ConfigManager PRIMERO
         configManager = new ConfigManager(this);
@@ -90,6 +104,7 @@ public final class GiftBond extends JavaPlugin {
         
         // Inicializar StorageManager (nuevo sistema multi-database)
         storageManager = new StorageManager(this);
+        // Inicializar StorageManager primero
         if (!storageManager.initialize()) {
             getLogger().severe("ERROR CRÍTICO: No se pudo inicializar el sistema de almacenamiento!");
             getLogger().severe("Deshabilitando plugin...");
@@ -116,13 +131,34 @@ public final class GiftBond extends JavaPlugin {
         historyMenu = new HistoryMenu(this);
         
         // Registrar comandos
-        getCommand("amistad").setExecutor(new AmistadCommand(this));
-        getCommand("regalo").setExecutor(new RegaloCommand(this));
-        getCommand("topregalos").setExecutor(new TopRegalosCommand(this));
+        PluginCommand amistadCmd = getCommand("amistad");
+        if (amistadCmd != null) {
+            amistadCmd.setExecutor(new AmistadCommand(this));
+        }
+        
+        PluginCommand regaloCmd = getCommand("regalo");
+        if (regaloCmd != null) {
+            regaloCmd.setExecutor(new RegaloCommand(this));
+        }
+        
+        PluginCommand topregalosCmd = getCommand("topregalos");
+        if (topregalosCmd != null) {
+            topregalosCmd.setExecutor(new TopRegalosCommand(this));
+        }
+        
+        // Registrar comando mailbox
+        MailboxCommand mailboxCommand = new MailboxCommand(this);
+        PluginCommand mailboxCmd = getCommand("mailbox");
+        if (mailboxCmd != null) {
+            mailboxCmd.setExecutor(mailboxCommand);
+        }
         
         GiftBondCommand giftBondCommand = new GiftBondCommand(this);
-        getCommand("giftbond").setExecutor(giftBondCommand);
-        getCommand("giftbond").setTabCompleter(giftBondCommand);
+        PluginCommand giftBondCmd = getCommand("giftbond");
+        if (giftBondCmd != null) {
+            giftBondCmd.setExecutor(giftBondCommand);
+            giftBondCmd.setTabCompleter(giftBondCommand);
+        }
         
         // Registrar eventos
         getServer().getPluginManager().registerEvents(new GiftMenuListener(this), this);
@@ -143,10 +179,18 @@ public final class GiftBond extends JavaPlugin {
      * Inicializa el sistema de regalos aleatorios
      */
     private void initializeRandomGiftSystem() {
-        String mode = configManager.getGiftsConfig().getString("mode", "manual").toLowerCase();
-        
-        if (!mode.equals("auto")) {
-            getLogger().info("Modo MANUAL - Sistema de regalos aleatorios desactivado");
+        if (configManager != null && configManager.getGiftsConfig() != null) {
+            String mode = configManager.getGiftsConfig().getString("mode", "manual");
+            if (mode != null) {
+                mode = mode.toLowerCase();
+                
+                if (!mode.equals("auto")) {
+                    getLogger().info("Modo MANUAL - Sistema de regalos aleatorios desactivado");
+                    return;
+                }
+            }
+        } else {
+            getLogger().warning("ConfigManager no disponible - sistema aleatorio desactivado");
             return;
         }
         
@@ -168,8 +212,11 @@ public final class GiftBond extends JavaPlugin {
         giftManager.setRandomGiftGenerator(randomGiftGenerator);
         
         // 5. Iniciar task de rotación automática
-        if (configManager.getGiftsConfig().getBoolean("auto_mode.rotation.enabled", true)) {
-            startRotationTask();
+        if (configManager != null && configManager.getGiftsConfig() != null) {
+            boolean rotationEnabled = configManager.getGiftsConfig().getBoolean("auto_mode.rotation.enabled", true);
+            if (rotationEnabled) {
+                startRotationTask();
+            }
         }
         
         getLogger().info("═══════════════════════════════════════");
@@ -181,7 +228,12 @@ public final class GiftBond extends JavaPlugin {
      * Inicia la tarea de rotación automática de regalos
      */
     private void startRotationTask() {
-        int intervalMinutes = configManager.getGiftsConfig().getInt("auto_mode.rotation.interval", 60);
+        final int intervalMinutes;
+        if (configManager != null && configManager.getGiftsConfig() != null) {
+            intervalMinutes = configManager.getGiftsConfig().getInt("auto_mode.rotation.interval", 60);
+        } else {
+            intervalMinutes = 60; // Valor por defecto
+        }
         
         rotationTask = new BukkitRunnable() {
             @Override
@@ -197,40 +249,34 @@ public final class GiftBond extends JavaPlugin {
         // Verificamos cada minuto si es tiempo de rotar
         rotationTask.runTaskTimer(this, 1200L, 1200L);
         
-        getLogger().info("Task de rotación iniciada (intervalo: " + intervalMinutes + " minutos)");
+        getLogger().info(() -> "Task de rotación iniciada (intervalo: " + intervalMinutes + " minutos)");
     }
-
+    
     @Override
     public void onDisable() {
-        getLogger().info("Iniciando proceso de apagado de GiftBond...");
-        
-        // Cancelar tarea de rotación
+        // Cancelar task de rotación
         if (rotationTask != null) {
-            getLogger().info("Cancelando tarea de rotación...");
             rotationTask.cancel();
         }
         
         // Cerrar StorageManager (gestiona todos los almacenamientos)
         if (storageManager != null) {
-            getLogger().info("Cerrando sistema de almacenamiento...");
             storageManager.close();
         }
         
-        // Cerrar DatabaseManager legacy
-        if (databaseManager != null) {
-            getLogger().info("Cerrando conexión legacy a la base de datos...");
-            databaseManager.close();
-        }
-        
-        getLogger().info("GiftBond disabled!");
+        getLogger().info("GiftBond disabled successfully!");
     }
-
+    
+    /**
+     * Obtiene la instancia singleton del plugin
+     * @return Instancia de GiftBond
+     */
     public static GiftBond getInstance() {
         return instance;
     }
     
     /**
-     * Obtiene el DatabaseManager legacy (compatibilidad hacia atrás)
+     * Obtiene el DatabaseManager (legacy)
      * @return DatabaseManager instance
      */
     public DatabaseManager getDatabaseManager() {
@@ -245,26 +291,52 @@ public final class GiftBond extends JavaPlugin {
         return storageManager;
     }
     
+    /**
+     * Obtiene el FriendshipManager
+     * @return FriendshipManager instance
+     */
     public FriendshipManager getFriendshipManager() {
         return friendshipManager;
     }
     
+    /**
+     * Obtiene el EconomyManager
+     * @return EconomyManager instance
+     */
     public EconomyManager getEconomyManager() {
         return economyManager;
     }
     
+    /**
+     * Obtiene el GiftManager
+     * @return GiftManager instance
+     */
     public GiftManager getGiftManager() {
         return giftManager;
     }
     
+    /**
+     * Obtiene el GiftMenu
+     * @return GiftMenu instance
+     */
     public GiftMenu getGiftMenu() {
         return giftMenu;
     }
     
+    /**
+     * Obtiene el HistoryMenu
+     * @return HistoryMenu instance
+     */
     public HistoryMenu getHistoryMenu() {
         return historyMenu;
     }
     
+    /**
+     * Obtiene un mensaje del config con valor por defecto
+     * @param path Ruta del mensaje en messages.yml
+     * @param defaultMsg Mensaje por defecto si no se encuentra
+     * @return Mensaje formateado
+     */
     public String getMessage(String path, String defaultMsg) {
         return configManager.getMessage(path, defaultMsg);
     }

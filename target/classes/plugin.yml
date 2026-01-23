@@ -1,39 +1,88 @@
 name: GiftBond
-version: 1.0.0
+version: 1.1.0
 main: com.fredygraces.giftbond.GiftBond
 api-version: 1.21
+author: Fredy_Graces
+description: |
+  Sistema avanzado de regalos y amistad con:
+  • Puntos de amistad y ranking
+  • Sistema de mailbox para regalos pendientes
+  • Boosts permanentes y temporales
+  • Economía integrada con SQLite
+  • Regalos aleatorios inteligentes
+  • Historial de regalos
+website: https://github.com/fredygraces/GiftBond
+# ™️ COPYRIGHT AND LICENSE INFORMATION
+# This software is copyrighted © 2026 Fredy_Graces
+# Unauthorized distribution, modification, or reverse engineering is prohibited
+# See LICENSE file for full terms and conditions
 depend: [PlaceholderAPI]
-softdepend: [Vault]
+softdepend: [Vault, DiscordSRV]
+
 commands:
   amistad:
-    description: Ver tus puntos de amistad
-    usage: /amistad
+    description: Ver tus puntos de amistad y ranking
+    usage: /amistad [jugador]
+    aliases: [friends, friendship]
+    
   regalo:
-    description: Enviar un regalo a otro jugador
-    usage: /regalo <jugador> <cantidad>
+    description: Enviar un regalo a otro jugador o reclamar regalos pendientes
+    usage: /regalo <jugador> | /regalo reclamar [nick|all]
+    aliases: [gift, present]
+    
   topregalos:
     description: Ver las parejas con más puntos de amistad
     usage: /topregalos
+    aliases: [topfriends, leaderboard]
+    
+  mailbox:
+    description: Sistema de buzón para reclamar regalos pendientes
+    usage: /mailbox [nick|all]
+    aliases: [inbox, gifts]
+    
   giftbond:
     description: Comando principal de administración de GiftBond
-    usage: /giftbond <reload|savedata|points|boost>
+    usage: /giftbond <reload|savedata|points|boost|debug>
     permission: giftbond.admin
+    aliases: [gb]
+
 permissions:
   giftbond.use:
     description: Permiso para usar el plugin
     default: true
+    
   giftbond.savedata:
     description: Permiso para crear backups manuales de la base de datos
     default: op
+    
   giftbond.admin.points:
     description: Permiso para administrar puntos personales
     default: op
+    
   giftbond.admin.boost:
     description: Permiso para dar boosts temporales a jugadores
     default: op
+    
   giftbond.admin.reload:
     description: Permiso para recargar el plugin
     default: op
+    
+  giftbond.admin.debug:
+    description: Permiso para controlar el modo debug
+    default: op
+    
+  giftbond.boost.vip:
+    description: Boost permanente VIP (x1.5)
+    default: false
+    
+  giftbond.boost.premium:
+    description: Boost permanente Premium (x2.0)
+    default: false
+    
+  giftbond.boost.ultra:
+    description: Boost permanente Ultra (x3.0)
+    default: false
+    
   giftbond.admin:
     description: Permiso principal de administración
     default: op
@@ -42,3 +91,4 @@ permissions:
       giftbond.savedata: true
       giftbond.admin.points: true
       giftbond.admin.boost: true
+      giftbond.admin.debug: true

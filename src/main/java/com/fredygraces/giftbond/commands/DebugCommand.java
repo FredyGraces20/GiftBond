@@ -33,27 +33,21 @@ public class DebugCommand implements CommandExecutor {
         String action = args[0].toLowerCase();
         
         switch (action) {
-            case "on":
-            case "true":
-            case "enable":
+            case "on", "true", "enable" -> {
                 plugin.getConfigManager().getMainConfig().set("debug.enabled", true);
                 plugin.saveConfig();
                 sender.sendMessage(plugin.getPrefix() + ChatColor.GREEN + "✅ Debug ACTIVADO - Mensajes de debug en consola");
-                plugin.getLogger().info("=== DEBUG MODE ACTIVATED BY " + sender.getName() + " ===");
-                break;
+                plugin.getLogger().info(() -> "=== DEBUG MODE ACTIVATED BY " + sender.getName() + " ===");
+            }
                 
-            case "off":
-            case "false":
-            case "disable":
+            case "off", "false", "disable" -> {
                 plugin.getConfigManager().getMainConfig().set("debug.enabled", false);
                 plugin.saveConfig();
                 sender.sendMessage(plugin.getPrefix() + ChatColor.RED + "❌ Debug DESACTIVADO");
-                plugin.getLogger().info("=== DEBUG MODE DEACTIVATED BY " + sender.getName() + " ===");
-                break;
+                plugin.getLogger().info(() -> "=== DEBUG MODE DEACTIVATED BY " + sender.getName() + " ===");
+            }
                 
-            default:
-                sender.sendMessage(plugin.getPrefix() + ChatColor.RED + "Uso: /giftbond debug <on|off>");
-                break;
+            default -> sender.sendMessage(plugin.getPrefix() + ChatColor.RED + "Uso: /giftbond debug <on|off>");
         }
         
         return true;

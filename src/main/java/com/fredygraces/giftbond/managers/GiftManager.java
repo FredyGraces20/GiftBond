@@ -56,7 +56,12 @@ public class GiftManager {
 
     private void loadGiftsFromConfig() {
         // Detectar modo de operación
-        String mode = plugin.getConfigManager().getGiftsConfig().getString("mode", "manual").toLowerCase();
+        String mode = plugin.getConfigManager().getGiftsConfig().getString("mode", "manual");
+        if (mode != null) {
+            mode = mode.toLowerCase();
+        } else {
+            mode = "manual"; // Valor por defecto
+        }
         this.autoMode = mode.equals("auto");
         
         if (autoMode) {
@@ -75,7 +80,7 @@ public class GiftManager {
                         giftItems.put(giftId, giftItem);
                     }
                 }
-                plugin.getLogger().info("  Regalos cargados: " + giftItems.size());
+                plugin.getLogger().info(() -> "  Regalos cargados: " + giftItems.size());
             } else {
                 plugin.getLogger().warning("  No se encontró configuración de regalos manuales!");
             }
@@ -220,6 +225,10 @@ public class GiftManager {
         
         String value = PlaceholderAPI.setPlaceholders(player, placeholder);
         
+        // Variables finales para uso en lambda
+        final String finalPlaceholder = placeholder;
+        final String finalValue = value;
+        
         debugLogger.debug("Using placeholder: " + placeholder);
         debugLogger.debug("Placeholder returned: '" + value + "'");
         
@@ -229,13 +238,14 @@ public class GiftManager {
             
             // Log para debugging (solo en modo verbose)
             if (!meetsRequirement) {
-                plugin.getLogger().fine("Jugador " + player.getName() + " no cumple requisito: " + hours + " < " + minHours + " horas");
+                plugin.getLogger().fine(() -> "Jugador " + player.getName() + " no cumple requisito: " + hours + " < " + minHours + " horas");
             }
             
             return meetsRequirement;
         } catch (NumberFormatException e) {
             // Si el placeholder no devuelve un número válido
-            plugin.getLogger().warning("Placeholder " + placeholder + " devolvió valor no numérico: '" + value + "' para jugador " + player.getName());
+            String errorMsg = "Placeholder " + finalPlaceholder + " devolvió valor no numérico: '" + finalValue + "' para jugador " + player.getName();
+            plugin.getLogger().warning(errorMsg);
             plugin.getLogger().warning("Verifica que la expansión Statistic esté instalada: /papi ecloud download Statistic");
             return false; // Ser estricto: si no podemos verificar, denegar
         }
@@ -260,7 +270,7 @@ public class GiftManager {
             return Integer.parseInt(value);
         } catch (NumberFormatException e) {
             // Log para debugging
-            plugin.getLogger().fine("No se pudo parsear horas para " + player.getName() + ": '" + value + "'");
+            plugin.getLogger().fine(() -> "No se pudo parsear horas para " + player.getName() + ": '" + value + "'");
             return 0;
         }
     }

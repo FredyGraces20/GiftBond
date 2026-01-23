@@ -7,7 +7,6 @@ import java.util.List;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -43,7 +42,7 @@ public class HistoryMenu {
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
         for (int i = 0; i < history.size() && i < ITEMS_PER_PAGE; i++) {
             DatabaseManager.GiftHistoryEntry entry = history.get(i);
-            boolean isSent = entry.getSenderUUID().equals(playerUUID);
+            boolean isSent = entry.getSenderName().equals(player.getName());
             
             ItemStack item;
             if (isSent) {
@@ -53,7 +52,9 @@ public class HistoryMenu {
             }
             
             ItemMeta meta = item.getItemMeta();
-            meta.setDisplayName(isSent ? "§d✉ Regalo Enviado" : "§b📬 Regalo Recibido");
+            if (meta != null) {
+                meta.setDisplayName(isSent ? "§d✉ Regalo Enviado" : "§b📬 Regalo Recibido");
+            }
             
             List<String> lore = new ArrayList<>();
             lore.add("§7━━━━━━━━━━━━━━━━━━━━");
@@ -61,18 +62,18 @@ public class HistoryMenu {
             lore.add("§f💝 Regalo: §a" + entry.getGiftName());
             
             if (isSent) {
-                String receiverName = getPlayerName(entry.getReceiverUUID());
-                lore.add("§f➡ Enviado a: §b" + receiverName);
+                lore.add("§f➡ Enviado a: §b" + entry.getReceiverName());
             } else {
-                String senderName = getPlayerName(entry.getSenderUUID());
-                lore.add("§f⬅ Recibido de: §b" + senderName);
+                lore.add("§f⬅ Recibido de: §b" + entry.getSenderName());
             }
             
             lore.add("§f⭐ Puntos: §6" + entry.getPoints() + " pts");
             lore.add("§7━━━━━━━━━━━━━━━━━━━━");
             
-            meta.setLore(lore);
-            item.setItemMeta(meta);
+            if (meta != null) {
+                meta.setLore(lore);
+                item.setItemMeta(meta);
+            }
             
             inv.setItem(i, item);
         }
@@ -81,8 +82,10 @@ public class HistoryMenu {
         for (int i = history.size(); i < ITEMS_PER_PAGE; i++) {
             ItemStack filler = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
             ItemMeta meta = filler.getItemMeta();
-            meta.setDisplayName(" ");
-            filler.setItemMeta(meta);
+            if (meta != null) {
+                meta.setDisplayName(" ");
+                filler.setItemMeta(meta);
+            }
             inv.setItem(i, filler);
         }
         
@@ -91,48 +94,49 @@ public class HistoryMenu {
         if (page > 0) {
             ItemStack prevButton = new ItemStack(Material.ARROW);
             ItemMeta meta = prevButton.getItemMeta();
-            meta.setDisplayName("§e◄ Página Anterior");
-            List<String> lore = new ArrayList<>();
-            lore.add("§7Haz clic para ver");
-            lore.add("§7la página anterior");
-            meta.setLore(lore);
-            prevButton.setItemMeta(meta);
+            if (meta != null) {
+                meta.setDisplayName("§e◄ Página Anterior");
+                List<String> lore = new ArrayList<>();
+                lore.add("§7Haz clic para ver");
+                lore.add("§7la página anterior");
+                meta.setLore(lore);
+                prevButton.setItemMeta(meta);
+            }
             inv.setItem(45, prevButton);
         }
         
         // Estadísticas (centro)
         ItemStack statsItem = new ItemStack(Material.PLAYER_HEAD);
         SkullMeta skullMeta = (SkullMeta) statsItem.getItemMeta();
-        skullMeta.setOwningPlayer(player);
-        skullMeta.setDisplayName("§6📊 Mis Estadísticas");
-        
-        List<String> statsLore = new ArrayList<>();
-        statsLore.add("§7━━━━━━━━━━━━━━━━━━━━");
-        statsLore.add("§f📦 Total Regalos: §e" + totalEntries);
-        statsLore.add("§f📄 Páginas: §e" + (page + 1) + " / " + Math.max(1, totalPages));
-        statsLore.add("§7━━━━━━━━━━━━━━━━━━━━");
-        skullMeta.setLore(statsLore);
-        statsItem.setItemMeta(skullMeta);
+        if (skullMeta != null) {
+            skullMeta.setOwningPlayer(player);
+            skullMeta.setDisplayName("§6📊 Mis Estadísticas");
+            
+            List<String> statsLore = new ArrayList<>();
+            statsLore.add("§7━━━━━━━━━━━━━━━━━━━━");
+            statsLore.add("§f📦 Total Regalos: §e" + totalEntries);
+            statsLore.add("§f📄 Páginas: §e" + (page + 1) + " / " + Math.max(1, totalPages));
+            statsLore.add("§7━━━━━━━━━━━━━━━━━━━━");
+            skullMeta.setLore(statsLore);
+            statsItem.setItemMeta(skullMeta);
+        }
         inv.setItem(49, statsItem);
         
         // Botón siguiente
         if (page < totalPages - 1) {
             ItemStack nextButton = new ItemStack(Material.ARROW);
             ItemMeta meta = nextButton.getItemMeta();
-            meta.setDisplayName("§e► Página Siguiente");
-            List<String> lore = new ArrayList<>();
-            lore.add("§7Haz clic para ver");
-            lore.add("§7la siguiente página");
-            meta.setLore(lore);
-            nextButton.setItemMeta(meta);
+            if (meta != null) {
+                meta.setDisplayName("§e► Página Siguiente");
+                List<String> lore = new ArrayList<>();
+                lore.add("§7Haz clic para ver");
+                lore.add("§7la siguiente página");
+                meta.setLore(lore);
+                nextButton.setItemMeta(meta);
+            }
             inv.setItem(53, nextButton);
         }
         
         player.openInventory(inv);
-    }
-    
-    private String getPlayerName(String uuid) {
-        OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(java.util.UUID.fromString(uuid));
-        return offlinePlayer.getName() != null ? offlinePlayer.getName() : "Desconocido";
     }
 }

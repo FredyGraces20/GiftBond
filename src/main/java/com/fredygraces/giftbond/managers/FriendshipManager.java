@@ -7,6 +7,7 @@ import java.util.Map;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.command.CommandException;
 import org.bukkit.entity.Player;
 
 import com.fredygraces.giftbond.GiftBond;
@@ -103,9 +104,9 @@ public class FriendshipManager {
             Bukkit.getScheduler().runTask(plugin, () -> {
                 try {
                     Bukkit.dispatchCommand(Bukkit.getConsoleSender(), processedCommand);
-                } catch (Exception e) {
-                    plugin.getLogger().warning("Error ejecutando comando Top1: " + processedCommand);
-                    plugin.getLogger().warning("Error: " + e.getMessage());
+                } catch (CommandException | IllegalArgumentException e) {
+                    plugin.getLogger().warning(() -> "Error ejecutando comando Top1: " + processedCommand);
+                    plugin.getLogger().warning(() -> "Error: " + e.getMessage());
                 }
             });
         }
@@ -122,14 +123,17 @@ public class FriendshipManager {
         double highestMultiplier = 1.0;
         
         if (plugin.getConfigManager().getMainConfig().contains("boosts")) {
-            for (String boostKey : plugin.getConfigManager().getMainConfig().getConfigurationSection("boosts").getKeys(false)) {
+            org.bukkit.configuration.ConfigurationSection boostsSection = plugin.getConfigManager().getMainConfig().getConfigurationSection("boosts");
+            if (boostsSection != null) {
+                for (String boostKey : boostsSection.getKeys(false)) {
                 String permission = plugin.getConfigManager().getMainConfig().getString("boosts." + boostKey + ".permission");
                 double multiplier = plugin.getConfigManager().getMainConfig().getDouble("boosts." + boostKey + ".multiplier", 1.0);
                 
-                if (player.hasPermission(permission) && multiplier > highestMultiplier) {
+                if (permission != null && player.hasPermission(permission) && multiplier > highestMultiplier) {
                     highestMultiplier = multiplier;
                 }
             }
+        }
         }
         
         // Verificar boost personal temporal de la base de datos

@@ -11,6 +11,26 @@ import org.bukkit.entity.Player;
 import com.fredygraces.giftbond.GiftBond;
 import com.fredygraces.giftbond.managers.FriendshipManager;
 
+/**
+ * Comando administrativo para gestionar puntos personales de jugadores
+ *
+ * NOTA SOBRE MÉTODO DEPRECATED:
+ * El uso de Bukkit.getOfflinePlayer(String) está deprecated porque los nombres
+ * de jugador pueden cambiar, mientras que los UUID son permanentes.
+ *
+ * En este caso específico, el uso es aceptable porque:
+ * 1. Es un comando administrativo donde se necesita buscar jugadores por nombre
+ * 2. Solo se usa para operaciones manuales de administración
+ * 3. Se verifica hasPlayedBefore() para evitar problemas con nombres inexistentes
+ *
+ * Para código no-administrativo, se recomienda usar UUIDs desde el principio
+ * y almacenarlos en lugar de nombres para identificar jugadores.
+ *
+ * WARNINGS RESUELTOS:
+ * - Switch expressions moderno (Java 14+)
+ * - Documentación de uso deprecated justificado
+ * - Compilación forzada para mostrar warnings
+ */
 public class PersonalPointsCommand implements CommandExecutor {
     private final GiftBond plugin;
     private final FriendshipManager friendshipManager;
@@ -43,12 +63,19 @@ public class PersonalPointsCommand implements CommandExecutor {
             // Jugador está online
             target = targetPlayer;
         } else {
-            // Jugador offline - buscar por UUID desde nombre
-            target = Bukkit.getOfflinePlayer(targetName);
-            
-            // Verificar que el jugador haya jugado antes
-            if (!target.hasPlayedBefore()) {
-                sender.sendMessage(plugin.getPrefix() + ChatColor.RED + "El jugador " + targetName + " nunca ha jugado en este servidor.");
+            // Jugador offline - buscar por nombre usando UUID si está disponible
+            // Para comandos administrativos, primero intentamos obtener UUID del nombre
+            try {
+                // NOTA: Bukkit.getOfflinePlayer(String) está deprecated, pero no hay alternativa directa
+                // para buscar por nombre sin UUID. Este uso es aceptable en comandos admin.
+                target = Bukkit.getOfflinePlayer(targetName);
+                
+                if (!target.hasPlayedBefore()) {
+                    sender.sendMessage(plugin.getPrefix() + ChatColor.RED + "El jugador " + targetName + " nunca ha jugado en este servidor.");
+                    return true;
+                }
+            } catch (Exception e) {
+                sender.sendMessage(plugin.getPrefix() + ChatColor.RED + "Error al buscar al jugador " + targetName);
                 return true;
             }
         }
@@ -56,13 +83,14 @@ public class PersonalPointsCommand implements CommandExecutor {
         String uuid = target.getUniqueId().toString();
         String displayName = target.getName() != null ? target.getName() : targetName;
 
+        // Switch moderno con expresiones (Java 14+)
         switch (action) {
-            case "view":
+            case "view" -> {
                 int current = friendshipManager.getPersonalPoints(uuid);
                 sender.sendMessage(plugin.getPrefix() + ChatColor.YELLOW + "Puntos personales de " + displayName + ": " + ChatColor.WHITE + current);
-                break;
-
-            case "add":
+            }
+            
+            case "add" -> {
                 if (args.length < 3) {
                     sender.sendMessage(ChatColor.RED + "Uso: /giftbond points <jugador> add <cantidad>");
                     return true;
@@ -74,9 +102,9 @@ public class PersonalPointsCommand implements CommandExecutor {
                 } catch (NumberFormatException e) {
                     sender.sendMessage(ChatColor.RED + "Cantidad inválida.");
                 }
-                break;
-
-            case "remove":
+            }
+            
+            case "remove" -> {
                 if (args.length < 3) {
                     sender.sendMessage(ChatColor.RED + "Uso: /giftbond points <jugador> remove <cantidad>");
                     return true;
@@ -92,9 +120,9 @@ public class PersonalPointsCommand implements CommandExecutor {
                 } catch (NumberFormatException e) {
                     sender.sendMessage(ChatColor.RED + "Cantidad inválida.");
                 }
-                break;
-
-            case "set":
+            }
+            
+            case "set" -> {
                 if (args.length < 3) {
                     sender.sendMessage(ChatColor.RED + "Uso: /giftbond points <jugador> set <cantidad>");
                     return true;
@@ -106,11 +134,9 @@ public class PersonalPointsCommand implements CommandExecutor {
                 } catch (NumberFormatException e) {
                     sender.sendMessage(ChatColor.RED + "Cantidad inválida.");
                 }
-                break;
-
-            default:
-                sendUsage(sender);
-                break;
+            }
+            
+            default -> sendUsage(sender);
         }
 
         return true;

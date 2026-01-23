@@ -42,19 +42,25 @@ public class GiftBondCommand implements CommandExecutor, TabCompleter {
         String[] subArgs = Arrays.copyOfRange(args, 1, args.length);
 
         switch (subCommand) {
-            case "reload":
+            case "reload" -> {
                 return reloadHandler.onCommand(sender, command, label, subArgs);
-            case "savedata":
+            }
+            case "savedata" -> {
                 return saveDataHandler.onCommand(sender, command, label, subArgs);
-            case "points":
+            }
+            case "points" -> {
                 return pointsHandler.onCommand(sender, command, label, subArgs);
-            case "boost":
+            }
+            case "boost" -> {
                 return boostHandler.onCommand(sender, command, label, subArgs);
-            case "debug":
+            }
+            case "debug" -> {
                 return debugHandler.onCommand(sender, command, label, subArgs);
-            default:
+            }
+            default -> {
                 sendHelp(sender);
                 return true;
+            }
         }
     }
 

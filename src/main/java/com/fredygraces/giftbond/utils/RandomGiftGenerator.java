@@ -21,7 +21,7 @@ public class RandomGiftGenerator {
     private final DebugLogger debugLogger;
     private final Random random;
     private List<Material> validItems;
-    private List<RandomGift> currentGifts;
+    private final List<RandomGift> currentGifts;
     private long nextRotationTime;
     
     public RandomGiftGenerator(GiftBond plugin, ItemFilter itemFilter) {
@@ -50,7 +50,7 @@ public class RandomGiftGenerator {
         // Generar regalos iniciales
         generateNewGifts();
         
-        plugin.getLogger().info("Generador de regalos inicializado con " + validItems.size() + " items disponibles");
+        plugin.getLogger().info(() -> "Generador de regalos inicializado con " + validItems.size() + " items disponibles");
     }
     
     /**
@@ -74,8 +74,8 @@ public class RandomGiftGenerator {
         
         plugin.getLogger().info("═══════════════════════════════════════");
         plugin.getLogger().info("  NUEVOS REGALOS GENERADOS");
-        plugin.getLogger().info("  Total: " + currentGifts.size() + " regalos");
-        plugin.getLogger().info("  Próxima rotación: " + intervalMinutes + " minutos");
+        plugin.getLogger().info(() -> "  Total: " + currentGifts.size() + " regalos");
+        plugin.getLogger().info(() -> "  Próxima rotación: " + intervalMinutes + " minutos");
         plugin.getLogger().info("═══════════════════════════════════════");
         
         // Log de regalos generados

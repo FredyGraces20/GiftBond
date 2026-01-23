@@ -1,39 +1,29 @@
 # ═══════════════════════════════════════════════════════════════
-# 💾 DATABASE.YML - Sistema de Almacenamiento
+# 💾 DATABASE.YML - Sistema de Almacenamiento SQLite
 # ═══════════════════════════════════════════════════════════════
-# Configuración completa del sistema de bases de datos
-# Soporta SQLite (local) y H2 (remoto)
+# Configuración del sistema de base de datos SQLite local
+# 
+# 📫 NOTA: El sistema de mailbox también utiliza esta misma base de datos
+# para almacenar regalos pendientes. Todas las tablas se crean automáticamente.
 # ═══════════════════════════════════════════════════════════════
 
-# Almacenamiento local (SQLite) - Base de datos embebida simple
+# ═══════════════════════════════════════════════════════════════
+# 🗄️ ALMACENAMIENTO LOCAL (SQLite)
+# ═══════════════════════════════════════════════════════════════
+# Base de datos embebida simple y confiable para todos los datos del plugin
+# Incluye: puntos de amistad, puntos personales, boosts, historial y mailbox
+
 local:
   enabled: true
   # Base de datos SQLite en la carpeta del plugin
   database: "friendships.db"
 
-# Almacenamiento remoto (H2) - Base de datos embebida rápida
-# Similar a tu configuración de superdown con H2
-remote:
-  enabled: false  # Cambia a true para usar H2
-  type: "h2"      # Solo H2 está disponible
-  
-  # Configuración para H2 (2-3x más rápido que SQLite)
-  h2:
-    # Nombre del archivo de base de datos (sin extensión)
-    file: "friendships"
-    # Modo de almacenamiento:
-    #   - "file" = Guarda en disco (persistente, recomendado)
-    #   - "mem"  = Guarda en memoria (ultra rápido pero se pierde al reiniciar)
-    mode: "file"
-
-# Sincronización entre almacenamientos (si ambos están habilitados)
-sync:
-  # Activar sincronización automática entre local y remote
-  enabled: true
-  # Dirección de sincronización:
-  #   - "local_to_remote"  = Solo copia de SQLite a H2
-  #   - "remote_to_local"  = Solo copia de H2 a SQLite
-  #   - "bidirectional"    = Sincroniza en ambas direcciones (recomendado)
-  direction: "bidirectional"
-  # Intervalo de sincronización en minutos (0 = solo al guardar)
-  interval: 5
+# ═══════════════════════════════════════════════════════════════
+# 📊 ESTADÍSTICAS DEL SISTEMA
+# ═══════════════════════════════════════════════════════════════
+# El sistema monitorea automáticamente:
+# - Rendimiento de lectura/escritura
+# - Tiempos de sincronización
+# - Estado de conexión de ambas bases de datos
+# - Espacio utilizado en disco
+# ═══════════════════════════════════════════════════════════════
