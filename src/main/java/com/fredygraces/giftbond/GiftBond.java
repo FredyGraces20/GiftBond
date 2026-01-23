@@ -5,11 +5,8 @@ import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import com.fredygraces.giftbond.commands.AmistadCommand;
 import com.fredygraces.giftbond.commands.GiftBondUnifiedCommand;
 import com.fredygraces.giftbond.commands.MailboxCommand;
-import com.fredygraces.giftbond.commands.RegaloCommand;
-import com.fredygraces.giftbond.commands.TopRegalosCommand;
 import com.fredygraces.giftbond.events.GiftMenuListener;
 import com.fredygraces.giftbond.events.HistoryMenuListener;
 import com.fredygraces.giftbond.managers.ConfigManager;
@@ -130,30 +127,18 @@ public final class GiftBond extends JavaPlugin {
         // Inicializar HistoryMenu
         historyMenu = new HistoryMenu(this);
         
-        // Registrar comandos
-        PluginCommand amistadCmd = getCommand("amistad");
-        if (amistadCmd != null) {
-            amistadCmd.setExecutor(new AmistadCommand(this));
-        }
+        // Register commands
+        // NOTE: Individual commands (amistad, regalo, topregalos) are deprecated
+        // All functionality now routed through /giftbond unified command
         
-        PluginCommand regaloCmd = getCommand("regalo");
-        if (regaloCmd != null) {
-            regaloCmd.setExecutor(new RegaloCommand(this));
-        }
-        
-        PluginCommand topregalosCmd = getCommand("topregalos");
-        if (topregalosCmd != null) {
-            topregalosCmd.setExecutor(new TopRegalosCommand(this));
-        }
-        
-        // Registrar comando mailbox
+        // Register mailbox command
         MailboxCommand mailboxCommand = new MailboxCommand(this);
         PluginCommand mailboxCmd = getCommand("mailbox");
         if (mailboxCmd != null) {
             mailboxCmd.setExecutor(mailboxCommand);
         }
         
-        // Registrar comando giftbond unificado
+        // Register unified giftbond command
         GiftBondUnifiedCommand giftBondUnifiedCommand = new GiftBondUnifiedCommand(this);
         PluginCommand giftBondCmd = getCommand("giftbond");
         if (giftBondCmd != null) {

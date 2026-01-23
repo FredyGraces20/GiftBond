@@ -21,7 +21,7 @@ public class AmistadCommand implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player)) {
             if (sender != null) {
-                sender.sendMessage("§cSolo los jugadores pueden usar este comando.");
+                sender.sendMessage("§cOnly players can use this command.");
             }
             return true;
         }

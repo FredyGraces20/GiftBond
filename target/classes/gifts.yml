@@ -28,6 +28,33 @@ mode: "auto"
 force_selected_version: ""
 
 # ═══════════════════════════════════════════════════════════════
+# 🎨 PERSONALIZACIÓN DEL MENÚ DE REGALOS
+# ═══════════════════════════════════════════════════════════════
+
+menu_customization:
+  # Título del menú en modo manual
+  manual_title: "&d🎁 Enviar regalo a {receiver}"
+  
+  # Título del menú en modo automático
+  auto_title: "&d🎁 Regalos - Rotan en {time_left}"
+  
+  # Item de información de rotación (modo automático)
+  rotation_info_item:
+    enabled: true
+    material: CLOCK
+    name: "&e&l⏰ Rotación de Regalos"
+    lore:
+      - "&7Los regalos cambian automáticamente"
+      - "&7cada cierto tiempo."
+      - ""
+      - "&ePróximo cambio: &f{time_left}"
+      - ""
+      - "&7¡Aprovecha los regalos actuales!"
+    slot: 26  # Último slot (0-26)
+
+# ═══════════════════════════════════════════════════════════════
+
+# ═══════════════════════════════════════════════════════════════
 # 🎲 MODO AUTOMÁTICO - Regalos Aleatorios Inteligentes
 # ═══════════════════════════════════════════════════════════════
 

@@ -26,7 +26,7 @@ public class RegaloCommand implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player)) {
             if (sender != null) {
-                sender.sendMessage("§cSolo los jugadores pueden usar este comando.");
+                sender.sendMessage("§cOnly players can use this command.");
             }
             return true;
         }
@@ -61,18 +61,18 @@ public class RegaloCommand implements CommandExecutor {
     }
 
     private void showHelp(Player player) {
-        player.sendMessage(plugin.getPrefix() + ChatColor.GOLD + "Comandos disponibles:");
-        player.sendMessage(ChatColor.YELLOW + "/regalo <jugador>" + ChatColor.GRAY + " - Enviar un regalo");
-        player.sendMessage(ChatColor.YELLOW + "/regalo reclamar" + ChatColor.GRAY + " - Ver regalos pendientes");
-        player.sendMessage(ChatColor.YELLOW + "/regalo reclamar <nick>" + ChatColor.GRAY + " - Reclamar de alguien específico");
-        player.sendMessage(ChatColor.YELLOW + "/regalo reclamar all" + ChatColor.GRAY + " - Reclamar todos los regalos");
+        player.sendMessage(plugin.getPrefix() + ChatColor.GOLD + "Available commands:");
+        player.sendMessage(ChatColor.YELLOW + "/gift <player>" + ChatColor.GRAY + " - Send a gift");
+        player.sendMessage(ChatColor.YELLOW + "/gift claim" + ChatColor.GRAY + " - View pending gifts");
+        player.sendMessage(ChatColor.YELLOW + "/gift claim <nick>" + ChatColor.GRAY + " - Claim from specific sender");
+        player.sendMessage(ChatColor.YELLOW + "/gift claim all" + ChatColor.GRAY + " - Claim all gifts");
     }
 
     private boolean handleMailboxCommand(Player player, String[] args) {
         // Obtener el comando mailbox ya registrado
         Command mailboxCmd = plugin.getCommand("mailbox");
         if (mailboxCmd == null) {
-            player.sendMessage(plugin.getPrefix() + ChatColor.RED + "❌ Comando mailbox no encontrado");
+            player.sendMessage(plugin.getPrefix() + ChatColor.RED + "❌ Mailbox command not found");
             return true;
         }
         

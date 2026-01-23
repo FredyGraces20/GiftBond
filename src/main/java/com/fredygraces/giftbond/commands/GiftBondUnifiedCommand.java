@@ -55,7 +55,7 @@ public class GiftBondUnifiedCommand implements CommandExecutor, TabCompleter {
         switch (subCommand) {
             case "friends" -> {
                 if (!sender.hasPermission("giftbond.friends")) {
-                    sender.sendMessage(plugin.getPrefix() + "§cNo tienes permiso para usar este comando.");
+                    sender.sendMessage(plugin.getPrefix() + "§cYou don't have permission to use this command.");
                     return true;
                 }
                 return amistadCommand.onCommand(sender, command, label, subArgs);
@@ -63,7 +63,7 @@ public class GiftBondUnifiedCommand implements CommandExecutor, TabCompleter {
                 
             case "top" -> {
                 if (!sender.hasPermission("giftbond.top")) {
-                    sender.sendMessage(plugin.getPrefix() + "§cNo tienes permiso para usar este comando.");
+                    sender.sendMessage(plugin.getPrefix() + "§cYou don't have permission to use this command.");
                     return true;
                 }
                 return topRegalosCommand.onCommand(sender, command, label, subArgs);
@@ -71,7 +71,7 @@ public class GiftBondUnifiedCommand implements CommandExecutor, TabCompleter {
                 
             case "send" -> {
                 if (!sender.hasPermission("giftbond.send")) {
-                    sender.sendMessage(plugin.getPrefix() + "§cNo tienes permiso para usar este comando.");
+                    sender.sendMessage(plugin.getPrefix() + "§cYou don't have permission to use this command.");
                     return true;
                 }
                 return regaloCommand.onCommand(sender, command, label, subArgs);
@@ -79,7 +79,7 @@ public class GiftBondUnifiedCommand implements CommandExecutor, TabCompleter {
                 
             case "redeem" -> {
                 if (!sender.hasPermission("giftbond.redeem")) {
-                    sender.sendMessage(plugin.getPrefix() + "§cNo tienes permiso para usar este comando.");
+                    sender.sendMessage(plugin.getPrefix() + "§cYou don't have permission to use this command.");
                     return true;
                 }
                 return mailboxCommand.onCommand(sender, command, label, subArgs);
@@ -87,7 +87,7 @@ public class GiftBondUnifiedCommand implements CommandExecutor, TabCompleter {
                 
             case "reload" -> {
                 if (!sender.hasPermission("giftbond.admin.reload")) {
-                    sender.sendMessage(plugin.getPrefix() + "§cNo tienes permiso para usar este comando.");
+                    sender.sendMessage(plugin.getPrefix() + "§cYou don't have permission to use this command.");
                     return true;
                 }
                 return reloadCommand.onCommand(sender, command, label, subArgs);
@@ -95,7 +95,7 @@ public class GiftBondUnifiedCommand implements CommandExecutor, TabCompleter {
                 
             case "savedata" -> {
                 if (!sender.hasPermission("giftbond.savedata")) {
-                    sender.sendMessage(plugin.getPrefix() + "§cNo tienes permiso para usar este comando.");
+                    sender.sendMessage(plugin.getPrefix() + "§cYou don't have permission to use this command.");
                     return true;
                 }
                 return saveDataCommand.onCommand(sender, command, label, subArgs);
@@ -103,7 +103,7 @@ public class GiftBondUnifiedCommand implements CommandExecutor, TabCompleter {
                 
             case "points" -> {
                 if (!sender.hasPermission("giftbond.admin.points")) {
-                    sender.sendMessage(plugin.getPrefix() + "§cNo tienes permiso para usar este comando.");
+                    sender.sendMessage(plugin.getPrefix() + "§cYou don't have permission to use this command.");
                     return true;
                 }
                 return personalPointsCommand.onCommand(sender, command, label, subArgs);
@@ -111,7 +111,7 @@ public class GiftBondUnifiedCommand implements CommandExecutor, TabCompleter {
                 
             case "boost" -> {
                 if (!sender.hasPermission("giftbond.admin.boost")) {
-                    sender.sendMessage(plugin.getPrefix() + "§cNo tienes permiso para usar este comando.");
+                    sender.sendMessage(plugin.getPrefix() + "§cYou don't have permission to use this command.");
                     return true;
                 }
                 return boostCommand.onCommand(sender, command, label, subArgs);
@@ -119,7 +119,7 @@ public class GiftBondUnifiedCommand implements CommandExecutor, TabCompleter {
                 
             case "debug" -> {
                 if (!sender.hasPermission("giftbond.admin.debug")) {
-                    sender.sendMessage(plugin.getPrefix() + "§cNo tienes permiso para usar este comando.");
+                    sender.sendMessage(plugin.getPrefix() + "§cYou don't have permission to use this command.");
                     return true;
                 }
                 return debugCommand.onCommand(sender, command, label, subArgs);

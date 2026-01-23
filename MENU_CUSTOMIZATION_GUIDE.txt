@@ -1,0 +1,174 @@
+🎨 GIFTBOND v1.1.0 - MENU CUSTOMIZATION GUIDE
+
+## 🎯 NEW CUSTOMIZATION FEATURES
+
+Added fully configurable options for the gift menu title and rotation info item in auto mode!
+
+## 📋 CONFIGURATION OPTIONS (gifts.yml)
+
+### 🖋️ Menu Title Customization
+
+```yaml
+menu_customization:
+  # Title for manual mode
+  manual_title: "&d🎁 Send gift to {receiver}"
+  
+  # Title for auto mode  
+  auto_title: "&d🎁 Gifts - Rotate in {time_left}"
+```
+
+**Placeholders available:**
+- `{receiver}` - Target player's name (manual mode only)
+- `{time_left}` - Time until next rotation (auto mode only)
+
+### 🧭 Rotation Info Item Customization
+
+```yaml
+menu_customization:
+  rotation_info_item:
+    enabled: true           # Enable/disable the info item
+    material: CLOCK         # Item material (any valid Minecraft material)
+    name: "&e&l⏰ Gift Rotation"
+    lore:
+      - "&7Gifts change automatically"
+      - "&7every certain time."
+      - ""
+      - "&eNext change: &f{time_left}"
+      - ""
+      - "&7Take advantage of current gifts!"
+    slot: 26                # Slot position (0-26, last slot recommended)
+```
+
+**Special placeholder:**
+- `{time_left}` - Displays time until next rotation
+
+## 🎮 USAGE EXAMPLES
+
+### 📝 Custom Titles
+
+**Default Manual Mode:**
+```
+/gift send Notch
+→ Title: "&d🎁 Send gift to Notch"
+```
+
+**Custom Manual Mode:**
+```yaml
+manual_title: "&c❤ &fSend love to {receiver} &c❤"
+```
+```
+/gift send Notch  
+→ Title: "&c❤ &fSend love to Notch &c❤"
+```
+
+**Custom Auto Mode:**
+```yaml
+auto_title: "&6✨ Special Gifts - Refresh in {time_left} ✨"
+```
+```
+/gift send Notch (auto mode)
+→ Title: "&6✨ Special Gifts - Refresh in 23:45 ✨"
+```
+
+### 🧭 Custom Compass Item
+
+**Change Material:**
+```yaml
+rotation_info_item:
+  material: COMPASS  # Instead of CLOCK
+  name: "&b&l🧭 Navigation Helper"
+```
+
+**Custom Position:**
+```yaml
+rotation_info_item:
+  slot: 8  # Place in middle-top row instead of corner
+```
+
+**Disable Entirely:**
+```yaml
+rotation_info_item:
+  enabled: false  # Remove the info item completely
+```
+
+## 🎨 COLOR CODE SUPPORT
+
+All text fields support both color code formats:
+- `&` format: `"&cRed &aGreen"`
+- `§` format: `"§cRed §aGreen"`
+
+## 🛠️ PLACEHOLDER REFERENCE
+
+### Available Placeholders:
+- `{receiver}` - Target player name (manual mode)
+- `{time_left}` - Rotation countdown timer (auto mode)
+
+### Example with Multiple Placeholders:
+```yaml
+auto_title: "&d🎁 {receiver}'s Gifts - Rotate in {time_left}"
+rotation_info_item:
+  name: "&e&l⏰ Rotation Timer"
+  lore:
+    - "&7Sending gifts to: &f{receiver}"
+    - "&7Next rotation: &f{time_left}"
+    - ""
+    - "&aHappy gifting!"
+```
+
+## ⚙️ FALLBACK BEHAVIOR
+
+If configuration values are missing or invalid:
+- **Title**: Falls back to default Spanish titles
+- **Material**: Falls back to CLOCK
+- **Slot**: Falls back to slot 26 (last slot)
+- **Lore**: Falls back to default Spanish text
+
+## 📋 COMPLETE EXAMPLE CONFIGURATION
+
+```yaml
+menu_customization:
+  # Custom titles
+  manual_title: "&d💝 Send Love to {receiver}"
+  auto_title: "&6🌟 Premium Gifts - Refresh in {time_left}"
+  
+  # Highly customized rotation info
+  rotation_info_item:
+    enabled: true
+    material: NETHER_STAR
+    name: "&e&l⭐ Premium Timer"
+    lore:
+      - "&7Sending special gifts to &f{receiver}"
+      - "&7Premium rotation system active"
+      - ""
+      - "&bNext refresh: &f{time_left}"
+      - "&7Current gifts available: &a9"
+      - ""
+      - "&d✨ Enjoy premium gifting! ✨"
+    slot: 26
+```
+
+## 🔧 ADMINISTRATION TIPS
+
+✅ **Live Updates**: Changes take effect immediately after `/giftbond reload`
+✅ **Testing**: Use different player names to test `{receiver}` placeholder
+✅ **Timing**: Use auto mode to test `{time_left}` placeholder
+✅ **Validation**: Invalid materials automatically fall back to CLOCK
+
+## 🎯 BEST PRACTICES
+
+1. **Keep titles concise** - Long titles may get cut off
+2. **Use intuitive materials** - Clock/Compass for timers makes sense
+3. **Maintain readability** - Don't overcrowd with too many colors
+4. **Test thoroughly** - Check both manual and auto modes
+5. **Consider accessibility** - Use clear, descriptive text
+
+## 🚀 SERVER OWNER BENEFITS
+
+✨ **Brand Identity** - Customize to match your server theme
+✨ **Player Experience** - Create immersive, themed gifting experiences  
+✨ **Flexibility** - Adapt to seasonal events or special occasions
+✨ **Professional Look** - Polished, customized interface
+✨ **Easy Maintenance** - All changes through simple config edits
+
+---
+🎉 Transform your gifting experience with personalized menu customization!

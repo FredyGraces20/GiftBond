@@ -4,13 +4,13 @@ main: com.fredygraces.giftbond.GiftBond
 api-version: 1.21
 author: Fredy_Graces
 description: |
-  Sistema avanzado de regalos y amistad con:
-  • Puntos de amistad y ranking
-  • Sistema de mailbox para regalos pendientes
-  • Boosts permanentes y temporales
-  • Economía integrada con SQLite
-  • Regalos aleatorios inteligentes
-  • Historial de regalos
+  Advanced gift and friendship system with:
+  • Friendship points and ranking
+  • Mailbox system for pending gifts
+  • Permanent and temporary boosts
+  • Integrated economy with SQLite
+  • Smart random gifts
+  • Gift history
 website: https://github.com/fredygraces/GiftBond
 # ™️ COPYRIGHT AND LICENSE INFORMATION
 # This software is copyrighted © 2026 Fredy_Graces
@@ -27,7 +27,7 @@ commands:
 
 permissions:
   giftbond.user:
-    description: Permiso básico para usuarios normales
+    description: Basic permission for regular users
     default: true
     children:
       giftbond.friends: true
@@ -36,65 +36,65 @@ permissions:
       giftbond.redeem: true
   
   giftbond.friends:
-    description: Ver puntos de amistad
+    description: View friendship points
     default: false
     
   giftbond.top:
-    description: Ver ranking de parejas
+    description: View couples ranking
     default: false
     
   giftbond.send:
-    description: Enviar regalos a otros jugadores
+    description: Send gifts to other players
     default: false
     
   giftbond.redeem:
-    description: Reclamar regalos pendientes
+    description: Claim pending gifts
     default: false
   
   giftbond.use:
-    description: Permiso general del plugin (deprecated)
+    description: General plugin permission (deprecated)
     default: true
     children:
       giftbond.user: true
   
   giftbond.savedata:
-    description: Permiso para crear backups manuales de la base de datos
+    description: Permission to create manual database backups
     default: op
     
   giftbond.admin.points:
-    description: Permiso para administrar puntos personales
+    description: Permission to manage personal points
     default: op
     
   giftbond.points.view:
-    description: Permiso para ver puntos de otros jugadores
+    description: Permission to view other players' points
     default: true
     
   giftbond.admin.boost:
-    description: Permiso para dar boosts temporales a jugadores
+    description: Permission to give temporary boosts to players
     default: op
     
   giftbond.admin.reload:
-    description: Permiso para recargar el plugin
+    description: Permission to reload the plugin
     default: op
     
   giftbond.admin.debug:
-    description: Permiso para controlar el modo debug
+    description: Permission to control debug mode
     default: op
     
   giftbond.boost.vip:
-    description: Boost permanente VIP (x1.5)
+    description: Permanent VIP boost (x1.5)
     default: false
     
   giftbond.boost.premium:
-    description: Boost permanente Premium (x2.0)
+    description: Permanent Premium boost (x2.0)
     default: false
     
   giftbond.boost.ultra:
-    description: Boost permanente Ultra (x3.0)
+    description: Permanent Ultra boost (x3.0)
     default: false
     
   giftbond.admin:
-    description: Permiso principal de administración
+    description: Main administration permission
     default: op
     children:
       giftbond.admin.reload: true

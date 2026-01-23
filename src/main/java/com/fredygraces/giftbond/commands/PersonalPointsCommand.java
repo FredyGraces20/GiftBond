@@ -48,13 +48,13 @@ public class PersonalPointsCommand implements CommandExecutor {
         // Si es view, verificar permiso de usuario, sino permiso de admin
         if (isViewAction) {
             if (!sender.hasPermission("giftbond.points.view")) {
-                sender.sendMessage(ChatColor.RED + "No tienes permiso para ver puntos de otros jugadores.");
+                sender.sendMessage(ChatColor.RED + "You don't have permission to view other players' points.");
                 return true;
             }
         } else {
             // Para acciones add/remove/set, se requiere permiso de admin
             if (!sender.hasPermission("giftbond.admin.points")) {
-                sender.sendMessage(ChatColor.RED + "No tienes permiso para administrar puntos.");
+                sender.sendMessage(ChatColor.RED + "You don't have permission to manage points.");
                 return true;
             }
         }
@@ -90,7 +90,7 @@ public class PersonalPointsCommand implements CommandExecutor {
                 target = tempTarget;
                 
                 if (!target.hasPlayedBefore()) {
-                    sender.sendMessage(plugin.getPrefix() + ChatColor.RED + "El jugador " + targetName + " nunca ha jugado en este servidor.");
+                    sender.sendMessage(plugin.getPrefix() + ChatColor.RED + "Player " + targetName + " has never played on this server.");
                     return true;
                 }
             } catch (Exception e) {

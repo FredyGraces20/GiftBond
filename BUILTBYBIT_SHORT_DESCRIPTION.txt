@@ -1,0 +1,19 @@
+🎁 GiftBond v1.1.0 - Advanced Friendship & Gift System
+
+The ultimate social plugin for Minecraft servers! Create lasting friendships with interactive gifting, dynamic point systems, and professional-grade features.
+
+✨ Key Features:
+• Dual boost system (permanent + temporary)
+• Interactive gift menus with GUI
+• Advanced mailbox for pending gifts  
+• Dynamic points calculated at claim time
+• Real-time friendship rankings
+• Playtime requirements & daily limits
+• Modular configuration & full customization
+• SQLite database with automatic backups
+• Professional security & anti-decompilation
+• Zero compilation warnings - production ready
+
+🎯 Perfect for roleplay, survival, and community servers. Encourage player interaction and build lasting friendships!
+
+Compatible: 1.20.4 - 1.21.11 | Requires: PlaceholderAPI | License: GPL v3.0

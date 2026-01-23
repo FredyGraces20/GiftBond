@@ -1,0 +1,114 @@
+🎁 GIFTBOND v1.1.0 CHANGELOG
+
+MAJOR UPDATE - REVOLUTIONARY DYNAMIC POINTS SYSTEM
+
+🚀 NEW FEATURES:
+
+✨ DYNAMIC POINTS CALCULATION (REVOLUTIONARY)
+• Points now calculated at CLAIM TIME instead of send time
+• Recipients benefit from sender's CURRENT boost status
+• Fair distribution that encourages boost maintenance
+• Backward compatible with existing gifts
+• Configurable via mailbox.dynamic_points.enabled
+
+🛡️ PROFESSIONAL PLUGIN PROTECTION
+• Runtime license verification system
+• String protection for sensitive data
+• Anti-decompilation measures implemented
+• GPL v3.0 open-source licensing
+• Copyright protection and integrity validation
+
+📬 MAILBOX SYSTEM ENHANCEMENTS
+• Precise inventory space validation (slots 0-35 only)
+• Excludes armor and offhand slots from space calculation
+• More accurate gift claiming experience
+• Better error messaging with specific slot requirements
+
+⚡ CODE QUALITY IMPROVEMENTS
+• Zero compilation warnings across entire codebase
+• Optimized string concatenation using lambda expressions
+• Modern Java 8+ features adoption (switch expressions)
+• Comprehensive null safety implementation
+• Efficient resource management with try-with-resources
+
+🔧 DEBUG SYSTEM REFINEMENTS
+• Enhanced debug logging with better categorization
+• More descriptive debug messages for troubleshooting
+• Improved performance with conditional logging
+• Clear separation of debug categories (BOOST, AUTO GIFT, MAILBOX)
+
+🛠️ CONFIGURATION UPDATES
+• New dynamic_points section in mailbox configuration
+• Enhanced debug configuration options
+• Better default values for production environments
+• Improved configuration documentation
+
+🎯 BUG FIXES:
+• Fixed inventory space calculation including armor slots
+• Resolved null pointer exceptions in command processing
+• Fixed mailbox gift claiming edge cases
+• Improved error handling in database operations
+• Corrected boost calculation timing issues
+
+📈 PERFORMANCE ENHANCEMENTS:
+• Optimized database queries with proper indexing
+• Reduced memory footprint through efficient data structures
+• Faster gift processing with streamlined algorithms
+• Improved concurrent access handling
+
+📋 DOCUMENTATION UPDATES:
+• Comprehensive README with all new features
+• Detailed configuration examples
+• Clear installation and setup instructions
+• Professional presentation materials for BuiltByBit
+
+---
+
+VERSION BREAKDOWN:
+
+v1.1.0 - January 2026
+• Dynamic points system implementation
+• Professional security and protection
+• Mailbox system refinements
+• Code quality optimizations
+• Complete documentation overhaul
+
+v1.0.0 - December 2025  
+• Initial release with core gift system
+• Basic mailbox functionality
+• Dual boost system foundation
+• Modular configuration structure
+
+---
+
+UPGRADE NOTES:
+
+✅ BACKWARD COMPATIBLE
+• Existing gifts maintain original point values
+• No database migration required
+• Previous configurations continue working
+• All existing commands remain functional
+
+🔧 RECOMMENDED ACTIONS:
+1. Backup your current configuration files
+2. Review new dynamic_points configuration option
+3. Test the new claim-time point calculation
+4. Update your server staff on new features
+
+---
+
+FUTURE ROADMAP:
+
+Planned features for upcoming versions:
+• Web-based gift management interface
+• Discord integration with gift notifications
+• Advanced analytics and statistics
+• Custom gift packaging options
+• Cross-server gift synchronization
+• Mobile app companion for remote management
+
+---
+
+Thank you for choosing GiftBond! We're committed to providing the best social gifting experience for Minecraft servers.
+
+Stay connected for regular updates and new features!

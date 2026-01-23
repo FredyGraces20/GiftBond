@@ -19,30 +19,48 @@ public class TopRegalosCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        if (sender == null) {
+            return true; // Safe fallback for null sender
+        }
+        
         if (!(sender instanceof Player)) {
-            sender.sendMessage("§cSolo los jugadores pueden usar este comando.");
+            sender.sendMessage("§cOnly players can use this command.");
             return true;
         }
 
         Player player = (Player) sender;
         
-        // Obtener las parejas con más puntos de amistad
+        // Validate required components
+        if (friendshipManager == null || plugin == null) {
+            if (sender != null) {
+                sender.sendMessage("§cSystem error: Required components not available.");
+            }
+            return true;
+        }
+        
+        // Get couples with most friendship points
         java.util.List<com.fredygraces.giftbond.managers.DatabaseManager.FriendshipPair> topPairs = 
             friendshipManager.getTopFriendshipPairs(10);
         
-        // Enviar mensaje al jugador
+        // Send message to player
         String prefix = plugin.getPrefix();
-        player.sendMessage(prefix + "§eTop 10 parejas con más puntos de amistad:");
+        
+        if (topPairs == null) {
+            player.sendMessage(prefix + "§cError retrieving friendship data.");
+            return true;
+        }
+        
+        player.sendMessage(prefix + "§eTop 10 couples with most friendship points:");
         
         if (topPairs.isEmpty()) {
-            player.sendMessage(prefix + "§7No hay puntos de amistad registrados aún.");
+            player.sendMessage(prefix + "§7No friendship points registered yet.");
         } else {
             for (int i = 0; i < topPairs.size(); i++) {
                 com.fredygraces.giftbond.managers.DatabaseManager.FriendshipPair pair = topPairs.get(i);
                 String player1Name = getPlayerName(pair.getPlayer1UUID());
                 String player2Name = getPlayerName(pair.getPlayer2UUID());
                 
-                player.sendMessage("§6" + (i + 1) + ". §f" + player1Name + " §4❤ §f" + player2Name + " §7- §a" + pair.getPoints() + " puntos");
+                player.sendMessage("§6" + (i + 1) + ". §f" + player1Name + " §4❤ §f" + player2Name + " §7- §a" + pair.getPoints() + " points");
             }
         }
         
@@ -50,10 +68,19 @@ public class TopRegalosCommand implements CommandExecutor {
     }
     
     private String getPlayerName(String uuid) {
-        // Intentar obtener el nombre del jugador desde el servidor
-        org.bukkit.OfflinePlayer offlinePlayer = org.bukkit.Bukkit.getOfflinePlayer(
-            java.util.UUID.fromString(uuid));
-        return offlinePlayer.getName() != null ? offlinePlayer.getName() : "Desconocido";
+        if (uuid == null || uuid.isEmpty()) {
+            return "Unknown"; // Safe fallback for invalid UUID
+        }
+        
+        try {
+            // Intentar obtener el nombre del jugador desde el servidor
+            org.bukkit.OfflinePlayer offlinePlayer = org.bukkit.Bukkit.getOfflinePlayer(
+                java.util.UUID.fromString(uuid));
+            return offlinePlayer.getName() != null ? offlinePlayer.getName() : "Unknown";
+        } catch (IllegalArgumentException e) {
+            // Handle invalid UUID format
+            return "Invalid UUID";
+        }
     }
     
     // Método que utiliza el plugin para acceder a funcionalidades

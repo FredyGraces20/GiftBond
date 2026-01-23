@@ -62,18 +62,18 @@ GiftBond v1.1.0 includes advanced security measures to protect the plugin:
 ## 📜 Commands
 
 ### Player Commands
-*   **/amistad**: View your total friendship points, personal balance, and top friends.
-*   **/amistad historial**: View your complete gift history with pagination (sent and received gifts).
-*   **/regalo <jugador>**: Open the gift selection menu for a specific player.
-*   **/regalo reclamar [nick|all]**: Claim pending gifts from specific senders or all at once.
+*   **/friends**: View your total friendship points, personal balance, and top friends.
+*   **/friends history**: View your complete gift history with pagination (sent and received gifts).
+*   **/gift <player>**: Open the gift selection menu for a specific player.
+*   **/gift claim [nick|all]**: Claim pending gifts from specific senders or all at once.
 *   **/mailbox [nick|all]**: Alternative command to claim pending gifts.
-*   **/topregalos**: Display the top 10 friendship pairs on the server.
+*   **/leaderboard**: Display the top 10 friendship pairs on the server.
 
 ### Admin Commands
 *   **/giftbond reload**: Reload the plugin configuration and gift definitions.
 *   **/giftbond savedata**: Force a manual backup of the database.
-*   **/giftbond points <jugador> <view|add|remove|set> [cantidad]**: Manage any player's personal point balance.
-*   **/giftbond boost <jugador> <multiplicador> [minutos]**: Grant a temporary boost to a specific player (default: 60 minutes).
+*   **/giftbond points <player> <view|add|remove|set> [amount]**: Manage any player's personal point balance.
+*   **/giftbond boost <player> <multiplier> [minutes]**: Grant a temporary boost to a specific player (default: 60 minutes).
 *   **/giftbond random**: Generate new random gifts (in auto mode).
 *   **/giftbond debug <on|off>**: Enable or disable debug mode for detailed console logging.
 

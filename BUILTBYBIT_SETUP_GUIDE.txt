@@ -1,0 +1,112 @@
+🎁 GIFTBOND v1.1.0 - Quick Setup Guide
+
+⚡ QUICK INSTALLATION (5 MINUTES):
+
+1. DRAG & DROP
+   • Copy GiftBond.jar to your server's plugins folder
+   • Restart your server
+
+2. DEPENDENCIES CHECK
+   • Install PlaceholderAPI (required)
+   • Run: /papi ecloud download Statistic
+   • Run: /papi reload
+
+3. FIRST RUN
+   • Plugin auto-generates configuration files
+   • Check generated files in /plugins/GiftBond/
+   • No additional setup required!
+
+🎮 BASIC USAGE:
+
+Players can immediately use:
+• /regalo <playername> - Send gifts
+• /amistad - Check friendship stats
+• /topregalos - View leaderboards
+
+Admin commands:
+• /giftbond reload - Reload configs
+• /giftbond debug on - Enable troubleshooting
+
+🔧 RECOMMENDED FIRST CONFIGURATION:
+
+Edit /plugins/GiftBond/config.yml:
+
+```yaml
+# Change the plugin prefix
+messages:
+  prefix: "&c[MyServer] "
+
+# Set up basic boost tiers
+boosts:
+  vip:
+    multiplier: 1.5
+    permission: "group.vip"
+  mvp:
+    multiplier: 2.0  
+    permission: "group.mvp"
+
+# Enable playtime requirements
+settings:
+  hours_requirement:
+    enabled: true
+    min_hours: 24
+    placeholder: "%statistic_hours_played%"
+```
+
+📬 MAILBOX SETUP:
+
+For servers with expensive gifts:
+```yaml
+mailbox:
+  enabled: true
+  shared_percentage: 25
+  dynamic_points:
+    enabled: true  # NEW: Calculate points at claim time
+```
+
+🚀 PRO TIPS:
+
+✅ PERFORMANCE OPTIMIZATION:
+• Keep debug mode OFF in production (debug.enabled: false)
+• Use the master switch to temporarily disable all restrictions during events
+• Monitor mailbox size with /giftbond savedata
+
+✅ PLAYER ENGAGEMENT:
+• Set up custom commands for #1 couples
+• Create special boost events for holidays
+• Use playtime requirements to encourage server loyalty
+
+✅ ADMINISTRATION:
+• Use /giftbond debug when troubleshooting issues
+• Regular backups with /giftbond savedata
+• Monitor gift usage with the history system
+
+❓ COMMON QUESTIONS:
+
+Q: Do players need permissions?
+A: By default, giftbond.use is given to everyone. Customize in config.
+
+Q: How do I add custom gifts?
+A: Edit /plugins/GiftBond/gifts.yml - auto-generated with examples.
+
+Q: Can I disable playtime requirements?
+A: Yes! Set hours_requirement.enabled: false in config.yml.
+
+Q: How does the dynamic points system work?
+A: Points are calculated when gifts are CLAIMED based on the sender's current boost level.
+
+Q: Is it compatible with my existing economy plugin?
+A: Yes! GiftBond works with Vault-compatible economy plugins.
+
+🆘 SUPPORT:
+• Check console for error messages
+• Enable debug mode for detailed logs
+• Review configuration files for syntax errors
+• Ensure PlaceholderAPI is properly installed
+
+🎉 YOU'RE READY!
+Start building friendships and community engagement on your server today!
+
+---
+Need help? Check our comprehensive README.md or contact support.
+GiftBond - Making Minecraft communities stronger, one gift at a time!
