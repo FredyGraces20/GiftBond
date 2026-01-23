@@ -6,7 +6,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import com.fredygraces.giftbond.commands.AmistadCommand;
-import com.fredygraces.giftbond.commands.GiftBondCommand;
+import com.fredygraces.giftbond.commands.GiftBondUnifiedCommand;
 import com.fredygraces.giftbond.commands.MailboxCommand;
 import com.fredygraces.giftbond.commands.RegaloCommand;
 import com.fredygraces.giftbond.commands.TopRegalosCommand;
@@ -153,11 +153,12 @@ public final class GiftBond extends JavaPlugin {
             mailboxCmd.setExecutor(mailboxCommand);
         }
         
-        GiftBondCommand giftBondCommand = new GiftBondCommand(this);
+        // Registrar comando giftbond unificado
+        GiftBondUnifiedCommand giftBondUnifiedCommand = new GiftBondUnifiedCommand(this);
         PluginCommand giftBondCmd = getCommand("giftbond");
         if (giftBondCmd != null) {
-            giftBondCmd.setExecutor(giftBondCommand);
-            giftBondCmd.setTabCompleter(giftBondCommand);
+            giftBondCmd.setExecutor(giftBondUnifiedCommand);
+            giftBondCmd.setTabCompleter(giftBondUnifiedCommand);
         }
         
         // Registrar eventos

@@ -42,13 +42,25 @@ public class PersonalPointsCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!sender.hasPermission("giftbond.admin.points")) {
-            sender.sendMessage(ChatColor.RED + "No tienes permiso para usar este comando.");
-            return true;
+        // Verificar si es acción de visualización (para usuarios)
+        boolean isViewAction = args.length >= 2 && args[1].equalsIgnoreCase("view");
+        
+        // Si es view, verificar permiso de usuario, sino permiso de admin
+        if (isViewAction) {
+            if (!sender.hasPermission("giftbond.points.view")) {
+                sender.sendMessage(ChatColor.RED + "No tienes permiso para ver puntos de otros jugadores.");
+                return true;
+            }
+        } else {
+            // Para acciones add/remove/set, se requiere permiso de admin
+            if (!sender.hasPermission("giftbond.admin.points")) {
+                sender.sendMessage(ChatColor.RED + "No tienes permiso para administrar puntos.");
+                return true;
+            }
         }
 
         if (args.length < 2) {
-            sendUsage(sender);
+            sendUsage(sender, isViewAction);
             return true;
         }
 
@@ -136,17 +148,22 @@ public class PersonalPointsCommand implements CommandExecutor {
                 }
             }
             
-            default -> sendUsage(sender);
+            default -> sendUsage(sender, isViewAction);
         }
 
         return true;
     }
 
-    private void sendUsage(CommandSender sender) {
-        sender.sendMessage(plugin.getPrefix() + ChatColor.GOLD + "=== Admin Points ===");
-        sender.sendMessage(ChatColor.YELLOW + "/giftbond points <jugador> view" + ChatColor.GRAY + " - Ver puntos");
-        sender.sendMessage(ChatColor.YELLOW + "/giftbond points <jugador> add <cantidad>" + ChatColor.GRAY + " - Añadir puntos");
-        sender.sendMessage(ChatColor.YELLOW + "/giftbond points <jugador> remove <cantidad>" + ChatColor.GRAY + " - Quitar puntos");
-        sender.sendMessage(ChatColor.YELLOW + "/giftbond points <jugador> set <cantidad>" + ChatColor.GRAY + " - Establecer puntos");
+    private void sendUsage(CommandSender sender, boolean isViewOnly) {
+        if (isViewOnly) {
+            sender.sendMessage(plugin.getPrefix() + ChatColor.GOLD + "=== Ver Puntos de Jugadores ===");
+            sender.sendMessage(ChatColor.YELLOW + "/giftbond points <jugador> view" + ChatColor.GRAY + " - Ver puntos de un jugador");
+        } else {
+            sender.sendMessage(plugin.getPrefix() + ChatColor.GOLD + "=== Admin Points ===");
+            sender.sendMessage(ChatColor.YELLOW + "/giftbond points <jugador> view" + ChatColor.GRAY + " - Ver puntos");
+            sender.sendMessage(ChatColor.YELLOW + "/giftbond points <jugador> add <cantidad>" + ChatColor.GRAY + " - Añadir puntos");
+            sender.sendMessage(ChatColor.YELLOW + "/giftbond points <jugador> remove <cantidad>" + ChatColor.GRAY + " - Quitar puntos");
+            sender.sendMessage(ChatColor.YELLOW + "/giftbond points <jugador> set <cantidad>" + ChatColor.GRAY + " - Establecer puntos");
+        }
     }
 }

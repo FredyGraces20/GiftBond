@@ -207,18 +207,39 @@ public class DatabaseManager {
 
     public Map<String, Integer> getPlayerFriendsWithPoints(String playerUUID) {
         Map<String, Integer> friends = new HashMap<>();
-        String sql = "SELECT sender_uuid, points FROM friendships WHERE receiver_uuid = ? ORDER BY points DESC";
         
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+        // Obtener puntos de regalos RECIBIDOS (donde el jugador es receiver)
+        String receivedSql = "SELECT sender_uuid, points FROM friendships WHERE receiver_uuid = ?";
+        
+        try (PreparedStatement pstmt = connection.prepareStatement(receivedSql)) {
             pstmt.setString(1, playerUUID);
             
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
-                    friends.put(rs.getString("sender_uuid"), rs.getInt("points"));
+                    String friendUUID = rs.getString("sender_uuid");
+                    int points = rs.getInt("points");
+                    friends.merge(friendUUID, points, (oldValue, newValue) -> oldValue + newValue);
                 }
             }
         } catch (SQLException e) {
-            plugin.getLogger().log(Level.WARNING, "Error getting player friends", e);
+            plugin.getLogger().log(Level.WARNING, "Error getting received friendship points", e);
+        }
+        
+        // Obtener puntos de regalos ENVIADOS (donde el jugador es sender)
+        String sentSql = "SELECT receiver_uuid, points FROM friendships WHERE sender_uuid = ?";
+        
+        try (PreparedStatement pstmt = connection.prepareStatement(sentSql)) {
+            pstmt.setString(1, playerUUID);
+            
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    String friendUUID = rs.getString("receiver_uuid");
+                    int points = rs.getInt("points");
+                    friends.merge(friendUUID, points, (oldValue, newValue) -> oldValue + newValue);
+                }
+            }
+        } catch (SQLException e) {
+            plugin.getLogger().log(Level.WARNING, "Error getting sent friendship points", e);
         }
         
         return friends;

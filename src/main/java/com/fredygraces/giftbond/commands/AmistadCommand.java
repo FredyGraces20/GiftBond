@@ -20,7 +20,9 @@ public class AmistadCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player)) {
-            sender.sendMessage("§cSolo los jugadores pueden usar este comando.");
+            if (sender != null) {
+                sender.sendMessage("§cSolo los jugadores pueden usar este comando.");
+            }
             return true;
         }
 
@@ -49,16 +51,12 @@ public class AmistadCommand implements CommandExecutor {
         if (friends.isEmpty()) {
             player.sendMessage(prefix + "§7No tienes puntos de amistad con nadie aún.");
         } else {
-            int maxDisplay;
-            if (plugin.getConfigManager().getMainConfig().getBoolean("settings.enabled", true)) {
-                maxDisplay = plugin.getConfigManager().getMainConfig().getInt("settings.max_friends_display", 10);
-            } else {
-                maxDisplay = friends.size();
-            }
-            for (int i = 0; i < Math.min(friends.size(), maxDisplay); i++) {
+            // Mostrar solo top 5 como solicitado
+            int maxDisplay = Math.min(5, friends.size());
+            for (int i = 0; i < maxDisplay; i++) {
                 java.util.Map.Entry<String, Integer> friend = friends.get(i);
                 String friendName = getFriendName(friend.getKey());
-                player.sendMessage("§6" + (i + 1) + ". §f" + friendName + " §7- §a" + friend.getValue() + " puntos");
+                player.sendMessage("§f" + friendName + ": §a" + friend.getValue());
             }
         }
         

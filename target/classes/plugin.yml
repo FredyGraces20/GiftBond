@@ -20,37 +20,43 @@ depend: [PlaceholderAPI]
 softdepend: [Vault, DiscordSRV]
 
 commands:
-  amistad:
-    description: Ver tus puntos de amistad y ranking
-    usage: /amistad [jugador]
-    aliases: [friends, friendship]
-    
-  regalo:
-    description: Enviar un regalo a otro jugador o reclamar regalos pendientes
-    usage: /regalo <jugador> | /regalo reclamar [nick|all]
-    aliases: [gift, present]
-    
-  topregalos:
-    description: Ver las parejas con más puntos de amistad
-    usage: /topregalos
-    aliases: [topfriends, leaderboard]
-    
-  mailbox:
-    description: Sistema de buzón para reclamar regalos pendientes
-    usage: /mailbox [nick|all]
-    aliases: [inbox, gifts]
-    
   giftbond:
-    description: Comando principal de administración de GiftBond
-    usage: /giftbond <reload|savedata|points|boost|debug>
-    permission: giftbond.admin
+    description: Main GiftBond command with all subcommands
+    usage: /giftbond <friends|top|send|redeem|reload|savedata|points|boost|debug>
     aliases: [gb]
 
 permissions:
-  giftbond.use:
-    description: Permiso para usar el plugin
+  giftbond.user:
+    description: Permiso básico para usuarios normales
     default: true
+    children:
+      giftbond.friends: true
+      giftbond.top: true
+      giftbond.send: true
+      giftbond.redeem: true
+  
+  giftbond.friends:
+    description: Ver puntos de amistad
+    default: false
     
+  giftbond.top:
+    description: Ver ranking de parejas
+    default: false
+    
+  giftbond.send:
+    description: Enviar regalos a otros jugadores
+    default: false
+    
+  giftbond.redeem:
+    description: Reclamar regalos pendientes
+    default: false
+  
+  giftbond.use:
+    description: Permiso general del plugin (deprecated)
+    default: true
+    children:
+      giftbond.user: true
+  
   giftbond.savedata:
     description: Permiso para crear backups manuales de la base de datos
     default: op
@@ -58,6 +64,10 @@ permissions:
   giftbond.admin.points:
     description: Permiso para administrar puntos personales
     default: op
+    
+  giftbond.points.view:
+    description: Permiso para ver puntos de otros jugadores
+    default: true
     
   giftbond.admin.boost:
     description: Permiso para dar boosts temporales a jugadores
