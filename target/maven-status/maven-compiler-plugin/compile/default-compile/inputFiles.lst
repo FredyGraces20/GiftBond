@@ -1,47 +1,51 @@
-C:\Users\fredy\OneDrive\Desktop\Sistema energía tierra\SanValentin\GiftBond-Maven\src\main\java\com\fredygraces\giftbond\commands\MailboxCommand.java
-C:\Users\fredy\OneDrive\Desktop\Sistema energía tierra\SanValentin\GiftBond-Maven\src\main\java\com\fredygraces\giftbond\commands\MetricsCommand.java
-C:\Users\fredy\OneDrive\Desktop\Sistema energía tierra\SanValentin\GiftBond-Maven\src\main\java\com\fredygraces\giftbond\validation\InputValidator.java
-C:\Users\fredy\OneDrive\Desktop\Sistema energía tierra\SanValentin\GiftBond-Maven\src\main\java\com\fredygraces\giftbond\compression\DataCompression.java
-C:\Users\fredy\OneDrive\Desktop\Sistema energía tierra\SanValentin\GiftBond-Maven\src\main\java\com\fredygraces\giftbond\utils\VersionDetector.java
-C:\Users\fredy\OneDrive\Desktop\Sistema energía tierra\SanValentin\GiftBond-Maven\src\main\java\com\fredygraces\giftbond\commands\TopRegalosCommand.java
-C:\Users\fredy\OneDrive\Desktop\Sistema energía tierra\SanValentin\GiftBond-Maven\src\main\java\com\fredygraces\giftbond\events\HistoryMenuListener.java
-C:\Users\fredy\OneDrive\Desktop\Sistema energía tierra\SanValentin\GiftBond-Maven\src\main\java\com\fredygraces\giftbond\security\LicenseChecker.java
-C:\Users\fredy\OneDrive\Desktop\Sistema energía tierra\SanValentin\GiftBond-Maven\src\main\java\com\fredygraces\giftbond\permissions\PermissionManager.java
-C:\Users\fredy\OneDrive\Desktop\Sistema energía tierra\SanValentin\GiftBond-Maven\src\main\java\com\fredygraces\giftbond\security\StringProtector.java
-C:\Users\fredy\OneDrive\Desktop\Sistema energía tierra\SanValentin\GiftBond-Maven\src\main\java\com\fredygraces\giftbond\commands\ReloadCommand.java
-C:\Users\fredy\OneDrive\Desktop\Sistema energía tierra\SanValentin\GiftBond-Maven\src\main\java\com\fredygraces\giftbond\GiftBond.java
-C:\Users\fredy\OneDrive\Desktop\Sistema energía tierra\SanValentin\GiftBond-Maven\src\main\java\com\fredygraces\giftbond\utils\GiftSessionManager.java
-C:\Users\fredy\OneDrive\Desktop\Sistema energía tierra\SanValentin\GiftBond-Maven\src\main\java\com\fredygraces\giftbond\commands\BoostCommand.java
-C:\Users\fredy\OneDrive\Desktop\Sistema energía tierra\SanValentin\GiftBond-Maven\src\main\java\com\fredygraces\giftbond\commands\DebugCommand.java
-C:\Users\fredy\OneDrive\Desktop\Sistema energía tierra\SanValentin\GiftBond-Maven\src\main\java\com\fredygraces\giftbond\menus\GiftMenu.java
-C:\Users\fredy\OneDrive\Desktop\Sistema energía tierra\SanValentin\GiftBond-Maven\src\main\java\com\fredygraces\giftbond\models\MailboxGift.java
-C:\Users\fredy\OneDrive\Desktop\Sistema energía tierra\SanValentin\GiftBond-Maven\src\main\java\com\fredygraces\giftbond\models\GiftItem.java
-C:\Users\fredy\OneDrive\Desktop\Sistema energía tierra\SanValentin\GiftBond-Maven\src\main\java\com\fredygraces\giftbond\placeholders\GiftBondPlaceholders.java
-C:\Users\fredy\OneDrive\Desktop\Sistema energía tierra\SanValentin\GiftBond-Maven\src\main\java\com\fredygraces\giftbond\cache\PersistentCache.java
-C:\Users\fredy\OneDrive\Desktop\Sistema energía tierra\SanValentin\GiftBond-Maven\src\main\java\com\fredygraces\giftbond\commands\GiftBondUnifiedCommand.java
-C:\Users\fredy\OneDrive\Desktop\Sistema energía tierra\SanValentin\GiftBond-Maven\src\main\java\com\fredygraces\giftbond\storage\SQLiteProvider.java
-C:\Users\fredy\OneDrive\Desktop\Sistema energía tierra\SanValentin\GiftBond-Maven\src\main\java\com\fredygraces\giftbond\utils\DebugLogger.java
-C:\Users\fredy\OneDrive\Desktop\Sistema energía tierra\SanValentin\GiftBond-Maven\src\main\java\com\fredygraces\giftbond\security\DataEncryption.java
-C:\Users\fredy\OneDrive\Desktop\Sistema energía tierra\SanValentin\GiftBond-Maven\src\main\java\com\fredygraces\giftbond\commands\AmistadCommand.java
-C:\Users\fredy\OneDrive\Desktop\Sistema energía tierra\SanValentin\GiftBond-Maven\src\main\java\com\fredygraces\giftbond\managers\FriendshipManager.java
-C:\Users\fredy\OneDrive\Desktop\Sistema energía tierra\SanValentin\GiftBond-Maven\src\main\java\com\fredygraces\giftbond\autocomplete\SmartTabCompleter.java
-C:\Users\fredy\OneDrive\Desktop\Sistema energía tierra\SanValentin\GiftBond-Maven\src\main\java\com\fredygraces\giftbond\cache\AdvancedCacheManager.java
-C:\Users\fredy\OneDrive\Desktop\Sistema energía tierra\SanValentin\GiftBond-Maven\src\main\java\com\fredygraces\giftbond\commands\RegaloCommand.java
-C:\Users\fredy\OneDrive\Desktop\Sistema energía tierra\SanValentin\GiftBond-Maven\src\main\java\com\fredygraces\giftbond\storage\StorageProvider.java
-C:\Users\fredy\OneDrive\Desktop\Sistema energía tierra\SanValentin\GiftBond-Maven\src\main\java\com\fredygraces\giftbond\managers\GiftManager.java
-C:\Users\fredy\OneDrive\Desktop\Sistema energía tierra\SanValentin\GiftBond-Maven\src\main\java\com\fredygraces\giftbond\health\HealthCheckManager.java
-C:\Users\fredy\OneDrive\Desktop\Sistema energía tierra\SanValentin\GiftBond-Maven\src\main\java\com\fredygraces\giftbond\metrics\MetricsManager.java
-C:\Users\fredy\OneDrive\Desktop\Sistema energía tierra\SanValentin\GiftBond-Maven\src\main\java\com\fredygraces\giftbond\managers\EconomyManager.java
-C:\Users\fredy\OneDrive\Desktop\Sistema energía tierra\SanValentin\GiftBond-Maven\src\main\java\com\fredygraces\giftbond\commands\GiftBondCommand.java
-C:\Users\fredy\OneDrive\Desktop\Sistema energía tierra\SanValentin\GiftBond-Maven\src\main\java\com\fredygraces\giftbond\menus\HistoryMenu.java
-C:\Users\fredy\OneDrive\Desktop\Sistema energía tierra\SanValentin\GiftBond-Maven\src\main\java\com\fredygraces\giftbond\storage\StorageManager.java
-C:\Users\fredy\OneDrive\Desktop\Sistema energía tierra\SanValentin\GiftBond-Maven\src\main\java\com\fredygraces\giftbond\backup\BackupManager.java
-C:\Users\fredy\OneDrive\Desktop\Sistema energía tierra\SanValentin\GiftBond-Maven\src\main\java\com\fredygraces\giftbond\events\GiftMenuListener.java
-C:\Users\fredy\OneDrive\Desktop\Sistema energía tierra\SanValentin\GiftBond-Maven\src\main\java\com\fredygraces\giftbond\managers\ConfigManager.java
-C:\Users\fredy\OneDrive\Desktop\Sistema energía tierra\SanValentin\GiftBond-Maven\src\main\java\com\fredygraces\giftbond\managers\DatabaseManager.java
-C:\Users\fredy\OneDrive\Desktop\Sistema energía tierra\SanValentin\GiftBond-Maven\src\main\java\com\fredygraces\giftbond\commands\PersonalPointsCommand.java
-C:\Users\fredy\OneDrive\Desktop\Sistema energía tierra\SanValentin\GiftBond-Maven\src\main\java\com\fredygraces\giftbond\commands\SaveDataCommand.java
-C:\Users\fredy\OneDrive\Desktop\Sistema energía tierra\SanValentin\GiftBond-Maven\src\main\java\com\fredygraces\giftbond\utils\RandomGiftGenerator.java
-C:\Users\fredy\OneDrive\Desktop\Sistema energía tierra\SanValentin\GiftBond-Maven\src\main\java\com\fredygraces\giftbond\logging\GiftBondLogger.java
-C:\Users\fredy\OneDrive\Desktop\Sistema energía tierra\SanValentin\GiftBond-Maven\src\main\java\com\fredygraces\giftbond\utils\ItemFilter.java
-C:\Users\fredy\OneDrive\Desktop\Sistema energía tierra\SanValentin\GiftBond-Maven\src\main\java\com\fredygraces\giftbond\storage\MailboxDAO.java
+C:\GiftBond-Project\src\main\java\com\fredygraces\giftbond\commands\DebugCommand.java
+C:\GiftBond-Project\src\main\java\com\fredygraces\giftbond\managers\EconomyManager.java
+C:\GiftBond-Project\src\main\java\com\fredygraces\giftbond\commands\RegaloCommand.java
+C:\GiftBond-Project\src\main\java\com\fredygraces\giftbond\validation\InputValidator.java
+C:\GiftBond-Project\src\main\java\com\fredygraces\giftbond\storage\MailboxDAO.java
+C:\GiftBond-Project\src\main\java\com\fredygraces\giftbond\events\GiftMenuListener.java
+C:\GiftBond-Project\src\main\java\com\fredygraces\giftbond\storage\StorageProvider.java
+C:\GiftBond-Project\src\main\java\com\fredygraces\giftbond\menus\HistoryMenu.java
+C:\GiftBond-Project\src\main\java\com\fredygraces\giftbond\commands\TopRegalosCommand.java
+C:\GiftBond-Project\src\main\java\com\fredygraces\giftbond\events\HistoryMenuListener.java
+C:\GiftBond-Project\src\main\java\com\fredygraces\giftbond\managers\DatabaseManager.java
+C:\GiftBond-Project\src\main\java\com\fredygraces\giftbond\cache\PersistentCache.java
+C:\GiftBond-Project\src\main\java\com\fredygraces\giftbond\utils\RandomGiftGenerator.java
+C:\GiftBond-Project\src\main\java\com\fredygraces\giftbond\commands\MailboxCommand.java
+C:\GiftBond-Project\src\main\java\com\fredygraces\giftbond\commands\ReloadCommand.java
+C:\GiftBond-Project\src\main\java\com\fredygraces\giftbond\storage\TransactionManager.java
+C:\GiftBond-Project\src\main\java\com\fredygraces\giftbond\managers\FriendshipManager.java
+C:\GiftBond-Project\src\main\java\com\fredygraces\giftbond\models\GiftItem.java
+C:\GiftBond-Project\src\main\java\com\fredygraces\giftbond\metrics\MetricsManager.java
+C:\GiftBond-Project\src\main\java\com\fredygraces\giftbond\security\LicenseChecker.java
+C:\GiftBond-Project\src\main\java\com\fredygraces\giftbond\storage\StorageManager.java
+C:\GiftBond-Project\src\main\java\com\fredygraces\giftbond\storage\ConnectionPoolManager.java
+C:\GiftBond-Project\src\main\java\com\fredygraces\giftbond\commands\GiftBondUnifiedCommand.java
+C:\GiftBond-Project\src\main\java\com\fredygraces\giftbond\security\DataEncryption.java
+C:\GiftBond-Project\src\main\java\com\fredygraces\giftbond\models\MailboxGift.java
+C:\GiftBond-Project\src\main\java\com\fredygraces\giftbond\permissions\PermissionManager.java
+C:\GiftBond-Project\src\main\java\com\fredygraces\giftbond\health\HealthCheckManager.java
+C:\GiftBond-Project\src\main\java\com\fredygraces\giftbond\commands\SaveDataCommand.java
+C:\GiftBond-Project\src\main\java\com\fredygraces\giftbond\GiftBond.java
+C:\GiftBond-Project\src\main\java\com\fredygraces\giftbond\commands\GiftBondCommand.java
+C:\GiftBond-Project\src\main\java\com\fredygraces\giftbond\commands\MetricsCommand.java
+C:\GiftBond-Project\src\main\java\com\fredygraces\giftbond\storage\SynchronizationManager.java
+C:\GiftBond-Project\src\main\java\com\fredygraces\giftbond\managers\GiftManager.java
+C:\GiftBond-Project\src\main\java\com\fredygraces\giftbond\menus\GiftMenu.java
+C:\GiftBond-Project\src\main\java\com\fredygraces\giftbond\commands\BoostCommand.java
+C:\GiftBond-Project\src\main\java\com\fredygraces\giftbond\storage\SQLiteProvider.java
+C:\GiftBond-Project\src\main\java\com\fredygraces\giftbond\commands\DataSystemCommand.java
+C:\GiftBond-Project\src\main\java\com\fredygraces\giftbond\placeholders\GiftBondPlaceholders.java
+C:\GiftBond-Project\src\main\java\com\fredygraces\giftbond\security\StringProtector.java
+C:\GiftBond-Project\src\main\java\com\fredygraces\giftbond\utils\GiftSessionManager.java
+C:\GiftBond-Project\src\main\java\com\fredygraces\giftbond\utils\ItemFilter.java
+C:\GiftBond-Project\src\main\java\com\fredygraces\giftbond\autocomplete\SmartTabCompleter.java
+C:\GiftBond-Project\src\main\java\com\fredygraces\giftbond\utils\DebugLogger.java
+C:\GiftBond-Project\src\main\java\com\fredygraces\giftbond\commands\PersonalPointsCommand.java
+C:\GiftBond-Project\src\main\java\com\fredygraces\giftbond\utils\VersionDetector.java
+C:\GiftBond-Project\src\main\java\com\fredygraces\giftbond\compression\DataCompression.java
+C:\GiftBond-Project\src\main\java\com\fredygraces\giftbond\cache\AdvancedCacheManager.java
+C:\GiftBond-Project\src\main\java\com\fredygraces\giftbond\managers\ConfigManager.java
+C:\GiftBond-Project\src\main\java\com\fredygraces\giftbond\logging\GiftBondLogger.java
+C:\GiftBond-Project\src\main\java\com\fredygraces\giftbond\backup\BackupManager.java
+C:\GiftBond-Project\src\main\java\com\fredygraces\giftbond\commands\AmistadCommand.java

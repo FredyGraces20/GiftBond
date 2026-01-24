@@ -103,48 +103,59 @@ public class MailboxDAO {
      * Guardar un nuevo regalo en el mailbox
      */
     public boolean saveGift(MailboxGift gift) {
-        String sql = """
-            INSERT INTO pending_gifts
-            (receiver_uuid, receiver_name, sender_uuid, sender_name, gift_id, gift_name,
-             items_serialized, shared_items_serialized, base_points, points_awarded, timestamp, claimed)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """;
-
+        // Usar transacción atómica con retry
         try {
-            try (Connection conn = databaseManager.getConnection();
-                 PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-                pstmt.setString(1, gift.getReceiverUUID().toString());
-                pstmt.setString(2, gift.getReceiverName());
-                pstmt.setString(3, gift.getSenderUUID().toString());
-                pstmt.setString(4, gift.getSenderName());
-                pstmt.setString(5, gift.getGiftId());
-                pstmt.setString(6, gift.getGiftName());
-                pstmt.setString(7, serializeItems(gift.getOriginalItems()));
-                pstmt.setString(8, serializeItems(gift.getSharedItems()));
-                pstmt.setInt(9, gift.getBasePoints());  // base_points
-                pstmt.setInt(10, gift.getPointsAwarded()); // points_awarded
-                pstmt.setLong(11, gift.getTimestamp());
-                pstmt.setInt(12, gift.isClaimed() ? 1 : 0);
-
-                int affectedRows = pstmt.executeUpdate();
-
-                if (affectedRows > 0) {
-                    try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
-                        if (generatedKeys.next()) {
-                            gift.setId(generatedKeys.getInt(1));
-                            updateStats(gift.getReceiverUUID(), "received");
-                            debugLogger.debug("✅ Regalo guardado en mailbox (ID: " + gift.getId() + ")");
-                            return true;
+            return plugin.getTransactionManager().executeInTransaction(conn -> {
+                String sql = """
+                    INSERT INTO pending_gifts
+                    (receiver_uuid, receiver_name, sender_uuid, sender_name, gift_id, gift_name,
+                     items_serialized, shared_items_serialized, base_points, points_awarded, timestamp, claimed)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """;
+                
+                try (PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+                    pstmt.setString(1, gift.getReceiverUUID().toString());
+                    pstmt.setString(2, gift.getReceiverName());
+                    pstmt.setString(3, gift.getSenderUUID().toString());
+                    pstmt.setString(4, gift.getSenderName());
+                    pstmt.setString(5, gift.getGiftId());
+                    pstmt.setString(6, gift.getGiftName());
+                    pstmt.setString(7, serializeItems(gift.getOriginalItems()));
+                    pstmt.setString(8, serializeItems(gift.getSharedItems()));
+                    pstmt.setInt(9, gift.getBasePoints());
+                    pstmt.setInt(10, gift.getPointsAwarded());
+                    pstmt.setLong(11, gift.getTimestamp());
+                    pstmt.setInt(12, gift.isClaimed() ? 1 : 0);
+                    
+                    int affectedRows = pstmt.executeUpdate();
+                    
+                    if (affectedRows > 0) {
+                        try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
+                            if (generatedKeys.next()) {
+                                gift.setId(generatedKeys.getInt(1));
+                                
+                                // Actualizar estadísticas con sincronización
+                                plugin.getSynchronizationManager().executeSynchronized(
+                                    "stats_" + gift.getReceiverUUID().toString(), 
+                                    () -> {
+                                        updateStats(gift.getReceiverUUID(), "received");
+                                        return null;
+                                    }
+                                );
+                                
+                                debugLogger.debug("✅ Regalo guardado en mailbox (ID: " + gift.getId() + ")");
+                                return true;
+                            }
                         }
                     }
+                    return false;
                 }
-            }
-
+            }, "save_gift_" + gift.getGiftId());
+            
         } catch (SQLException e) {
-            plugin.getLogger().severe(() -> "❌ Error guardando regalo en mailbox: " + e.getMessage());
+            plugin.getLogger().severe(() -> "❌ Error guardando regalo en mailbox (transacción fallida): " + e.getMessage());
+            return false;
         }
-
-        return false;
     }
 
     /**
@@ -214,27 +225,28 @@ public class MailboxDAO {
      * Marcar regalo como reclamado
      */
     public boolean markAsClaimed(int giftId) {
-        String sql = "UPDATE pending_gifts SET claimed = 1, claim_timestamp = ? WHERE id = ?";
-
+        // Usar transacción atómica
         try {
-            try (Connection conn = databaseManager.getConnection();
-                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
-                pstmt.setLong(1, System.currentTimeMillis());
-                pstmt.setInt(2, giftId);
-
-                int rowsAffected = pstmt.executeUpdate();
-                if (rowsAffected > 0) {
-                    debugLogger.debug("✅ Regalo marcado como reclamado (ID: " + giftId + ")");
-                    return true;
+            return plugin.getTransactionManager().executeInTransaction(conn -> {
+                String sql = "UPDATE pending_gifts SET claimed = 1, claim_timestamp = ? WHERE id = ?";
+                
+                try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                    pstmt.setLong(1, System.currentTimeMillis());
+                    pstmt.setInt(2, giftId);
+                    
+                    int rowsAffected = pstmt.executeUpdate();
+                    if (rowsAffected > 0) {
+                        debugLogger.debug("✅ Regalo marcado como reclamado (ID: " + giftId + ")");
+                        return true;
+                    }
+                    return false;
                 }
-
-            }
-
+            }, "mark_claimed_" + giftId);
+            
         } catch (SQLException e) {
-            plugin.getLogger().severe(() -> "❌ Error marcando regalo como reclamado: " + e.getMessage());
+            plugin.getLogger().severe(() -> "❌ Error marcando regalo como reclamado (transacción fallida): " + e.getMessage());
+            return false;
         }
-
-        return false;
     }
 
     /**

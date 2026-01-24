@@ -5,10 +5,12 @@ import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import com.fredygraces.giftbond.commands.DataSystemCommand;
 import com.fredygraces.giftbond.commands.GiftBondUnifiedCommand;
 import com.fredygraces.giftbond.commands.MailboxCommand;
 import com.fredygraces.giftbond.events.GiftMenuListener;
 import com.fredygraces.giftbond.events.HistoryMenuListener;
+import com.fredygraces.giftbond.health.DataIntegrityChecker;
 import com.fredygraces.giftbond.managers.ConfigManager;
 import com.fredygraces.giftbond.managers.DatabaseManager;
 import com.fredygraces.giftbond.managers.EconomyManager;
@@ -17,7 +19,10 @@ import com.fredygraces.giftbond.managers.GiftManager;
 import com.fredygraces.giftbond.menus.GiftMenu;
 import com.fredygraces.giftbond.menus.HistoryMenu;
 import com.fredygraces.giftbond.security.LicenseChecker;
+import com.fredygraces.giftbond.storage.ConnectionPoolManager;
 import com.fredygraces.giftbond.storage.StorageManager;
+import com.fredygraces.giftbond.storage.SynchronizationManager;
+import com.fredygraces.giftbond.storage.TransactionManager;
 import com.fredygraces.giftbond.utils.ItemFilter;
 import com.fredygraces.giftbond.utils.RandomGiftGenerator;
 import com.fredygraces.giftbond.utils.VersionDetector;
@@ -27,6 +32,10 @@ public final class GiftBond extends JavaPlugin {
     private ConfigManager configManager;  // Nuevo gestor de configuraciones
     private DatabaseManager databaseManager;
     private StorageManager storageManager;
+    private TransactionManager transactionManager;
+    private SynchronizationManager synchronizationManager;
+    private ConnectionPoolManager connectionPoolManager;
+    private DataIntegrityChecker dataIntegrityChecker;
     private FriendshipManager friendshipManager;
     private EconomyManager economyManager;
     private GiftManager giftManager;
@@ -99,6 +108,27 @@ public final class GiftBond extends JavaPlugin {
         databaseManager = new DatabaseManager(this);
         databaseManager.initialize();
         
+        // Inicializar TransactionManager (nuevo sistema de transacciones)
+        transactionManager = new TransactionManager(this);
+        getLogger().info("✓ TransactionManager inicializado");
+        
+        // Inicializar SynchronizationManager (control de concurrencia)
+        synchronizationManager = new SynchronizationManager(this);
+        getLogger().info("✓ SynchronizationManager inicializado");
+        
+        // Inicializar ConnectionPoolManager (pool de conexiones)
+        connectionPoolManager = new ConnectionPoolManager(this);
+        if (connectionPoolManager.initialize()) {
+            getLogger().info("✓ ConnectionPoolManager inicializado");
+        } else {
+            getLogger().warning("⚠ ConnectionPoolManager falló - usando conexión directa");
+        }
+        
+        // Inicializar DataIntegrityChecker (monitoreo de integridad)
+        dataIntegrityChecker = new DataIntegrityChecker(this);
+        dataIntegrityChecker.schedulePeriodicChecks();
+        getLogger().info("✓ DataIntegrityChecker inicializado");
+        
         // Inicializar StorageManager (nuevo sistema multi-database)
         storageManager = new StorageManager(this);
         // Inicializar StorageManager primero
@@ -144,6 +174,13 @@ public final class GiftBond extends JavaPlugin {
         if (giftBondCmd != null) {
             giftBondCmd.setExecutor(giftBondUnifiedCommand);
             giftBondCmd.setTabCompleter(giftBondUnifiedCommand);
+        }
+        
+        // Register data system command
+        DataSystemCommand dataSystemCommand = new DataSystemCommand(this);
+        PluginCommand dataSystemCmd = getCommand("datasystem");
+        if (dataSystemCmd != null) {
+            dataSystemCmd.setExecutor(dataSystemCommand);
         }
         
         // Registrar eventos
@@ -341,5 +378,37 @@ public final class GiftBond extends JavaPlugin {
      */
     public ConfigManager getConfigManager() {
         return configManager;
+    }
+    
+    /**
+     * Obtiene el TransactionManager
+     * @return TransactionManager instance
+     */
+    public TransactionManager getTransactionManager() {
+        return transactionManager;
+    }
+    
+    /**
+     * Obtiene el SynchronizationManager
+     * @return SynchronizationManager instance
+     */
+    public SynchronizationManager getSynchronizationManager() {
+        return synchronizationManager;
+    }
+    
+    /**
+     * Obtiene el ConnectionPoolManager
+     * @return ConnectionPoolManager instance
+     */
+    public ConnectionPoolManager getConnectionPoolManager() {
+        return connectionPoolManager;
+    }
+    
+    /**
+     * Obtiene el DataIntegrityChecker
+     * @return DataIntegrityChecker instance
+     */
+    public DataIntegrityChecker getDataIntegrityChecker() {
+        return dataIntegrityChecker;
     }
 }
