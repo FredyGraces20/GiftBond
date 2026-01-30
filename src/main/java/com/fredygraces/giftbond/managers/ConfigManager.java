@@ -52,12 +52,13 @@ public class ConfigManager {
 
         databaseFile = new File(plugin.getDataFolder(), "database.yml");
         databaseConfig = YamlConfiguration.loadConfiguration(databaseFile);
-
+/*
         plugin.getLogger().info("✓ Archivos de configuración cargados:");
         plugin.getLogger().info("  - config.yml");
         plugin.getLogger().info("  - messages.yml");
         plugin.getLogger().info("  - gifts.yml");
         plugin.getLogger().info("  - database.yml");
+*/
     }
 
     /**
@@ -66,26 +67,26 @@ public class ConfigManager {
     private void createCustomConfig(String fileName) {
         File file = new File(plugin.getDataFolder(), fileName);
 
-        plugin.getLogger().info("Intentando crear archivo: " + fileName);
-        plugin.getLogger().info("Ruta del archivo: " + file.getAbsolutePath());
-        plugin.getLogger().info("Directorio del plugin: " + plugin.getDataFolder().getAbsolutePath());
+        // plugin.getLogger().info("Intentando crear archivo: " + fileName);
+        // plugin.getLogger().info("Ruta del archivo: " + file.getAbsolutePath());
+        // plugin.getLogger().info("Directorio del plugin: " + plugin.getDataFolder().getAbsolutePath());
 
         if (!file.exists()) {
             try {
                 // Crear directorio si no existe
                 if (!plugin.getDataFolder().exists()) {
                     plugin.getDataFolder().mkdirs();
-                    plugin.getLogger().info("Directorio del plugin creado");
+                    // plugin.getLogger().info("Directorio del plugin creado");
                 }
 
                 // Copiar desde recursos
-                plugin.getLogger().info("Buscando recurso: " + fileName);
+                // plugin.getLogger().info("Buscando recurso: " + fileName);
                 InputStream inputStream = plugin.getResource(fileName);
 
                 if (inputStream != null) {
-                    plugin.getLogger().info("Recurso encontrado, copiando...");
+                    // plugin.getLogger().info("Recurso encontrado, copiando...");
                     Files.copy(inputStream, file.toPath());
-                    plugin.getLogger().info("✓ Creado " + fileName + " desde recursos");
+                    // plugin.getLogger().info("✓ Creado " + fileName + " desde recursos");
                 } else {
                     plugin.getLogger().warning("No se encontró " + fileName + " en recursos, creando estructura básica...");
                     createBasicConfigStructure(file, fileName);
@@ -102,7 +103,7 @@ public class ConfigManager {
                 }
             }
         } else {
-            plugin.getLogger().info(fileName + " ya existe, omitiendo creación");
+            // plugin.getLogger().info(fileName + " ya existe, omitiendo creación");
         }
     }
 
@@ -123,7 +124,7 @@ public class ConfigManager {
             default:
                 // Crear archivo vacío
                 Files.createFile(file.toPath());
-                plugin.getLogger().info("✓ Creado archivo vacío: " + fileName);
+                // plugin.getLogger().info("✓ Creado archivo vacío: " + fileName);
         }
     }
 
@@ -196,9 +197,9 @@ public class ConfigManager {
               lore_rotation: "&7⏰ Los regalos rotan cada hora"
               lore_footer: "&7&o¡Aprovecha esta oportunidad!"
             """;
-
+        
         Files.writeString(file.toPath(), defaultContent);
-        plugin.getLogger().info("✓ Creado messages.yml con contenido predeterminado");
+        // plugin.getLogger().info("✓ Creado messages.yml con contenido predeterminado");
     }
 
     /**
@@ -278,9 +279,9 @@ public class ConfigManager {
               enabled: false
               gifts: {}
             """;
-
+        
         Files.writeString(file.toPath(), defaultContent);
-        plugin.getLogger().info("✓ Creado gifts.yml con contenido predeterminado");
+        // plugin.getLogger().info("✓ Creado gifts.yml con contenido predeterminado");
     }
 
     /**
@@ -322,9 +323,9 @@ public class ConfigManager {
                   useSSL: false
                   serverTimezone: "UTC"
             """;
-
+        
         Files.writeString(file.toPath(), defaultContent);
-        plugin.getLogger().info("✓ Creado database.yml con contenido predeterminado");
+        // plugin.getLogger().info("✓ Creado database.yml con contenido predeterminado");
     }
 
     /**
@@ -340,11 +341,13 @@ public class ConfigManager {
         giftsConfig = YamlConfiguration.loadConfiguration(giftsFile);
         databaseConfig = YamlConfiguration.loadConfiguration(databaseFile);
 
+/*
         plugin.getLogger().info("✓ Configuración principal recargada");
         plugin.getLogger().info("✓ messages.yml recargado");
         plugin.getLogger().info("✓ gifts.yml recargado");
         plugin.getLogger().info("✓ database.yml recargado");
         plugin.getLogger().info("✓ Todas las configuraciones actualizadas");
+*/
     }
 
     /**
@@ -420,7 +423,7 @@ public class ConfigManager {
      * Crea cualquier archivo faltante con contenido básico
      */
     public void ensureAllConfigsExist() {
-        plugin.getLogger().info("Verificando archivos de configuración...");
+        // plugin.getLogger().info("Verificando archivos de configuración...");
 
         // Verificar y crear cada archivo si no existe
         String[] configFiles = {"messages.yml", "gifts.yml", "database.yml"};
@@ -428,11 +431,11 @@ public class ConfigManager {
         for (String fileName : configFiles) {
             File file = new File(plugin.getDataFolder(), fileName);
             if (!file.exists()) {
-                plugin.getLogger().info("Creando archivo faltante: " + fileName);
+                // plugin.getLogger().info("Creando archivo faltante: " + fileName);
                 createCustomConfig(fileName);
             }
         }
 
-        plugin.getLogger().info("✓ Todos los archivos de configuración verificados");
+        // plugin.getLogger().info("✓ Todos los archivos de configuración verificados");
     }
 }

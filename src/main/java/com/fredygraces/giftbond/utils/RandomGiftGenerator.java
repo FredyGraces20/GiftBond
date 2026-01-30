@@ -22,6 +22,7 @@ public class RandomGiftGenerator {
     private final Random random;
     private List<Material> validItems;
     private final List<RandomGift> currentGifts;
+    private final List<RandomMoneyGift> currentMoneyGifts;
     private long nextRotationTime;
     
     public RandomGiftGenerator(GiftBond plugin, ItemFilter itemFilter) {
@@ -31,6 +32,7 @@ public class RandomGiftGenerator {
         this.random = new Random();
         this.validItems = new ArrayList<>();
         this.currentGifts = new ArrayList<>();
+        this.currentMoneyGifts = new ArrayList<>();
         this.nextRotationTime = 0;
     }
     
@@ -50,7 +52,7 @@ public class RandomGiftGenerator {
         // Generar regalos iniciales
         generateNewGifts();
         
-        plugin.getLogger().info(() -> "Generador de regalos inicializado con " + validItems.size() + " items disponibles");
+        // plugin.getLogger().info(() -> "Generador de regalos inicializado con " + validItems.size() + " items disponibles");
     }
     
     /**
@@ -61,17 +63,33 @@ public class RandomGiftGenerator {
         
         // Limpiar regalos actuales
         currentGifts.clear();
+        currentMoneyGifts.clear();
         
-        // Generar nuevos regalos
+        // Generar nuevos regalos de items
         for (int i = 0; i < giftCount; i++) {
             RandomGift gift = generateSingleGift();
             currentGifts.add(gift);
+        }
+
+        // Generar nuevos regalos de dinero (9 botones)
+        // 1-3: 1,000 a 100,000 | 10 a 100 puntos
+        for (int i = 0; i < 3; i++) {
+            currentMoneyGifts.add(new RandomMoneyGift(generateRandomDouble(1000, 100000), random.nextInt(100 - 10 + 1) + 10));
+        }
+        // 4-6: 100,000 a 1,000,000 | 200 a 500 puntos
+        for (int i = 0; i < 3; i++) {
+            currentMoneyGifts.add(new RandomMoneyGift(generateRandomDouble(100000, 1000000), random.nextInt(500 - 200 + 1) + 200));
+        }
+        // 7-9: 1,000,000 a 1,000,000,000 | 500 a 1000 puntos
+        for (int i = 0; i < 3; i++) {
+            currentMoneyGifts.add(new RandomMoneyGift(generateRandomDouble(1000000, 1000000000), random.nextInt(1000 - 500 + 1) + 500));
         }
         
         // Calcular tiempo de próxima rotación
         int intervalMinutes = plugin.getConfigManager().getGiftsConfig().getInt("auto_mode.rotation.interval", 60);
         nextRotationTime = System.currentTimeMillis() + (intervalMinutes * 60 * 1000L);
         
+/*
         plugin.getLogger().info("═══════════════════════════════════════");
         plugin.getLogger().info("  NUEVOS REGALOS GENERADOS");
         plugin.getLogger().info(() -> "  Total: " + currentGifts.size() + " regalos");
@@ -85,6 +103,7 @@ public class RandomGiftGenerator {
                 i + 1, gift.getAmount(), gift.getMaterial().name(), gift.getPoints()));
         }
         plugin.getLogger().info("═══════════════════════════════════════");
+*/
         
         // Broadcast si está habilitado
         if (plugin.getConfigManager().getGiftsConfig().getBoolean("auto_mode.rotation.broadcast_on_change", true)) {
@@ -117,6 +136,20 @@ public class RandomGiftGenerator {
         int points = random.nextInt(maxPoints - minPoints + 1) + minPoints;
         
         return new RandomGift(material, amount, points);
+    }
+
+    /**
+     * Genera un double aleatorio entre min y max
+     */
+    private double generateRandomDouble(double min, double max) {
+        return min + (max - min) * random.nextDouble();
+    }
+    
+    /**
+     * Obtiene los regalos de dinero actuales
+     */
+    public List<RandomMoneyGift> getCurrentMoneyGifts() {
+        return new ArrayList<>(currentMoneyGifts);
     }
     
     /**
@@ -198,11 +231,32 @@ public class RandomGiftGenerator {
      * Recarga el generador (usado por /giftbond reload)
      */
     public void reload() {
-        plugin.getLogger().info("Recargando generador de regalos...");
+        // plugin.getLogger().info("Recargando generador de regalos...");
         this.validItems = itemFilter.getValidItems();
         generateNewGifts();
     }
     
+    /**
+     * Clase interna para representar un regalo de dinero
+     */
+    public static class RandomMoneyGift {
+        private final double amount;
+        private final int points;
+
+        public RandomMoneyGift(double amount, int points) {
+            this.amount = amount;
+            this.points = points;
+        }
+
+        public double getAmount() {
+            return amount;
+        }
+
+        public int getPoints() {
+            return points;
+        }
+    }
+
     /**
      * Clase interna para representar un regalo aleatorio
      */

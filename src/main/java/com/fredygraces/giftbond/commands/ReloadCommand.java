@@ -17,14 +17,14 @@ public class ReloadCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!sender.hasPermission("giftbond.admin.reload")) {
-            sender.sendMessage(ChatColor.RED + "No tienes permiso para usar este comando.");
+            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessage("errors.no_permission", "{prefix}&cNo tienes permiso para usar este comando.")));
             return true;
         }
 
         plugin.getConfigManager().reloadConfigs();
         plugin.getGiftManager().reload();
         
-        sender.sendMessage(plugin.getPrefix() + ChatColor.GREEN + "La configuración y los regalos han sido recargados.");
+        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessage("success.config_reloaded", "{prefix}&aConfiguración recargada.")));
         return true;
     }
 }

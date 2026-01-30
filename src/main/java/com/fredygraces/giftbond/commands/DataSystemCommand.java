@@ -29,7 +29,8 @@ public class DataSystemCommand implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender == null || !(sender instanceof Player)) {
             if (sender != null) {
-                sender.sendMessage("§cSolo jugadores pueden usar este comando");
+                sender.sendMessage(org.bukkit.ChatColor.translateAlternateColorCodes('&', 
+                    plugin.getMessage("errors.no_permission_player_only", "{prefix}&cSolo los jugadores pueden usar este comando.")));
             }
             return true;
         }

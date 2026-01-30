@@ -45,7 +45,7 @@ GiftBond/
 
 ### Comandos
 - **RegaloCommand**: `/regalo` - Envío de regalos
-- **MailboxCommand**: `/mailbox` - Reclamo de regalos
+- **MailboxCommand**: `/gb redeem` - Reclamo de regalos
 - **AmistadCommand**: `/amistad` - Sistema de amistad
 - **BoostCommand**: `/boost` - Sistema de boosts
 - **GiftBondCommand**: `/giftbond` - Comandos administrativos

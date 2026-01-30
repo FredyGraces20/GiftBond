@@ -19,30 +19,32 @@ prefix: "&d&lGiftBond &8» &7"
 
 errors:
   # Permissions
-  no_permission: "{prefix}&cYou don't have permission to use this command."
-  no_permission_player_only: "{prefix}&cOnly players can use this command."
+  no_permission: "{prefix}&cNo tienes permiso para usar este comando."
+  no_permission_player_only: "{prefix}&cSolo los jugadores pueden usar este comando."
   
   # Players
-  player_not_found: "{prefix}&cPlayer not found: {player}"
-  player_offline: "{prefix}&cPlayer {player} is not online."
+  player_not_found: "{prefix}&cJugador no encontrado: {player}"
+  player_offline: "{prefix}&cEl jugador {player} no está conectado."
   
   # Gifts
-  gift_not_found: "{prefix}&cGift not found."
-  gift_unavailable: "{prefix}&cYou don't have the required items for this gift."
-  gift_cooldown: "{prefix}&cYou must wait {time} seconds before sending another gift."
-  gift_self_not_allowed: "{prefix}&cYou cannot send gifts to yourself."
-  gift_daily_limit: "{prefix}&cYou have reached the daily gift limit ({limit})."
+  gift_not_found: "{prefix}&cRegalo no encontrado."
+  gift_unavailable: "{prefix}&cNo tienes los items necesarios para este regalo."
+  gift_cooldown: "{prefix}&cDebes esperar {time} segundos antes de enviar otro regalo."
+  gift_self_not_allowed: "{prefix}&cNo puedes enviarte regalos a ti mismo."
+  gift_daily_limit: "{prefix}&cHas alcanzado el límite diario de regalos ({limit})."
   
   # Friendship
-  friendship_no_data: "{prefix}&7You don't have friendship data yet."
+  friendship_no_data: "{prefix}&7Aún no tienes datos de amistad."
   
   # Playtime
-  min_hours_sender: "{prefix}&cYou must have at least {min} hours played to send gifts. (You have {current} hours)"
-  min_hours_receiver: "{prefix}&cPlayer {player} must have at least {min} hours played to receive gifts."
+  min_hours_sender: "{prefix}&cDebes tener al menos {min} horas jugadas para enviar regalos. (Tienes {current} horas)"
+  min_hours_receiver: "{prefix}&cEl jugador {player} debe tener al menos {min} horas jugadas para recibir regalos."
+  system_error: "{prefix}&cError del sistema: Componentes requeridos no disponibles."
   
   # System
-  system_disabled: "{prefix}&cThe system is temporarily disabled."
+  system_disabled: "{prefix}&cEl sistema está temporalmente desactivado."
   unexpected_error: "{prefix}&cHa ocurrido un error inesperado. Por favor, contacta a un administrador."
+  unknown_subcommand: "{prefix}&cSubcomando desconocido: {subcommand}"
 
 # ═══════════════════════════════════════════════════════════════
 # ✅ SUCCESS MESSAGES
@@ -50,21 +52,25 @@ errors:
 
 success:
   # Gifts
-  gift_sent: "{prefix}&aYou sent a gift to &f{receiver}&a! Reward: &f{points} points"
-  gift_received: "{prefix}&aYou received a gift from &f{sender}&a! Reward: &f{points} points"
-  gift_received_notification: "{prefix}&a{sender} sent you a gift!"
+  gift_sent: "{prefix}&a¡Has enviado un regalo a &f{receiver}&a! Premio: &f{points} puntos"
+  gift_received: "{prefix}&a¡Has recibido un regalo de &f{sender}&a! Premio: &f{points} puntos"
+  gift_received_notification: "{prefix}&a¡{sender} te ha enviado un regalo!"
   
   # Friendship
-  friendship_updated: "{prefix}&aYour friendship points have been updated."
+  friendship_updated: "{prefix}&aTus puntos de amistad han sido actualizados."
   
   # Boosts
-  boost_applied: "{prefix}&aBoost applied to {player}: x{multiplier} for {duration} minutes"
-  boost_removed: "{prefix}&aBoost removed from {player}"
-  boost_expired: "{prefix}&7Your boost has expired."
+  boost_applied: "{prefix}&aBoost aplicado a {player}: x{multiplier} por {duration} minutos"
+  boost_removed: "{prefix}&aBoost eliminado de {player}"
+  personal_points_removed: "{prefix}&aSe han quitado &f{points} &apuntos a &f{player}&a."
+  personal_points_set: "{prefix}&aPuntos de &f{player} &aestablecidos en &f{points}&a."
+  boost_expired: "{prefix}&7Tu boost ha expirado."
   
   # System
-  data_saved: "{prefix}&aData saved successfully."
-  config_reloaded: "{prefix}&aConfiguration reloaded."
+  data_saved: "{prefix}&aDatos guardados correctamente."
+  config_reloaded: "{prefix}&aConfiguración recargada."
+  debug_enabled: "{prefix}&a✅ Debug ACTIVADO - Mensajes de debug en consola"
+  debug_disabled: "{prefix}&a❌ Debug DESACTIVADO"
 
 # ═══════════════════════════════════════════════════════════════
 # 📊 INFORMATION MESSAGES
@@ -73,28 +79,37 @@ success:
 info:
   # /friends command
   friendship_header: "&d&m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-  friendship_title: "&d&l💕 FRIENDSHIP POINTS"
-  friendship_your_points: "&7Your total points: &f{points}"
-  friendship_friend_entry: "&e{rank}. &f{player1} &7and &f{player2} &7- &a{points} points"
-  friendship_no_friends: "&7You don't have friends with points yet."
+  friendship_title: "&d&l💕 PUNTOS DE AMISTAD"
+  friendship_personal_points: "&ePuntos personales (para canjear): &a{points}"
+  friendship_your_points: "&eTus puntos de amistad totales: &f{points}"
+  friendship_friendships_title: "&eTus amistades:"
+  friendship_friend_entry: "&f{friend}: &a{points}"
+  friendship_no_friends: "&7No tienes puntos de amistad con nadie aún."
   friendship_footer: "&d&m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
   
   # /leaderboard command
   top_header: "&6&m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-  top_title: "&6&l🏆 TOP 10 COUPLES"
-  top_entry: "&e{rank}. &f{player1} &7and &f{player2} &7- &a{points} points"
+  top_title: "&6&l🏆 TOP 10 PAREJAS"
+  top_entry: "&6{rank}. &f{player1} &4❤ &f{player2} &7- &a{points} puntos"
+  top_no_data: "&7No hay puntos de amistad registrados aún."
+  top_error: "&cError al recuperar los datos de amistad."
+  top_header_text: "&eTop 10 couples with most friendship points:"
+  top_no_friends: "&7No friendship points registered yet."
   top_footer: "&6&m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
   
   # Boost information
-  boost_active: "&a💫 Active Boost: x{multiplier}"
-  boost_time_left: "&7Time left: {time}"
-  boost_none: "&7No active boost"
+  boost_active: "&a💫 Boost Activo: x{multiplier}"
+  boost_time_left: "&7Tiempo restante: {time}"
+  boost_none: "&7Sin boost activo"
+  debug_status: "{prefix}&eEstado de debug: &f{status}"
   
   # Personal points system
-  personal_points: "&e💰 Personal Points: &f{points}"
-  personal_points_added: "{prefix}&a+{points} personal points"
-  personal_points_spent: "{prefix}&c-{points} personal points spent"
-  personal_points_insufficient: "{prefix}&cInsufficient personal points. Required: {required}, You have: {current}"
+  personal_points: "&e💰 Puntos Personales: &f{points}"
+  personal_points_added: "{prefix}&a+{points} puntos personales"
+  personal_points_spent: "{prefix}&c-{points} puntos personales gastados"
+  personal_points_insufficient: "{prefix}&cPuntos personales insuficientes. Requeridos: {required}, Tienes: {current}"
+  personal_points_view: "{prefix}&ePuntos personales de &f{player}&e: &f{points}"
+  personal_points_insufficient_target: "{prefix}&c{player} no tiene suficientes puntos."
 
 # ═══════════════════════════════════════════════════════════════
 # 🎮 GUI MESSAGES
@@ -102,21 +117,21 @@ info:
 
 gui:
   # Gift menu
-  gift_menu_title: "Send gift to {player}"
-  gift_available: "&a✓ Available"
-  gift_unavailable: "&c✗ You don't have required items"
-  gift_click_to_send: "&7Click to send this gift"
-  gift_locked: "&7Get the required items to unlock"
+  gift_menu_title: "Enviar regalo a {player}"
+  gift_available: "&a✓ Disponible"
+  gift_unavailable: "&c✗ No tienes los items necesarios"
+  gift_click_to_send: "&7Clic para enviar este regalo"
+  gift_locked: "&7Consigue los items para desbloquear"
   
   # Rotation item (auto mode)
-  rotation_info_title: "&e&l⏰ Gift Rotation"
+  rotation_info_title: "&e&l⏰ Rotación de Regalos"
   rotation_info_lore:
-    - "&7Gifts change automatically"
-    - "&7every certain time."
+    - "&7Los regalos cambian automáticamente"
+    - "&7cada cierto tiempo."
     - ""
-    - "&eNext change: &f{time}"
+    - "&ePróximo cambio: &f{time}"
     - ""
-    - "&7Take advantage of current gifts!"
+    - "&7¡Aprovecha los regalos actuales!"
   
   # History menu
   history_menu_title: "Gift History - Page {page}"
@@ -132,11 +147,11 @@ random_gifts:
   # Random gift lore (auto mode)
   item_name: "&6&l✦ &e{item} &6&l✦"
   lore_separator: "&8&m━━━━━━━━━━━━━━━━━━━━"
-  lore_title: "&7&o🎁 Current Gift"
-  lore_reward: "&a&l💰 Reward: &f{points} points"
-  lore_cost: "&c&l📦 Cost: &f{amount}x &e{item}"
-  lore_rotation: "&7⏰ Gifts rotate every hour"
-  lore_footer: "&7&oTake advantage of this opportunity!"
+  lore_title: "&7&o🎁 Regalo del Momento"
+  lore_reward: "&a&l💰 Premio: &f{points} puntos"
+  lore_cost: "&c&l📦 Costo: &f{amount}x &e{item}"
+  lore_rotation: "&7⏰ Los regalos rotan cada hora"
+  lore_footer: "&7&o¡Aprovecha esta oportunidad!"
 
 # ═══════════════════════════════════════════════════════════════
 # ⚙️ COMMAND MESSAGES
@@ -144,20 +159,63 @@ random_gifts:
 
 commands:
   # Command usage
-  usage_friends: "&cUsage: /friends [player]"
-  usage_gift: "&cUsage: /gift <player>"
-  usage_boost: "&cUsage: /giftbond boost <player> <multiplier> <duration_minutes>"
-  usage_points: "&cUsage: /giftbond points <add|remove|set> <player> <amount>"
-  usage_savedata: "&cUsage: /giftbond savedata"
+  usage_friends: "&cUso: /giftbond friends"
+  usage_gift: "&cUso: /giftbond send <jugador> (o /regalo <jugador>)"
+  usage_boost: "&cUso: /giftbond boost <jugador> <multiplicador> <duración_minutos>"
+  usage_points: "&cUso: /giftbond points <add|remove|set> <jugador> <cantidad>"
+  usage_points_view: "&cUso: /giftbond points <jugador> view"
+  usage_points_add: "&cUso: /giftbond points <jugador> add <cantidad>"
+  usage_points_remove: "&cUso: /giftbond points <jugador> remove <cantidad>"
+  usage_points_set: "&cUso: /giftbond points <jugador> set <cantidad>"
+  usage_boost_example: "&7Ejemplo: /giftbond boost {player} 2.0 30"
+  usage_savedata: "&cUso: /giftbond savedata"
+  usage_debug: "&cUso: /giftbond debug <on|off>"
+  metrics_help_title: "&eComandos de Métricas:"
+  metrics_help_report: "&e/giftbond metrics report &7- Mostrar reporte completo"
+  metrics_help_reset: "&e/giftbond metrics reset &7- Reiniciar contadores"
+  
+  # Metrics report
+  metrics_report_header: "{prefix}&6=== Reporte de Métricas ==="
+  metrics_gifts_sent: "&aRegalos Enviados: &f{count}"
+  metrics_gifts_redeemed: "&aRegalos Reclamados: &f{count}"
+  metrics_points_earned: "&aPuntos de Amistad: &f{count}"
+  metrics_commands_executed: "&aComandos Ejecutados: &f{count}"
+  metrics_average_time: "&aTiempo Promedio: &f{time} ms"
+  metrics_peak_hour: "&aHora Pico: &f{hour}"
+  metrics_most_used_command: "&aComando Más Usado: &f{command}"
+  metrics_active_players: "&aJugadores Activos: &f{count}"
+  metrics_player_stats_title: "&6Estadísticas de Jugadores:"
+  metrics_active_players_count: "&e• Jugadores activos: &f{count}"
+  metrics_top_senders_title: "&e• Top enviadores: &7(próximamente)"
+  metrics_reset_warning: "{prefix}&e⚠ Los contadores se reinician automáticamente cada 24 horas."
+  metrics_reset_demo: "&7Para efectos de demostración, los datos se mantienen."
+  metrics_error: "{prefix}&cError generando reporte: {error}"
   
   # Command help
   help_header: "&d&m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-  help_title: "&d&lGIFTBOND - COMMANDS"
-  help_friends: "&e/friends &7- View your friendship points"
-  help_gift: "&e/gift <player> &7- Send a gift"
-  help_leaderboard: "&e/leaderboard &7- View top 10 couples"
+  help_title: "&d&lGIFTBOND - COMANDOS"
+  help_friends: "&e/giftbond friends &7- Ver tus puntos de amistad"
+  help_top: "&e/giftbond top &7- Ver el top 10 de parejas"
+  help_gift: "&e/regalo <jugador> &7- Enviar un regalo"
+  help_mailbox: "&e/giftbond redeem &7- Ver y reclamar regalos acumulados"
+  help_reload: "&e/giftbond reload &7- Recargar configuración"
+  help_savedata: "&e/giftbond savedata &7- Crear backup de datos"
+  help_points: "&e/giftbond points &7- Gestionar puntos"
+  help_boost: "&e/giftbond boost &7- Dar boosts a jugadores"
+  help_debug: "&e/giftbond debug &7- Controlar modo debug"
   help_giftbond: "&e/giftbond &7- Comandos de administración"
+  admin_header: "&c&lADMINISTRACIÓN:"
   help_footer: "&d&m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+  
+  # Mailbox commands help
+  mailbox_help_header: "&6&m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+  mailbox_help_title: "&6&l📬 SISTEMA DE MAILBOX"
+  mailbox_help_status: "&e/gb redeem &7- Ver resumen de regalos"
+  mailbox_help_all: "&e/gb redeem all &7- Reclamar todos los regalos"
+  mailbox_help_sender: "&e/gb redeem <jugador> &7- Reclamar de alguien específico"
+  mailbox_help_items: "&e/gb redeem items &7- Reclamar solo items"
+  mailbox_help_money: "&e/gb redeem money &7- Reclamar solo dinero"
+  mailbox_help_footer: "&6&m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
 # ═══════════════════════════════════════════════════════════════
 # 📫 MAILBOX SYSTEM MESSAGES
@@ -165,58 +223,70 @@ commands:
 
 mailbox:
   # Commands
-  no_pending_gifts: "{prefix}&a📭 You have no pending gifts."
-  pending_gifts_list: "{prefix}&a📬 You have gifts from:"
-  gift_claimed: "{prefix}&a✅ You claimed {count} gift(s) from {sender}!"
-  all_gifts_claimed: "{prefix}&a✅ You claimed all your pending gifts!"
-  no_space_inventory: "{prefix}&c❌ Insufficient inventory space!"
-  gift_not_found: "{prefix}&c❌ You have no pending gifts from {sender}"
+  no_pending_gifts: "{prefix}&a📭 No tienes regalos pendientes."
+  pending_gifts_list: "{prefix}&a📬 Tienes regalos de:"
+  gift_claimed: "{prefix}&a✅ ¡Has reclamado {count} regalo(s) de {sender}!"
+  all_gifts_claimed: "{prefix}&a✅ ¡Has reclamado todos tus regalos pendientes!"
+  no_space_inventory: "{prefix}&c❌ ¡Espacio insuficiente en el inventario!"
+  gift_not_found: "{prefix}&c❌ No tienes regalos pendientes de {sender}"
+  
+  # New mailbox messages
+  status_header: "{prefix}&6📬 Resumen de tu Mailbox:"
+  status_money: "&7 » &fDinero acumulado: &a${amount}"
+  status_slots: "&7 » &fEspacio necesario: &b{slots} slots"
+  status_players_title: "&6🎁 Regalos por jugador:"
+  status_player_entry: "&a  • {player} &7({count} regalo{plural}) &8· &7{time}"
+  status_usage_sender: "&eUsa &f/gb redeem <nick> &epara recoger de alguien específico"
+  status_usage_all: "&eUsa &f/gb redeem all &epara recoger todo"
+  claim_success_money: "{prefix}&a✅ Has reclamado &f{count} &aregalo(s) incluyendo &f${amount}!"
+  claim_success_points: "&7Recibiste &f{points} &7puntos de amistad."
+  no_gifts_type: "{prefix}&c❌ No tienes {type} pendientes para reclamar."
   
   # Notifications
-  gift_received_mailbox: "{prefix}&a📬 You received a gift from {sender}! Use /gift claim to view it."
-  gift_claimed_notification: "{prefix}&a{claimer} claimed your gifts!"
+  gift_received_mailbox: "{prefix}&a📬 ¡Has recibido un regalo de {sender}! Usa /gb redeem para verlo."
+  gift_claimed_notification: "{prefix}&a¡{claimer} ha reclamado tus regalos!"
   
   # Information
-  inventory_space_needed: "&7You need {slots} free slots. You have {available} available."
-  gift_summary: "&a{sender} &7({count} gift{plural}) &8· &7{time}"
+  inventory_space_needed: "&7Necesitas {slots} slots libres. Tienes {available} disponibles."
+  gift_summary: "&a{sender} &7({count} regalo{plural}) &8· &7{time}"
   
   # Additional commands
-  usage_reclamar: "&cUsage: /gift claim [player|all]"
-  usage_redeem: "&cUsage: /giftbond redeem [player|all]"
-  reclaim_success: "{prefix}&aYou claimed {count} gift(s) from {sender}"
-  reclaim_all_success: "{prefix}&aYou claimed all your {count} pending gifts"
-  reclaim_failed: "{prefix}&cError claiming gifts. Contact an administrator."
-  reclaim_database_error: "{prefix}&cDatabase error claiming gifts."
+  usage_reclamar: "&cUso: /giftbond redeem [jugador|all]"
+  usage_redeem: "&cUso: /giftbond redeem [jugador|all]"
+  reclaim_success: "{prefix}&aHas reclamado {count} regalo(s) de {sender}"
+  reclaim_all_success: "{prefix}&aHas reclamado todos tus {count} regalos pendientes"
+  reclaim_failed: "{prefix}&cError al reclamar regalos. Contacta a un administrador."
+  reclaim_database_error: "{prefix}&cError de base de datos al reclamar regalos."
   
   # Mailbox GUI
-  mailbox_gui_title: "📬 Inbox"
-  mailbox_empty: "&7Your inbox is empty"
+  mailbox_gui_title: "📬 Bandeja de Entrada"
+  mailbox_empty: "&7Tu bandeja de entrada está vacía"
   mailbox_item_lore:
-    - "&7From: &f{sender}"
-    - "&7Date: &f{date}"
+    - "&7De: &f{sender}"
+    - "&7Fecha: &f{date}"
     - "&7Items: &f{item_count}"
-    - "&7Points: &a{points} pts"
+    - "&7Puntos: &a{points} pts"
     - ""
-    - "&eLeft click &7to claim"
-    - "&eShift + Right click &7to view details"
+    - "&eClick izquierdo &7para reclamar"
+    - "&eShift + Click derecho &7para ver detalles"
   
   # Mailbox errors
-  mailbox_disabled: "{prefix}&cThe mailbox system is disabled."
-  mailbox_limit_reached: "{prefix}&cYou have reached the maximum pending gifts limit ({limit})."
-  mailbox_storage_expired: "{prefix}&cSome gifts have expired and were deleted."
+  mailbox_disabled: "{prefix}&cEl sistema de mailbox está desactivado."
+  mailbox_limit_reached: "{prefix}&cHas alcanzado el límite máximo de regalos pendientes ({limit})."
+  mailbox_storage_expired: "{prefix}&cAlgunos regalos han expirado y han sido eliminados."
   mailbox_no_space_detailed: |
-    {prefix}&c❌ Insufficient inventory space!
-    &7You need &f{required_slots} &7free slots.
-    &7You have &f{available_slots} &7slots available.
+    {prefix}&c❌ ¡Espacio insuficiente en el inventario!
+    &7Necesitas &f{required_slots} &7slots libres.
+    &7Tienes &f{available_slots} &7slots disponibles.
     
-    &eClear some slots and use:
-    &f/mailbox {command}
+    &eVacía algunos slots y usa:
+    &f/gb redeem {command}
   
   # Confirmation
-  confirm_claim_title: "&eConfirm claim?"
-  confirm_claim_message: "&7Do you want to claim {count} gift(s) from {sender}?"
-  confirm_yes: "&a&l✓ Yes, claim"
-  confirm_no: "&c&l✗ No, cancel"
+  confirm_claim_title: "&e¿Confirmar reclamo?"
+  confirm_claim_message: "&7¿Quieres reclamar {count} regalo(s) de {sender}?"
+  confirm_yes: "&a&l✓ Sí, reclamar"
+  confirm_no: "&c&l✗ No, cancelar"
 
 # ═══════════════════════════════════════════════════════════════
 # 🔄 DYNAMIC POINTS SYSTEM
@@ -225,18 +295,18 @@ mailbox:
 dynamic_points:
   # Messages when claiming points with dynamic boost
   points_calculated_with_boost: |
-    {prefix}&a✅ You received &f{points} friendship points &afrom &f{sender}&a!
-    &7(boost x{multiplier} applied at claim time)
+    {prefix}&a✅ ¡Has recibido &f{points} puntos de amistad &ade &f{sender}&a!
+    &7(boost x{multiplier} aplicado al reclamar)
   
   points_calculated_without_boost: |
-    {prefix}&a✅ You received &f{points} friendship points &afrom &f{sender}&a!
-    &7(No active boost at claim time)
+    {prefix}&a✅ ¡Has recibido &f{points} puntos de amistad &ade &f{sender}&a!
+    &7(Sin boost activo al reclamar)
   
   # Informational messages
-  boost_status_check: "&7Checking {sender}'s current boost..."
-  boost_detected: "&aBoost x{multiplier} detected"
-  no_boost_detected: "&7No active boost detected"
+  boost_status_check: "&7Verificando el boost actual de {sender}..."
+  boost_detected: "&aBoost x{multiplier} detectado"
+  no_boost_detected: "&7No se detectó boost activo"
   
   # Errors
-  boost_calculation_error: "{prefix}&cError calculating points with boost. Base points will be awarded."
-  sender_offline_warning: "&7Warning: {sender} is offline. Last session boost will be used."
+  boost_calculation_error: "{prefix}&cError al calcular los puntos con boost. Se otorgarán los puntos base."
+  sender_offline_warning: "&7Aviso: {sender} está desconectado. Se usará el boost de su última sesión."

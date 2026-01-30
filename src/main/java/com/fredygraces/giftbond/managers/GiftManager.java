@@ -134,11 +134,20 @@ public class GiftManager {
     }
 
     public boolean hasRequiredItems(Player player, GiftItem giftItem) {
+        // Verificar items
         for (GiftItem.ItemRequirement requirement : giftItem.getRequiredItems()) {
             if (!hasEnoughItems(player, requirement.getMaterial(), requirement.getAmount())) {
                 return false;
             }
         }
+        
+        // Verificar dinero si tiene requerimiento
+        if (giftItem.getMoneyRequired() > 0) {
+            if (!plugin.getEconomyManager().hasEnoughMoney(player, giftItem.getMoneyRequired())) {
+                return false;
+            }
+        }
+        
         return true;
     }
 
@@ -153,8 +162,14 @@ public class GiftManager {
     }
 
     public void removeRequiredItems(Player player, GiftItem giftItem) {
+        // Eliminar items
         for (GiftItem.ItemRequirement requirement : giftItem.getRequiredItems()) {
             removeItems(player, requirement.getMaterial(), requirement.getAmount());
+        }
+        
+        // Cobrar dinero si tiene requerimiento
+        if (giftItem.getMoneyRequired() > 0) {
+            plugin.getEconomyManager().chargePlayer(player, giftItem.getMoneyRequired());
         }
     }
 

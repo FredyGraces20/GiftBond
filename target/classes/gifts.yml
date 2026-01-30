@@ -156,13 +156,14 @@ manual_mode:
     heart:
       name: "&cCorazón"
       points: 20
+      money_required: 1000.0  # Requiere $1,000 además de los items
       items_required:
         - material: RED_DYE
           amount: 2
       description:
         - "&7Enviar un regalo de corazón"
         - "&7Premio: 20 puntos"
-        - "&7Requiere: 2 Tinte Rojo"
+        - "&7Requiere: $1,000 + 2 Tinte Rojo"
     
     # Flores - Regalo clásico
     flowers:
@@ -206,13 +207,14 @@ manual_mode:
     diamond:
       name: "&bDiamante"
       points: 30
+      money_required: 500.0   # Requiere $500 además del diamante
       items_required:
         - material: DIAMOND
           amount: 1
       description:
         - "&7Enviar un diamante como regalo"
         - "&7Premio: 30 puntos"
-        - "&7Requiere: 1 Diamante"
+        - "&7Requiere: $500 + 1 Diamante"
     
     # Libro - Regalo educativo
     book:

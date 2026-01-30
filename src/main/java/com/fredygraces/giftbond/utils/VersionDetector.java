@@ -32,7 +32,7 @@ public class VersionDetector {
             this.minorVersion = parts.length > 1 ? Integer.parseInt(parts[1]) : 21;
             this.patchVersion = parts.length > 2 ? Integer.parseInt(parts[2]) : 0;
                     
-            plugin.getLogger().info("Versión forzada por configuración: " + serverVersion);
+            // plugin.getLogger().info("Versión forzada por configuración: " + serverVersion);
         } else {
             // Detectar versión del servidor normalmente
             // Formato típico: "git-Paper-123 (MC: 1.21.4)" o "CraftBukkit version git-Spigot-xyz (MC: 1.20.1)"
@@ -67,17 +67,19 @@ public class VersionDetector {
                     this.minorVersion = parts.length > 1 ? Integer.parseInt(parts[1]) : 21;
                     this.patchVersion = parts.length > 2 ? Integer.parseInt(parts[2]) : 0;
                             
-                    plugin.getLogger().warning("No se pudo detectar la versión automáticamente. Usando versión manual: " + serverVersion);
+                    // plugin.getLogger().warning("No se pudo detectar la versión automáticamente. Usando versión manual: " + serverVersion);
                 }
             }
         }
         
+        /*
         plugin.getLogger().info("═══════════════════════════════════════");
         plugin.getLogger().info("  Versión de Minecraft detectada: " + serverVersion);
         plugin.getLogger().info("  Versión completa del servidor:");
         String fullVersion = Bukkit.getVersion();
         plugin.getLogger().info("  " + fullVersion);
         plugin.getLogger().info("═══════════════════════════════════════");
+        */
     }
     
     /**

@@ -116,7 +116,6 @@ public class SmartTabCompleter implements TabCompleter {
     /**
      * Autocompletado para /giftbond friends
      */
-    @SuppressWarnings("unused")
     private List<String> handleFriendsCompletion(CommandSender sender, String[] args) {
         if (args.length == 2) {
             // Completar nombre de jugador
@@ -128,7 +127,7 @@ public class SmartTabCompleter implements TabCompleter {
     /**
      * Autocompletado para /giftbond send
      */
-    private List<String> handleSendCompletion(@SuppressWarnings("unused") CommandSender sender, String[] args) {
+    private List<String> handleSendCompletion(CommandSender sender, String[] args) {
         if (args.length == 2) {
             // Completar nombre de jugador receptor
             return getOnlinePlayersStartingWith(args[1]);
@@ -196,7 +195,7 @@ public class SmartTabCompleter implements TabCompleter {
     /**
      * Autocompletado para /giftbond boost
      */
-    private List<String> handleBoostCompletion(@SuppressWarnings("unused") CommandSender sender, String[] args) {
+    private List<String> handleBoostCompletion(CommandSender sender, String[] args) {
         if (args.length == 2) {
             // Completar nombre de jugador
             return getOnlinePlayersStartingWith(args[1]);

@@ -19,8 +19,9 @@ public class HistoryMenuListener implements Listener {
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
         String title = event.getView().getTitle();
+        String strippedTitle = org.bukkit.ChatColor.stripColor(title);
         
-        if (!title.startsWith("§d📜 Historial de Regalos")) {
+        if (!strippedTitle.contains("Historial de Regalos")) {
             return;
         }
         

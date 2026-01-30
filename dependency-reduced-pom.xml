@@ -50,36 +50,6 @@
           </execution>
         </executions>
       </plugin>
-      <plugin>
-        <groupId>com.github.wvengen</groupId>
-        <artifactId>proguard-maven-plugin</artifactId>
-        <version>2.6.0</version>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <goals>
-              <goal>proguard</goal>
-            </goals>
-          </execution>
-        </executions>
-        <dependencies>
-          <dependency>
-            <groupId>com.guardsquare</groupId>
-            <artifactId>proguard-base</artifactId>
-            <version>7.2.2</version>
-          </dependency>
-        </dependencies>
-        <configuration>
-          <proguardVersion>7.2.2</proguardVersion>
-          <injar>${project.build.finalName}.jar</injar>
-          <outjar>${project.build.finalName}-protected.jar</outjar>
-          <outputDirectory>${project.build.directory}</outputDirectory>
-          <proguardInclude>${basedir}/proguard.conf</proguardInclude>
-          <libs>
-            <lib>${java.home}/lib/rt.jar</lib>
-          </libs>
-        </configuration>
-      </plugin>
     </plugins>
   </build>
   <repositories>

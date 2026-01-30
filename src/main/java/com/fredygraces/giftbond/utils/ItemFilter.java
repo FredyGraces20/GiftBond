@@ -54,7 +54,7 @@ public class ItemFilter {
             }
         }
         
-        plugin.getLogger().info("Items en blacklist: " + tempBlacklist.size());
+        // plugin.getLogger().info("Items en blacklist: " + tempBlacklist.size());
         return tempBlacklist;
     }
     
@@ -81,7 +81,7 @@ public class ItemFilter {
             validItems.add(mat);
         }
         
-        plugin.getLogger().info("Items válidos para regalos: " + validItems.size() + " de " + Material.values().length + " totales");
+        // plugin.getLogger().info("Items válidos para regalos: " + validItems.size() + " de " + Material.values().length + " totales");
         return validItems;
     }
     

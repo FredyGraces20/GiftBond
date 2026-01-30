@@ -30,6 +30,11 @@ commands:
     usage: /datasystem <status|test|health>
     permission: giftbond.admin.datasystem
 
+  regalo:
+    description: Alias for /giftbond send
+    usage: /regalo <jugador>
+    aliases: [gift]
+  
 permissions:
   giftbond.user:
     description: Basic permission for regular users

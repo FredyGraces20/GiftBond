@@ -19,6 +19,7 @@ public class MailboxGift {
     private final String giftName;
     private final List<ItemStack> originalItems; // Items enviados originalmente
     private final List<ItemStack> sharedItems;   // Items que recibe el receptor (porcentaje)
+    private final double money;                  // Dinero enviado
     private final int basePoints;                // Puntos base del regalo (sin boost)
     private final int pointsAwarded;             // Puntos finales calculados (con boost del momento de envío)
     private final long timestamp;
@@ -28,7 +29,7 @@ public class MailboxGift {
     public MailboxGift(UUID receiverUUID, String receiverName, UUID senderUUID, 
                       String senderName, String giftId, String giftName, 
                       List<ItemStack> originalItems, List<ItemStack> sharedItems, 
-                      int basePoints, int pointsAwarded) {
+                      double money, int basePoints, int pointsAwarded) {
         this.receiverUUID = receiverUUID;
         this.receiverName = receiverName;
         this.senderUUID = senderUUID;
@@ -37,6 +38,7 @@ public class MailboxGift {
         this.giftName = giftName;
         this.originalItems = originalItems != null ? new ArrayList<>(originalItems) : new ArrayList<>();
         this.sharedItems = sharedItems != null ? new ArrayList<>(sharedItems) : new ArrayList<>();
+        this.money = money;
         this.basePoints = basePoints;
         this.pointsAwarded = pointsAwarded;
         this.timestamp = System.currentTimeMillis();
@@ -47,7 +49,7 @@ public class MailboxGift {
     // Constructor para cargar desde base de datos
     public MailboxGift(int id, UUID receiverUUID, String receiverName, UUID senderUUID,
                       String senderName, String giftId, String giftName, List<ItemStack> originalItems,
-                      List<ItemStack> sharedItems, int basePoints, int pointsAwarded, long timestamp, 
+                      List<ItemStack> sharedItems, double money, int basePoints, int pointsAwarded, long timestamp, 
                       boolean claimed, Long claimTimestamp) {
         this.id = id;
         this.receiverUUID = receiverUUID;
@@ -58,6 +60,7 @@ public class MailboxGift {
         this.giftName = giftName;
         this.originalItems = originalItems != null ? new ArrayList<>(originalItems) : new ArrayList<>();
         this.sharedItems = sharedItems != null ? new ArrayList<>(sharedItems) : new ArrayList<>();
+        this.money = money;
         this.basePoints = basePoints;
         this.pointsAwarded = pointsAwarded;
         this.timestamp = timestamp;
@@ -80,6 +83,7 @@ public class MailboxGift {
     
     public List<ItemStack> getOriginalItems() { return new ArrayList<>(originalItems); }
     public List<ItemStack> getSharedItems() { return new ArrayList<>(sharedItems); }
+    public double getMoney() { return money; }
     public int getBasePoints() { return basePoints; }
     public int getPointsAwarded() { return pointsAwarded; }
     

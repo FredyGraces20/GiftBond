@@ -23,7 +23,7 @@ public class BoostCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!sender.hasPermission("giftbond.admin.boost")) {
-            sender.sendMessage(plugin.getPrefix() + ChatColor.RED + "No tienes permiso para usar este comando.");
+            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessage("errors.no_permission", "{prefix}&cNo tienes permiso para usar este comando.")));
             return true;
         }
 
@@ -43,17 +43,13 @@ public class BoostCommand implements CommandExecutor {
                 offlinePlayer = targetPlayer;
             } else {
                 // Jugador offline - buscar por nombre
-                // Usar método no-deprecated: iterar jugadores conocidos
-                OfflinePlayer foundPlayer = null;
-                for (OfflinePlayer player : Bukkit.getOfflinePlayers()) {
-                    if (player.getName() != null && player.getName().equalsIgnoreCase(args[0])) {
-                        foundPlayer = player;
-                        break;
-                    }
-                }
+                @SuppressWarnings("deprecation")
+                OfflinePlayer foundPlayer = Bukkit.getOfflinePlayer(args[0]);
                 
-                if (foundPlayer == null) {
-                    sender.sendMessage(plugin.getPrefix() + ChatColor.RED + "El jugador " + args[0] + " nunca ha jugado en este servidor.");
+                if (!foundPlayer.hasPlayedBefore()) {
+                    String msg = plugin.getMessage("errors.player_not_found", "{prefix}&cJugador no encontrado: {player}")
+                            .replace("{player}", args[0]);
+                    sender.sendMessage(ChatColor.translateAlternateColorCodes('&', msg));
                     return true;
                 }
                 
@@ -64,26 +60,31 @@ public class BoostCommand implements CommandExecutor {
             int minutes = (args.length >= 3) ? Integer.parseInt(args[2]) : 60;
             
             friendshipManager.setPersonalBoost(offlinePlayer.getUniqueId().toString(), multiplier, minutes);
-            sender.sendMessage(plugin.getPrefix() + ChatColor.GREEN + "Boost personal para " + offlinePlayer.getName() + " activado: x" + 
-                multiplier + " por " + minutes + " minutos.");
+            
+            String msg = plugin.getMessage("success.boost_applied", "{prefix}&aBoost aplicado a {player}: x{multiplier} por {duration} minutos")
+                    .replace("{player}", offlinePlayer.getName() != null ? offlinePlayer.getName() : args[0])
+                    .replace("{multiplier}", String.valueOf(multiplier))
+                    .replace("{duration}", String.valueOf(minutes));
+            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', msg));
             
             if (offlinePlayer.isOnline()) {
                 Player onlinePlayer = offlinePlayer.getPlayer();
                 if (onlinePlayer != null) {
-                    onlinePlayer.sendMessage(plugin.getPrefix() + ChatColor.YELLOW + 
-                        "¡Has recibido un boost personal! Multiplicador x" + multiplier + " por " + minutes + " minutos.");
+                    onlinePlayer.sendMessage(ChatColor.translateAlternateColorCodes('&', msg));
                 }
             }
         } catch (NumberFormatException e) {
-            sender.sendMessage(plugin.getPrefix() + ChatColor.RED + "Uso: /giftbond boost <jugador> <multiplicador> [minutos]");
+            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessage("commands.usage_boost", "&cUso: /giftbond boost <jugador> <multiplicador> <duración_minutos>")));
         }
 
         return true;
     }
 
     private void sendUsage(CommandSender sender) {
-        sender.sendMessage(plugin.getPrefix() + ChatColor.GOLD + "=== Boost Personal ===");
-        sender.sendMessage(ChatColor.YELLOW + "/giftbond boost <jugador> <multiplicador> [minutos]" + ChatColor.GRAY + " - Dar boost temporal");
-        sender.sendMessage(ChatColor.GRAY + "Ejemplo: /giftbond boost Notch 2.0 30");
+        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessage("commands.help_header", "&d&m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")));
+        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessage("commands.usage_boost", "&cUso: /giftbond boost <jugador> <multiplicador> <duración_minutos>")));
+        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessage("commands.usage_boost_example", "&7Ejemplo: /giftbond boost {player} 2.0 30")
+                .replace("{player}", sender.getName())));
+        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessage("commands.help_footer", "&d&m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")));
     }
 }

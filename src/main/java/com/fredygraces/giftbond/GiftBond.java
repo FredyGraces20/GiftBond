@@ -7,7 +7,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import com.fredygraces.giftbond.commands.DataSystemCommand;
 import com.fredygraces.giftbond.commands.GiftBondUnifiedCommand;
-import com.fredygraces.giftbond.commands.MailboxCommand;
+import com.fredygraces.giftbond.commands.RegaloCommand;
 import com.fredygraces.giftbond.events.GiftMenuListener;
 import com.fredygraces.giftbond.events.HistoryMenuListener;
 import com.fredygraces.giftbond.health.DataIntegrityChecker;
@@ -20,6 +20,7 @@ import com.fredygraces.giftbond.menus.GiftMenu;
 import com.fredygraces.giftbond.menus.HistoryMenu;
 import com.fredygraces.giftbond.security.LicenseChecker;
 import com.fredygraces.giftbond.storage.ConnectionPoolManager;
+import com.fredygraces.giftbond.storage.MailboxDAO;
 import com.fredygraces.giftbond.storage.StorageManager;
 import com.fredygraces.giftbond.storage.SynchronizationManager;
 import com.fredygraces.giftbond.storage.TransactionManager;
@@ -39,6 +40,7 @@ public final class GiftBond extends JavaPlugin {
     private FriendshipManager friendshipManager;
     private EconomyManager economyManager;
     private GiftManager giftManager;
+    private MailboxDAO mailboxDAO;
     private GiftMenu giftMenu;
     private HistoryMenu historyMenu;
     
@@ -110,24 +112,24 @@ public final class GiftBond extends JavaPlugin {
         
         // Inicializar TransactionManager (nuevo sistema de transacciones)
         transactionManager = new TransactionManager(this);
-        getLogger().info("✓ TransactionManager inicializado");
+        // getLogger().info("✓ TransactionManager inicializado");
         
         // Inicializar SynchronizationManager (control de concurrencia)
         synchronizationManager = new SynchronizationManager(this);
-        getLogger().info("✓ SynchronizationManager inicializado");
+        // getLogger().info("✓ SynchronizationManager inicializado");
         
         // Inicializar ConnectionPoolManager (pool de conexiones)
         connectionPoolManager = new ConnectionPoolManager(this);
         if (connectionPoolManager.initialize()) {
-            getLogger().info("✓ ConnectionPoolManager inicializado");
+            // getLogger().info("✓ ConnectionPoolManager inicializado");
         } else {
-            getLogger().warning("⚠ ConnectionPoolManager falló - usando conexión directa");
+            // getLogger().warning("⚠ ConnectionPoolManager falló - usando conexión directa");
         }
         
         // Inicializar DataIntegrityChecker (monitoreo de integridad)
         dataIntegrityChecker = new DataIntegrityChecker(this);
         dataIntegrityChecker.schedulePeriodicChecks();
-        getLogger().info("✓ DataIntegrityChecker inicializado");
+        // getLogger().info("✓ DataIntegrityChecker inicializado");
         
         // Inicializar StorageManager (nuevo sistema multi-database)
         storageManager = new StorageManager(this);
@@ -148,6 +150,10 @@ public final class GiftBond extends JavaPlugin {
         // Inicializar GiftManager
         giftManager = new GiftManager(this);
         
+        // Inicializar MailboxDAO
+        mailboxDAO = new MailboxDAO(this);
+        mailboxDAO.initializeTables();
+        
         // Inicializar sistema de regalos aleatorios (si está en modo auto)
         initializeRandomGiftSystem();
         
@@ -160,13 +166,6 @@ public final class GiftBond extends JavaPlugin {
         // Register commands
         // NOTE: Individual commands (amistad, regalo, topregalos) are deprecated
         // All functionality now routed through /giftbond unified command
-        
-        // Register mailbox command
-        MailboxCommand mailboxCommand = new MailboxCommand(this);
-        PluginCommand mailboxCmd = getCommand("mailbox");
-        if (mailboxCmd != null) {
-            mailboxCmd.setExecutor(mailboxCommand);
-        }
         
         // Register unified giftbond command
         GiftBondUnifiedCommand giftBondUnifiedCommand = new GiftBondUnifiedCommand(this);
@@ -182,6 +181,13 @@ public final class GiftBond extends JavaPlugin {
         if (dataSystemCmd != null) {
             dataSystemCmd.setExecutor(dataSystemCommand);
         }
+
+        // Register regalo command (alias for /giftbond send)
+        RegaloCommand regaloCommand = new RegaloCommand(this);
+        PluginCommand regaloCmd = getCommand("regalo");
+        if (regaloCmd != null) {
+            regaloCmd.setExecutor(regaloCommand);
+        }
         
         // Registrar eventos
         getServer().getPluginManager().registerEvents(new GiftMenuListener(this), this);
@@ -190,12 +196,12 @@ public final class GiftBond extends JavaPlugin {
         // Registrar Placeholders de PlaceholderAPI
         if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
             new com.fredygraces.giftbond.placeholders.GiftBondPlaceholders(this).register();
-            getLogger().info("✓ Placeholders de GiftBond registrados");
+            // getLogger().info("✓ Placeholders de GiftBond registrados");
         } else {
-            getLogger().warning("⚠ PlaceholderAPI no encontrado - los placeholders no estarán disponibles");
+            // getLogger().warning("⚠ PlaceholderAPI no encontrado - los placeholders no estarán disponibles");
         }
         
-        getLogger().info("GiftBond enabled successfully!");
+        // getLogger().info("GiftBond enabled successfully!");
     }
     
     /**
@@ -208,18 +214,18 @@ public final class GiftBond extends JavaPlugin {
                 mode = mode.toLowerCase();
                 
                 if (!mode.equals("auto")) {
-                    getLogger().info("Modo MANUAL - Sistema de regalos aleatorios desactivado");
+                    // getLogger().info("Modo MANUAL - Sistema de regalos aleatorios desactivado");
                     return;
                 }
             }
         } else {
-            getLogger().warning("ConfigManager no disponible - sistema aleatorio desactivado");
+            // getLogger().warning("ConfigManager no disponible - sistema aleatorio desactivado");
             return;
         }
         
-        getLogger().info("═══════════════════════════════════════");
-        getLogger().info("  INICIALIZANDO SISTEMA ALEATORIO");
-        getLogger().info("═══════════════════════════════════════");
+        // getLogger().info("═══════════════════════════════════════");
+        // getLogger().info("  INICIALIZANDO SISTEMA ALEATORIO");
+        // getLogger().info("═══════════════════════════════════════");
         
         // 1. Detectar versión del servidor
         versionDetector = new VersionDetector(this);
@@ -242,27 +248,29 @@ public final class GiftBond extends JavaPlugin {
             }
         }
         
-        getLogger().info("═══════════════════════════════════════");
-        getLogger().info("  SISTEMA ALEATORIO LISTO");
-        getLogger().info("═══════════════════════════════════════");
+        // getLogger().info("═══════════════════════════════════════");
+        // getLogger().info("  SISTEMA ALEATORIO LISTO");
+        // getLogger().info("═══════════════════════════════════════");
     }
     
     /**
      * Inicia la tarea de rotación automática de regalos
      */
     private void startRotationTask() {
+        /*
         final int intervalMinutes;
         if (configManager != null && configManager.getGiftsConfig() != null) {
             intervalMinutes = configManager.getGiftsConfig().getInt("auto_mode.rotation.interval", 60);
         } else {
             intervalMinutes = 60; // Valor por defecto
         }
+        */
         
         rotationTask = new BukkitRunnable() {
             @Override
             public void run() {
                 if (randomGiftGenerator != null && randomGiftGenerator.shouldRotate()) {
-                    getLogger().info("Rotando regalos automáticamente...");
+                    // getLogger().info("Rotando regalos automáticamente...");
                     randomGiftGenerator.generateNewGifts();
                 }
             }
@@ -272,7 +280,7 @@ public final class GiftBond extends JavaPlugin {
         // Verificamos cada minuto si es tiempo de rotar
         rotationTask.runTaskTimer(this, 1200L, 1200L);
         
-        getLogger().info(() -> "Task de rotación iniciada (intervalo: " + intervalMinutes + " minutos)");
+        // getLogger().info(() -> "Task de rotación iniciada (intervalo: " + intervalMinutes + " minutos)");
     }
     
     @Override
@@ -336,6 +344,10 @@ public final class GiftBond extends JavaPlugin {
      */
     public GiftManager getGiftManager() {
         return giftManager;
+    }
+
+    public MailboxDAO getMailboxDAO() {
+        return mailboxDAO;
     }
     
     /**

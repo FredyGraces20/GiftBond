@@ -48,13 +48,13 @@ public class PersonalPointsCommand implements CommandExecutor {
         // Si es view, verificar permiso de usuario, sino permiso de admin
         if (isViewAction) {
             if (!sender.hasPermission("giftbond.points.view")) {
-                sender.sendMessage(ChatColor.RED + "You don't have permission to view other players' points.");
+                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessage("errors.no_permission", "{prefix}&cNo tienes permiso para usar este comando.")));
                 return true;
             }
         } else {
             // Para acciones add/remove/set, se requiere permiso de admin
             if (!sender.hasPermission("giftbond.admin.points")) {
-                sender.sendMessage(ChatColor.RED + "You don't have permission to manage points.");
+                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessage("errors.no_permission", "{prefix}&cNo tienes permiso para usar este comando.")));
                 return true;
             }
         }
@@ -90,7 +90,9 @@ public class PersonalPointsCommand implements CommandExecutor {
                 target = tempTarget;
                 
                 if (!target.hasPlayedBefore()) {
-                    sender.sendMessage(plugin.getPrefix() + ChatColor.RED + "Player " + targetName + " has never played on this server.");
+                    String msg = plugin.getMessage("errors.player_not_found", "{prefix}&cJugador no encontrado: {player}")
+                            .replace("{player}", targetName);
+                    sender.sendMessage(ChatColor.translateAlternateColorCodes('&', msg));
                     return true;
                 }
             } catch (Exception e) {
@@ -106,18 +108,24 @@ public class PersonalPointsCommand implements CommandExecutor {
         switch (action) {
             case "view" -> {
                 int current = friendshipManager.getPersonalPoints(uuid);
-                sender.sendMessage(plugin.getPrefix() + ChatColor.YELLOW + "Puntos personales de " + displayName + ": " + ChatColor.WHITE + current);
+                String msg = plugin.getMessage("info.personal_points_view", "{prefix}&ePuntos personales de &f{player}&e: &f{points}")
+                        .replace("{player}", displayName)
+                        .replace("{points}", String.valueOf(current));
+                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', msg));
             }
             
             case "add" -> {
                 if (args.length < 3) {
-                    sender.sendMessage(ChatColor.RED + "Uso: /giftbond points <jugador> add <cantidad>");
+                    sender.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessage("commands.usage_points_add", "&cUso: /giftbond points <jugador> add <cantidad>")));
                     return true;
                 }
                 try {
                     int amount = Integer.parseInt(args[2]);
                     friendshipManager.addPersonalPoints(uuid, amount);
-                    sender.sendMessage(plugin.getPrefix() + ChatColor.GREEN + "Se han añadido " + amount + " puntos a " + displayName + ".");
+                    String msg = plugin.getMessage("success.personal_points_added", "{prefix}&aSe han añadido &f{points} &apuntos a &f{player}&a.")
+                            .replace("{points}", String.valueOf(amount))
+                            .replace("{player}", displayName);
+                    sender.sendMessage(ChatColor.translateAlternateColorCodes('&', msg));
                 } catch (NumberFormatException e) {
                     sender.sendMessage(ChatColor.RED + "Cantidad inválida.");
                 }
@@ -125,16 +133,21 @@ public class PersonalPointsCommand implements CommandExecutor {
             
             case "remove" -> {
                 if (args.length < 3) {
-                    sender.sendMessage(ChatColor.RED + "Uso: /giftbond points <jugador> remove <cantidad>");
+                    sender.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessage("commands.usage_points_remove", "&cUso: /giftbond points <jugador> remove <cantidad>")));
                     return true;
                 }
                 try {
                     int amount = Integer.parseInt(args[2]);
                     boolean success = friendshipManager.spendPersonalPoints(uuid, amount);
                     if (success) {
-                        sender.sendMessage(plugin.getPrefix() + ChatColor.GREEN + "Se han quitado " + amount + " puntos a " + displayName + ".");
+                        String msg = plugin.getMessage("success.personal_points_removed", "{prefix}&aSe han quitado &f{points} &apuntos a &f{player}&a.")
+                                .replace("{points}", String.valueOf(amount))
+                                .replace("{player}", displayName);
+                        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', msg));
                     } else {
-                        sender.sendMessage(ChatColor.RED + displayName + " no tiene suficientes puntos.");
+                        String msg = plugin.getMessage("info.personal_points_insufficient_target", "{prefix}&c{player} no tiene suficientes puntos.")
+                                .replace("{player}", displayName);
+                        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', msg));
                     }
                 } catch (NumberFormatException e) {
                     sender.sendMessage(ChatColor.RED + "Cantidad inválida.");
@@ -143,13 +156,16 @@ public class PersonalPointsCommand implements CommandExecutor {
             
             case "set" -> {
                 if (args.length < 3) {
-                    sender.sendMessage(ChatColor.RED + "Uso: /giftbond points <jugador> set <cantidad>");
+                    sender.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessage("commands.usage_points_set", "&cUso: /giftbond points <jugador> set <cantidad>")));
                     return true;
                 }
                 try {
                     int amount = Integer.parseInt(args[2]);
                     friendshipManager.setPersonalPoints(uuid, amount);
-                    sender.sendMessage(plugin.getPrefix() + ChatColor.GREEN + "Puntos de " + displayName + " establecidos en " + amount + ".");
+                    String msg = plugin.getMessage("success.personal_points_set", "{prefix}&aPuntos de &f{player} &aestablecidos en &f{points}&a.")
+                            .replace("{points}", String.valueOf(amount))
+                            .replace("{player}", displayName);
+                    sender.sendMessage(ChatColor.translateAlternateColorCodes('&', msg));
                 } catch (NumberFormatException e) {
                     sender.sendMessage(ChatColor.RED + "Cantidad inválida.");
                 }
@@ -162,15 +178,15 @@ public class PersonalPointsCommand implements CommandExecutor {
     }
 
     private void sendUsage(CommandSender sender, boolean isViewOnly) {
+        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessage("commands.help_header", "&d&m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")));
         if (isViewOnly) {
-            sender.sendMessage(plugin.getPrefix() + ChatColor.GOLD + "=== Ver Puntos de Jugadores ===");
-            sender.sendMessage(ChatColor.YELLOW + "/giftbond points <jugador> view" + ChatColor.GRAY + " - Ver puntos de un jugador");
+            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessage("commands.usage_points_view", "&cUso: /giftbond points <jugador> view")));
         } else {
-            sender.sendMessage(plugin.getPrefix() + ChatColor.GOLD + "=== Admin Points ===");
-            sender.sendMessage(ChatColor.YELLOW + "/giftbond points <jugador> view" + ChatColor.GRAY + " - Ver puntos");
-            sender.sendMessage(ChatColor.YELLOW + "/giftbond points <jugador> add <cantidad>" + ChatColor.GRAY + " - Añadir puntos");
-            sender.sendMessage(ChatColor.YELLOW + "/giftbond points <jugador> remove <cantidad>" + ChatColor.GRAY + " - Quitar puntos");
-            sender.sendMessage(ChatColor.YELLOW + "/giftbond points <jugador> set <cantidad>" + ChatColor.GRAY + " - Establecer puntos");
+            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessage("commands.usage_points_view", "&cUso: /giftbond points <jugador> view")));
+            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessage("commands.usage_points_add", "&cUso: /giftbond points <jugador> add <cantidad>")));
+            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessage("commands.usage_points_remove", "&cUso: /giftbond points <jugador> remove <cantidad>")));
+            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessage("commands.usage_points_set", "&cUso: /giftbond points <jugador> set <cantidad>")));
         }
+        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessage("commands.help_footer", "&d&m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")));
     }
 }

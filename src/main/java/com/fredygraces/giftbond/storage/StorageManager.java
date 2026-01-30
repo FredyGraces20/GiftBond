@@ -30,11 +30,13 @@ public class StorageManager {
             return false;
         }
         
+        /*
         plugin.getLogger().info("=== Storage Configuration ===");
         plugin.getLogger().info("Local (SQLite): ENABLED");
         plugin.getLogger().info("Remote: DISABLED (H2 eliminado)");
         plugin.getLogger().info("✓ Local storage (SQLite) inicializado");
         plugin.getLogger().info("============================");
+        */
         
         return true;
     }

@@ -52,8 +52,8 @@ public class LicenseChecker {
      * Log security information
      */
     public static void logSecurityInfo() {
-        Bukkit.getLogger().info("[SECURITY] Plugin verification passed");
-        Bukkit.getLogger().info("[SECURITY] Author: " + PLUGIN_AUTHOR);
-        Bukkit.getLogger().info("[SECURITY] Protected by GPL v3 License");
+        // Bukkit.getLogger().info("[SECURITY] Plugin verification passed");
+        // Bukkit.getLogger().info("[SECURITY] Author: " + PLUGIN_AUTHOR);
+        // Bukkit.getLogger().info("[SECURITY] Protected by GPL v3 License");
     }
 }

@@ -88,6 +88,10 @@ mailbox:
   # Si envías 100 diamantes y shared_percentage es 25, el receptor recibe 25 diamantes
   shared_percentage: 25
   
+  # Porcentaje de dinero que se comparte con el receptor (0-100)
+  # Ejemplo: 50 = El receptor recibe el 50% del dinero enviado
+  shared_money_percentage: 50
+  
   # Regalos gratis se entregan automáticamente (sin guardar en mailbox)
   auto_claim_free_gifts: true
   

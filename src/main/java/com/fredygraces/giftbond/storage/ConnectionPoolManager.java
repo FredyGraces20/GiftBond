@@ -46,7 +46,7 @@ public class ConnectionPoolManager {
         }
         
         try {
-            logger.info("🔄 Inicializando connection pool HikariCP...");
+            // logger.info("🔄 Inicializando connection pool HikariCP...");
             
             HikariConfig config = new HikariConfig();
             
@@ -83,8 +83,8 @@ public class ConnectionPoolManager {
             try (Connection testConn = dataSource.getConnection()) {
                 if (testConn.isValid(5)) {
                     initialized.set(true);
-                    logger.info("✅ Connection pool inicializado exitosamente");
-                    logPoolStatus();
+                    // logger.info("✅ Connection pool inicializado exitosamente");
+                    // logPoolStatus();
                     return true;
                 } else {
                     logger.severe("❌ Conexión de prueba fallida");
@@ -123,11 +123,11 @@ public class ConnectionPoolManager {
      */
     public void shutdown() {
         if (initialized.get() && dataSource != null) {
-            logger.info("🔄 Cerrando connection pool...");
+            // logger.info("🔄 Cerrando connection pool...");
             try {
                 dataSource.close();
                 initialized.set(false);
-                logger.info("✅ Connection pool cerrado exitosamente");
+                // logger.info("✅ Connection pool cerrado exitosamente");
             } catch (Exception e) {
                 logger.log(Level.WARNING, "Error cerrando connection pool", e);
             }
@@ -191,11 +191,12 @@ public class ConnectionPoolManager {
      */
     public void logPoolStatus() {
         if (!initialized.get() || dataSource == null) {
-            logger.info(".Pool status: NOT INITIALIZED");
+            // logger.info(".Pool status: NOT INITIALIZED");
             return;
         }
         
         PoolStats stats = getPoolStats();
+/*
         logger.info(String.format(
             "📊 Pool Status - Total: %d, Active: %d, Idle: %d, Waiting: %d",
             stats.getTotalConnections(),
@@ -203,6 +204,7 @@ public class ConnectionPoolManager {
             stats.getIdleConnections(),
             stats.getThreadsAwaitingConnection()
         ));
+*/
         
         if (stats.getThreadsAwaitingConnection() > 0) {
             logger.warning("⚠ Hay threads esperando conexiones - considera aumentar el tamaño del pool");

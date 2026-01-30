@@ -14,7 +14,6 @@ import com.fredygraces.giftbond.GiftBond;
  * @version 1.2.0
  */
 public class SynchronizationManager {
-    private final GiftBond plugin;
     private static final Logger logger = Logger.getLogger(SynchronizationManager.class.getName());
     
     // Locks para diferentes tipos de recursos
@@ -25,7 +24,6 @@ public class SynchronizationManager {
     private final ConcurrentHashMap<String, Integer> lockCounts;
     
     public SynchronizationManager(GiftBond plugin) {
-        this.plugin = plugin;
         this.resourceLocks = new ConcurrentHashMap<>();
         this.resourceMonitors = new ConcurrentHashMap<>();
         this.lockCounts = new ConcurrentHashMap<>();
@@ -39,7 +37,7 @@ public class SynchronizationManager {
         lock.writeLock().lock();
         
         // Incrementar contador
-        lockCounts.merge(resourceName, 1, Integer::sum);
+        lockCounts.merge(resourceName, 1, (v1, v2) -> v1 + v2);
         
         logger.fine("Adquirido write lock para: " + resourceName + 
                    " (conteo: " + lockCounts.get(resourceName) + ")");
@@ -48,7 +46,7 @@ public class SynchronizationManager {
             @Override
             public void close() {
                 lock.writeLock().unlock();
-                lockCounts.merge(resourceName, -1, Integer::sum);
+                lockCounts.merge(resourceName, -1, (v1, v2) -> v1 + v2);
                 logger.fine("Liberado write lock para: " + resourceName);
             }
         };

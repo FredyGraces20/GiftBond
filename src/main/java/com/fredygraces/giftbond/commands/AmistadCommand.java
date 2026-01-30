@@ -1,5 +1,6 @@
 package com.fredygraces.giftbond.commands;
 
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -21,7 +22,8 @@ public class AmistadCommand implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player)) {
             if (sender != null) {
-                sender.sendMessage("§cOnly players can use this command.");
+                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', 
+                    plugin.getMessage("errors.no_permission_player_only", "{prefix}&cSolo los jugadores pueden usar este comando.")));
             }
             return true;
         }
@@ -43,22 +45,34 @@ public class AmistadCommand implements CommandExecutor {
             friendshipManager.getSortedFriends(playerUUID);
         
         // Enviar mensaje al jugador
-        String prefix = plugin.getPrefix();
-        player.sendMessage(prefix + "§ePuntos personales (para canjear): §a" + personalPoints);
-        player.sendMessage(prefix + "§eTus puntos de amistad totales: §f" + totalPoints);
-        player.sendMessage(prefix + "§eTus amistades:");
+        player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessage("info.friendship_header", "&d&m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")));
+        player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessage("info.friendship_title", "&d&l💕 PUNTOS DE AMISTAD")));
+        player.sendMessage("");
+        
+        player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessage("info.friendship_personal_points", "&ePuntos personales (para canjear): &a{points}")
+                .replace("{points}", String.valueOf(personalPoints))));
+        player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessage("info.friendship_your_points", "&eTus puntos de amistad totales: &f{points}")
+                .replace("{points}", String.valueOf(totalPoints))));
+        player.sendMessage("");
+        player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessage("info.friendship_friendships_title", "&eTus amistades:")));
         
         if (friends.isEmpty()) {
-            player.sendMessage(prefix + "§7No tienes puntos de amistad con nadie aún.");
+            player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessage("info.friendship_no_friends", "&7No tienes puntos de amistad con nadie aún.")));
         } else {
             // Mostrar solo top 5 como solicitado
             int maxDisplay = Math.min(5, friends.size());
             for (int i = 0; i < maxDisplay; i++) {
                 java.util.Map.Entry<String, Integer> friend = friends.get(i);
                 String friendName = getFriendName(friend.getKey());
-                player.sendMessage("§f" + friendName + ": §a" + friend.getValue());
+                String entry = plugin.getMessage("info.friendship_friend_entry", "&f{friend}: &a{points}")
+                        .replace("{friend}", friendName)
+                        .replace("{points}", String.valueOf(friend.getValue()));
+                player.sendMessage(ChatColor.translateAlternateColorCodes('&', entry));
             }
         }
+        
+        player.sendMessage("");
+        player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessage("info.friendship_footer", "&d&m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")));
         
         return true;
     }

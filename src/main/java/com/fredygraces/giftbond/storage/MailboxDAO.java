@@ -41,9 +41,8 @@ public class MailboxDAO {
      * Inicializar tablas de mailbox en la base de datos SQLite
      */
     public void initializeTables() {
-        Connection conn = null;
         try {
-            conn = databaseManager.getConnection();
+            Connection conn = databaseManager.getConnection();
 
             // Crear tabla de regalos pendientes
             String createGiftsTable = """
@@ -57,6 +56,7 @@ public class MailboxDAO {
                     gift_name TEXT NOT NULL,
                     items_serialized TEXT,
                     shared_items_serialized TEXT,
+                    money REAL DEFAULT 0,
                     base_points INTEGER NOT NULL DEFAULT 0,    -- Puntos base del regalo
                     points_awarded INTEGER NOT NULL DEFAULT 0, -- Puntos con boost del momento de envío
                     timestamp INTEGER NOT NULL,
@@ -88,14 +88,6 @@ public class MailboxDAO {
 
         } catch (SQLException e) {
             plugin.getLogger().severe(() -> "❌ Error inicializando tablas de mailbox: " + e.getMessage());
-        } finally {
-            if (conn != null) {
-                try {
-                    conn.close();
-                } catch (SQLException e) {
-                    plugin.getLogger().warning(() -> "⚠ Error cerrando conexión: " + e.getMessage());
-                }
-            }
         }
     }
 
@@ -109,8 +101,8 @@ public class MailboxDAO {
                 String sql = """
                     INSERT INTO pending_gifts
                     (receiver_uuid, receiver_name, sender_uuid, sender_name, gift_id, gift_name,
-                     items_serialized, shared_items_serialized, base_points, points_awarded, timestamp, claimed)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                     items_serialized, shared_items_serialized, money, base_points, points_awarded, timestamp, claimed)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     """;
                 
                 try (PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -122,10 +114,11 @@ public class MailboxDAO {
                     pstmt.setString(6, gift.getGiftName());
                     pstmt.setString(7, serializeItems(gift.getOriginalItems()));
                     pstmt.setString(8, serializeItems(gift.getSharedItems()));
-                    pstmt.setInt(9, gift.getBasePoints());
-                    pstmt.setInt(10, gift.getPointsAwarded());
-                    pstmt.setLong(11, gift.getTimestamp());
-                    pstmt.setInt(12, gift.isClaimed() ? 1 : 0);
+                    pstmt.setDouble(9, gift.getMoney());
+                    pstmt.setInt(10, gift.getBasePoints());
+                    pstmt.setInt(11, gift.getPointsAwarded());
+                    pstmt.setLong(12, gift.getTimestamp());
+                    pstmt.setInt(13, gift.isClaimed() ? 1 : 0);
                     
                     int affectedRows = pstmt.executeUpdate();
                     
@@ -173,8 +166,10 @@ public class MailboxDAO {
         List<GiftSummary> summaries = new ArrayList<>();
 
         try {
-            try (Connection conn = databaseManager.getConnection();
-                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            Connection conn = databaseManager.getConnection();
+            if (conn == null) return summaries;
+            
+            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
                 pstmt.setString(1, receiverUUID.toString());
 
                 try (ResultSet rs = pstmt.executeQuery()) {
@@ -256,8 +251,10 @@ public class MailboxDAO {
         String sql = "DELETE FROM pending_gifts WHERE id = ?";
 
         try {
-            try (Connection conn = databaseManager.getConnection();
-                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            Connection conn = databaseManager.getConnection();
+            if (conn == null) return false;
+            
+            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
                 pstmt.setInt(1, giftId);
 
                 int rowsAffected = pstmt.executeUpdate();
@@ -265,7 +262,6 @@ public class MailboxDAO {
                     debugLogger.debug("✅ Regalo eliminado del mailbox (ID: " + giftId + ")");
                     return true;
                 }
-
             }
 
         } catch (SQLException e) {
@@ -280,8 +276,10 @@ public class MailboxDAO {
         List<MailboxGift> gifts = new ArrayList<>();
 
         try {
-            try (Connection conn = databaseManager.getConnection();
-                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            Connection conn = databaseManager.getConnection();
+            if (conn == null) return gifts;
+            
+            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
                 for (int i = 0; i < params.length; i++) {
                     pstmt.setObject(i + 1, params[i]);
                 }
@@ -291,7 +289,6 @@ public class MailboxDAO {
                         gifts.add(mapResultSetToGift(rs));
                     }
                 }
-
             }
 
         } catch (SQLException e) {
@@ -321,6 +318,7 @@ public class MailboxDAO {
             rs.getString("gift_name"),
             deserializeItems(rs.getString("items_serialized")),
             deserializeItems(rs.getString("shared_items_serialized")),
+            rs.getDouble("money"),
             basePoints,  // base_points
             rs.getInt("points_awarded"), // points_awarded
             rs.getLong("timestamp"),
@@ -397,8 +395,10 @@ public class MailboxDAO {
             """;
 
         try {
-            try (Connection conn = databaseManager.getConnection();
-                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            Connection conn = databaseManager.getConnection();
+            if (conn == null) return;
+            
+            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
                 pstmt.setString(1, playerUUID.toString());
                 pstmt.setString(2, playerUUID.toString());
                 pstmt.setString(3, action);
@@ -406,7 +406,6 @@ public class MailboxDAO {
                 pstmt.setString(5, action);
                 pstmt.setLong(6, System.currentTimeMillis());
                 pstmt.executeUpdate();
-
             }
 
         } catch (SQLException e) {

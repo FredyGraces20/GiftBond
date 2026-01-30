@@ -66,7 +66,7 @@ GiftBond v1.1.0 includes advanced security measures to protect the plugin:
 *   **/friends history**: View your complete gift history with pagination (sent and received gifts).
 *   **/gift <player>**: Open the gift selection menu for a specific player.
 *   **/gift claim [nick|all]**: Claim pending gifts from specific senders or all at once.
-*   **/mailbox [nick|all]**: Alternative command to claim pending gifts.
+*   **/gb redeem [nick|all]**: Command to claim pending gifts.
 *   **/leaderboard**: Display the top 10 friendship pairs on the server.
 
 ### Admin Commands
@@ -107,7 +107,7 @@ When players send expensive gifts, they're automatically stored in the recipient
 /regalo reclamar           # View list of senders with pending gifts
 /regalo reclamar <nick>    # Claim gifts from a specific sender
 /regalo reclamar all       # Claim all pending gifts at once
-/mailbox                   # Alternative command (same functionality)
+/gb redeem                   # Command to claim gifts
 ```
 
 ### ⚙️ Configuration

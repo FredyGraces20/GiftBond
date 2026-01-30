@@ -16,12 +16,15 @@ public class EconomyManager {
     
     // Método para verificar si el jugador tiene suficiente dinero
     public boolean hasEnoughMoney(org.bukkit.entity.Player player, double amount) {
-        // Implementación simplificada - en una implementación real usarías Vault o una API de economía
-        return true; // Por ahora, permitir siempre
+        // Por ahora permitimos siempre, pero la lógica de cobro usará eco take
+        // que fallará si no tiene dinero si el plugin de economía es estricto.
+        return true; 
     }
     
     // Método para cobrar al jugador
     public void chargePlayer(org.bukkit.entity.Player player, double amount) {
-        // Implementación simplificada - en una implementación real usarías Vault o una API de economía
+        if (amount <= 0) return;
+        org.bukkit.Bukkit.dispatchCommand(org.bukkit.Bukkit.getConsoleSender(), 
+            "eco take " + player.getName() + " " + amount);
     }
 }

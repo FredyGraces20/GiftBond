@@ -3,7 +3,9 @@ package com.fredygraces.giftbond.events;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -15,6 +17,7 @@ import com.fredygraces.giftbond.GiftBond;
 import com.fredygraces.giftbond.managers.FriendshipManager;
 import com.fredygraces.giftbond.managers.GiftManager;
 import com.fredygraces.giftbond.models.GiftItem;
+import com.fredygraces.giftbond.models.MailboxGift;
 import com.fredygraces.giftbond.utils.DebugLogger;
 import com.fredygraces.giftbond.utils.GiftSessionManager;
 
@@ -37,7 +40,10 @@ public class GiftMenuListener implements Listener {
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
         String title = event.getView().getTitle();
-        boolean isGiftMenu = title.startsWith("Enviar regalo a ") || title.startsWith("Regalos - Rotan en");
+        String strippedTitle = ChatColor.stripColor(title);
+        
+        // Identificar si es el menú de regalos (ahora de forma más flexible con colores y emojis)
+        boolean isGiftMenu = strippedTitle.contains("Enviar regalo a") || strippedTitle.contains("Regalos - Rotan en");
         
         if (isGiftMenu) {
             event.setCancelled(true);
@@ -49,18 +55,20 @@ public class GiftMenuListener implements Listener {
                 return;
             }
             
-            // Obtener el nombre del jugador receptor
+            // Obtener el nombre del jugador receptor desde la sesión (más confiable que el título)
             Player receiver = null;
-            if (title.startsWith("Enviar regalo a ")) {
-                String receiverName = title.substring("Enviar regalo a ".length());
+            String receiverName = sessionManager.getReceiverName(player);
+            
+            if (receiverName != null) {
                 receiver = plugin.getServer().getPlayer(receiverName);
-            } else if (title.startsWith("Regalos - Rotan en")) {
-                // Para modo auto, usar el sistema de sesiones
-                String receiverName = sessionManager.getReceiverName(player);
-                if (receiverName != null) {
+            }
+            
+            // Fallback al título si la sesión falla (para compatibilidad)
+            if (receiver == null) {
+                if (strippedTitle.contains("Enviar regalo a ")) {
+                    int index = strippedTitle.indexOf("Enviar regalo a ") + "Enviar regalo a ".length();
+                    receiverName = strippedTitle.substring(index).trim();
                     receiver = plugin.getServer().getPlayer(receiverName);
-                    // Limpiar la sesión después de usarla
-                    sessionManager.endGiftSession(player);
                 }
             }
             
@@ -126,7 +134,21 @@ public class GiftMenuListener implements Listener {
         debugLogger.debug("Processing gift selection for " + sender.getName() + " -> " + receiver.getName());
         debugLogger.debug("Clicked item: " + getItemDisplayName(item));
         
-        // Buscar el regalo correspondiente por nombre
+        // 1. Manejar botones de dinero
+        if (item.getType() == Material.GOLD_INGOT && 
+            item.hasItemMeta() && 
+            item.getItemMeta().getDisplayName().contains("Regalo de Dinero")) {
+            
+            handleMoneyGiftClick(sender, receiver, item);
+            return;
+        }
+
+        // 2. Manejar items de relleno o info
+        if (item.getType() == Material.CLOCK || (item.getType().name().endsWith("_STAINED_GLASS_PANE") && getItemDisplayName(item).equals(" "))) {
+            return;
+        }
+
+        // 3. Buscar el regalo correspondiente por nombre (lógica original)
         String itemName = ChatColor.stripColor(getItemDisplayName(item));
         debugLogger.debug("Item name (stripped): '" + itemName + "'");
         
@@ -171,7 +193,12 @@ public class GiftMenuListener implements Listener {
             int minCost = plugin.getConfigManager().getMainConfig().getInt("mailbox.min_cost_for_mailbox", 100);
             int giftCost = calculateGiftCost(selectedGift);
             
-            debugLogger.debug("Gift cost: " + giftCost + ", Min cost for mailbox: " + minCost);
+            // Si el regalo requiere dinero real, considerar su valor para el mailbox
+            if (selectedGift.getMoneyRequired() > 0) {
+                giftCost += (int) selectedGift.getMoneyRequired();
+            }
+            
+            debugLogger.debug("Gift cost (Total): " + giftCost + ", Min cost for mailbox: " + minCost);
             
             // Condiciones para usar mailbox:
             // 1. minCost >= 0 y giftCost >= minCost
@@ -206,6 +233,7 @@ public class GiftMenuListener implements Listener {
         
         // Calcular puntos compartidos
         int sharedPercentage = plugin.getConfigManager().getMainConfig().getInt("mailbox.shared_percentage", 25);
+        int sharedMoneyPercentage = plugin.getConfigManager().getMainConfig().getInt("mailbox.shared_money_percentage", 50);
         int points = gift.getPoints();
         int sharedPoints = (int) Math.round(points * (sharedPercentage / 100.0));
         int senderPoints = points;
@@ -213,13 +241,19 @@ public class GiftMenuListener implements Listener {
         debugLogger.debug("Points calculation - Base: " + points + ", Shared: " + sharedPoints + 
                          " (" + sharedPercentage + "%), Sender gets: " + senderPoints);
         
+        // Dinero para el mailbox
+        double receiverMoney = 0;
+        if (gift.getMoneyRequired() > 0) {
+            receiverMoney = gift.getMoneyRequired() * (sharedMoneyPercentage / 100.0);
+        }
+
         // Crear items originales (basados en los items requeridos)
         List<ItemStack> originalItems = createItemsFromRequirements(gift.getRequiredItems());
         
         // Crear items compartidos (porcentaje de los originales)
         List<ItemStack> sharedItems = createSharedItems(originalItems, sharedPercentage);
         
-        // Eliminar los items requeridos del inventario del emisor
+        // Eliminar los items/dinero requeridos del inventario del emisor
         giftManager.removeRequiredItems(sender, gift);
         
         // Guardar en mailbox
@@ -227,18 +261,22 @@ public class GiftMenuListener implements Listener {
         String receiverUUID = receiver.getUniqueId().toString();
         String giftName = ChatColor.stripColor(ChatColor.translateAlternateColorCodes('&', gift.getName()));
         
-        boolean saved = plugin.getDatabaseManager().savePendingGift(
-            senderUUID, 
+        // Usar la lógica unificada de MailboxGift (que ahora soporta dinero)
+        com.fredygraces.giftbond.models.MailboxGift fullGift = new com.fredygraces.giftbond.models.MailboxGift(
+            receiver.getUniqueId(),
+            receiver.getName(),
+            sender.getUniqueId(),
             sender.getName(),
-            receiverUUID, 
-            receiver.getName(), 
-            gift.getId(), // Guardamos el ID del regalo
-            giftName, 
+            gift.getId(),
+            giftName,
             originalItems,
             sharedItems,
-            points,        // basePoints
-            senderPoints   // pointsAwarded (con boost del momento de envío)
+            receiverMoney,
+            points,
+            senderPoints
         );
+
+        boolean saved = plugin.getMailboxDAO().saveGift(fullGift);
         
         if (saved) {
             // Agregar puntos de amistad al emisor
@@ -265,7 +303,7 @@ public class GiftMenuListener implements Listener {
             // Notificar al receptor si está en línea
             if (receiver.isOnline()) {
                 String notification = plugin.getMessage("messages.pending_gift_notification",
-                    "{prefix}&6📬 ¡Tienes un nuevo regalo de &f{sender}&6! Usa &f/mailbox&6 para reclamarlo.");
+                    "{prefix}&6📬 ¡Tienes un nuevo regalo de &f{sender}&6! Usa &f/gb redeem&6 para reclamarlo.");
                 notification = notification.replace("{sender}", sender.getName());
                 receiver.sendMessage(ChatColor.translateAlternateColorCodes('&', notification));
             }
@@ -285,12 +323,19 @@ public class GiftMenuListener implements Listener {
     private void processDirectGift(Player sender, Player receiver, GiftItem gift) {
         debugLogger.debug("Processing direct gift: " + gift.getName());
         
-        // Eliminar los items requeridos del inventario
-        debugLogger.debug("Removing required items for gift: " + gift.getId());
-        for (GiftItem.ItemRequirement req : gift.getRequiredItems()) {
-            debugLogger.debug("  Requiring: " + req.getAmount() + "x " + req.getMaterial());
-        }
+        // Eliminar los items y dinero requeridos
         giftManager.removeRequiredItems(sender, gift);
+        
+        // Si el regalo tenía un requerimiento de dinero, entregarlo al receptor (menos el porcentaje de mailbox si aplica)
+        if (gift.getMoneyRequired() > 0) {
+            int sharedMoneyPercentage = plugin.getConfigManager().getMainConfig().getInt("mailbox.shared_money_percentage", 50);
+            double receiverAmount = gift.getMoneyRequired() * (sharedMoneyPercentage / 100.0);
+            
+            // Entregar dinero al receptor
+            String giveCmd = "eco give " + receiver.getName() + " " + receiverAmount;
+            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), giveCmd);
+            debugLogger.debug("[DIRECT-MONEY] Gave $" + receiverAmount + " to " + receiver.getName());
+        }
         
         // Agregar puntos de amistad
         String senderUUID = sender.getUniqueId().toString();
@@ -407,6 +452,124 @@ public class GiftMenuListener implements Listener {
      * @param item El ItemStack del cual obtener el nombre
      * @return El nombre mostrado o el nombre del tipo si no tiene metadata
      */
+    /**
+     * Maneja el clic en un botón de regalo de dinero
+     */
+    private void handleMoneyGiftClick(Player sender, Player receiver, ItemStack item) {
+        debugLogger.debug("Handling money gift click...");
+        if (item.getItemMeta() == null || item.getItemMeta().getLore() == null) {
+            debugLogger.debugWarning("Money gift item has no meta or lore!");
+            return;
+        }
+        
+        List<String> lore = item.getItemMeta().getLore();
+        double amount = 0;
+        int basePoints = 0;
+        
+        // Extraer cantidad y puntos del lore
+        for (String line : lore) {
+            String strippedLine = ChatColor.stripColor(line);
+            debugLogger.debug("Parsing lore line: " + strippedLine);
+            
+            if (strippedLine.contains("Costo: $")) {
+                try {
+                    String amountStr = strippedLine.substring(strippedLine.indexOf("$") + 1)
+                                                 .replace(",", "");
+                    amount = Double.parseDouble(amountStr);
+                    debugLogger.debug("Parsed amount: " + amount);
+                } catch (Exception e) {
+                    debugLogger.debugWarning("Error parsing money amount: " + strippedLine);
+                }
+            } else if (strippedLine.contains("Puntos: ") && basePoints == 0) {
+                try {
+                    // "Puntos: 123"
+                    String pointsStr = strippedLine.split("Puntos: ")[1].trim();
+                    basePoints = Integer.parseInt(pointsStr);
+                    debugLogger.debug("Parsed base points: " + basePoints);
+                } catch (Exception e) {
+                    debugLogger.debugWarning("Error parsing money points: " + strippedLine);
+                }
+            }
+        }
+        
+        if (amount <= 0) {
+            debugLogger.debugWarning("Amount is 0 or negative, stopping.");
+            return;
+        }
+        
+        // Calcular porcentaje compartido
+        int sharedMoneyPercentage = plugin.getConfigManager().getMainConfig().getInt("mailbox.shared_money_percentage", 50);
+        double receiverAmount = amount * (sharedMoneyPercentage / 100.0);
+
+        // Calcular puntos con boost
+        double multiplier = friendshipManager.getActiveMultiplier(sender.getUniqueId().toString());
+        int finalPoints = (int) (basePoints * multiplier);
+
+        // Ejecutar comandos de economía (vía consola para asegurar permisos)
+        String takeCmd = "eco take " + sender.getName() + " " + amount;
+        String giveCmd = "eco give " + receiver.getName() + " " + receiverAmount;
+        
+        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), takeCmd);
+        
+        // Determinar si usar el mailbox para el dinero
+        boolean mailboxEnabled = plugin.getConfigManager().getMainConfig().getBoolean("mailbox.enabled", true);
+        
+        if (mailboxEnabled) {
+            // Nota: He modificado el constructor de MailboxGift para aceptar money
+            // El orden es: receiverUUID, receiverName, senderUUID, senderName, giftId, giftName, originalItems, sharedItems, money, basePoints, pointsAwarded
+            MailboxGift fullGift = new MailboxGift(
+                receiver.getUniqueId(),
+                receiver.getName(),
+                sender.getUniqueId(),
+                sender.getName(),
+                "money_gift",
+                "Regalo de Dinero",
+                new ArrayList<>(),
+                new ArrayList<>(),
+                receiverAmount,
+                basePoints,
+                finalPoints
+            );
+
+            if (plugin.getMailboxDAO().saveGift(fullGift)) {
+                String msgSender = plugin.getPrefix() + "§a✅ Has enviado un regalo de §f$" + String.format("%,.2f", amount) + " §aa §f" + receiver.getName() + " §7(enviado a su buzón)";
+                sender.sendMessage(msgSender);
+                
+                if (receiver.isOnline()) {
+                    String notification = plugin.getMessage("messages.pending_gift_notification",
+                        "{prefix}&6📬 ¡Tienes un nuevo regalo de &f{sender}&6! Usa &f/gb redeem&6 para reclamarlo.");
+                    notification = notification.replace("{sender}", sender.getName());
+                    receiver.sendMessage(ChatColor.translateAlternateColorCodes('&', notification));
+                }
+            } else {
+                sender.sendMessage(plugin.getPrefix() + "§c❌ Error al guardar el regalo de dinero en el buzón.");
+            }
+        } else {
+            // Entrega directa (comportamiento anterior)
+            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), giveCmd);
+            
+            // Agregar puntos de amistad y puntos personales (el manager maneja los boosts)
+            friendshipManager.addFriendshipPoints(sender.getUniqueId().toString(), 
+                                                 receiver.getUniqueId().toString(), 
+                                                 basePoints);
+
+            // Mensajes de confirmación
+            String msgSender = plugin.getPrefix() + "§a✅ Has enviado un regalo de §f$" + String.format("%,.2f", amount) + " §aa §f" + receiver.getName() + " §7(+" + finalPoints + " puntos)";
+            String msgReceiver = plugin.getPrefix() + "§a🎉 Has recibido un regalo de §f$" + String.format("%,.2f", receiverAmount) + " §ade §f" + sender.getName();
+            
+            sender.sendMessage(msgSender);
+            receiver.sendMessage(msgReceiver);
+        }
+        
+        // Registrar en logs
+        debugLogger.info("[MONEY] Gift of $" + amount + " and " + finalPoints + " pts sent from " + sender.getName() + " to " + receiver.getName());
+        
+        sender.closeInventory();
+        
+        // Limpiar sesión
+        sessionManager.endGiftSession(sender);
+    }
+
     private String getItemDisplayName(ItemStack item) {
         if (item == null) {
             return "NULL_ITEM";

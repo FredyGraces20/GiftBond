@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -55,7 +56,7 @@ public class GiftBondUnifiedCommand implements CommandExecutor, TabCompleter {
         switch (subCommand) {
             case "friends" -> {
                 if (!sender.hasPermission("giftbond.friends")) {
-                    sender.sendMessage(plugin.getPrefix() + "§cYou don't have permission to use this command.");
+                    sender.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessage("errors.no_permission", "{prefix}&cNo tienes permiso para usar este comando.")));
                     return true;
                 }
                 return amistadCommand.onCommand(sender, command, label, subArgs);
@@ -63,7 +64,7 @@ public class GiftBondUnifiedCommand implements CommandExecutor, TabCompleter {
                 
             case "top" -> {
                 if (!sender.hasPermission("giftbond.top")) {
-                    sender.sendMessage(plugin.getPrefix() + "§cYou don't have permission to use this command.");
+                    sender.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessage("errors.no_permission", "{prefix}&cNo tienes permiso para usar este comando.")));
                     return true;
                 }
                 return topRegalosCommand.onCommand(sender, command, label, subArgs);
@@ -71,7 +72,7 @@ public class GiftBondUnifiedCommand implements CommandExecutor, TabCompleter {
                 
             case "send" -> {
                 if (!sender.hasPermission("giftbond.send")) {
-                    sender.sendMessage(plugin.getPrefix() + "§cYou don't have permission to use this command.");
+                    sender.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessage("errors.no_permission", "{prefix}&cNo tienes permiso para usar este comando.")));
                     return true;
                 }
                 return regaloCommand.onCommand(sender, command, label, subArgs);
@@ -79,7 +80,7 @@ public class GiftBondUnifiedCommand implements CommandExecutor, TabCompleter {
                 
             case "redeem" -> {
                 if (!sender.hasPermission("giftbond.redeem")) {
-                    sender.sendMessage(plugin.getPrefix() + "§cYou don't have permission to use this command.");
+                    sender.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessage("errors.no_permission", "{prefix}&cNo tienes permiso para usar este comando.")));
                     return true;
                 }
                 return mailboxCommand.onCommand(sender, command, label, subArgs);
@@ -87,7 +88,7 @@ public class GiftBondUnifiedCommand implements CommandExecutor, TabCompleter {
                 
             case "reload" -> {
                 if (!sender.hasPermission("giftbond.admin.reload")) {
-                    sender.sendMessage(plugin.getPrefix() + "§cYou don't have permission to use this command.");
+                    sender.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessage("errors.no_permission", "{prefix}&cNo tienes permiso para usar este comando.")));
                     return true;
                 }
                 return reloadCommand.onCommand(sender, command, label, subArgs);
@@ -95,7 +96,7 @@ public class GiftBondUnifiedCommand implements CommandExecutor, TabCompleter {
                 
             case "savedata" -> {
                 if (!sender.hasPermission("giftbond.savedata")) {
-                    sender.sendMessage(plugin.getPrefix() + "§cYou don't have permission to use this command.");
+                    sender.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessage("errors.no_permission", "{prefix}&cNo tienes permiso para usar este comando.")));
                     return true;
                 }
                 return saveDataCommand.onCommand(sender, command, label, subArgs);
@@ -103,7 +104,7 @@ public class GiftBondUnifiedCommand implements CommandExecutor, TabCompleter {
                 
             case "points" -> {
                 if (!sender.hasPermission("giftbond.admin.points")) {
-                    sender.sendMessage(plugin.getPrefix() + "§cYou don't have permission to use this command.");
+                    sender.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessage("errors.no_permission", "{prefix}&cNo tienes permiso para usar este comando.")));
                     return true;
                 }
                 return personalPointsCommand.onCommand(sender, command, label, subArgs);
@@ -111,7 +112,7 @@ public class GiftBondUnifiedCommand implements CommandExecutor, TabCompleter {
                 
             case "boost" -> {
                 if (!sender.hasPermission("giftbond.admin.boost")) {
-                    sender.sendMessage(plugin.getPrefix() + "§cYou don't have permission to use this command.");
+                    sender.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessage("errors.no_permission", "{prefix}&cNo tienes permiso para usar este comando.")));
                     return true;
                 }
                 return boostCommand.onCommand(sender, command, label, subArgs);
@@ -119,14 +120,15 @@ public class GiftBondUnifiedCommand implements CommandExecutor, TabCompleter {
                 
             case "debug" -> {
                 if (!sender.hasPermission("giftbond.admin.debug")) {
-                    sender.sendMessage(plugin.getPrefix() + "§cYou don't have permission to use this command.");
+                    sender.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessage("errors.no_permission", "{prefix}&cNo tienes permiso para usar este comando.")));
                     return true;
                 }
                 return debugCommand.onCommand(sender, command, label, subArgs);
             }
                 
             default -> {
-                sender.sendMessage(plugin.getPrefix() + "§cUnknown subcommand: " + subCommand);
+                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessage("errors.unknown_subcommand", "{prefix}&cSubcomando desconocido: {subcommand}")
+                        .replace("{subcommand}", subCommand)));
                 showHelp(sender);
                 return true;
             }
@@ -156,9 +158,19 @@ public class GiftBondUnifiedCommand implements CommandExecutor, TabCompleter {
         if (args.length > 1) {
             String subCommand = args[0].toLowerCase();
             
+            if (subCommand.equals("redeem")) {
+                List<String> subCompletions = Arrays.asList("items", "money", "all", "status", "info");
+                List<String> matches = new ArrayList<>();
+                String search = args[1].toLowerCase();
+                for (String s : subCompletions) {
+                    if (s.startsWith(search)) matches.add(s);
+                }
+                return matches;
+            }
+
             // Solo algunos comandos tienen tab completion
             switch (subCommand) {
-                case "points", "boost", "debug", "redeem" -> {
+                case "points", "boost", "debug" -> {
                     // Estos comandos no implementan TabCompleter, retornar vacío
                     return Collections.emptyList();
                 }
@@ -169,22 +181,26 @@ public class GiftBondUnifiedCommand implements CommandExecutor, TabCompleter {
     }
 
     private void showHelp(CommandSender sender) {
-        String prefix = plugin.getPrefix();
-        sender.sendMessage(prefix + "§e=== GiftBond Commands ===");
-        sender.sendMessage("§6/giftbond friends §7- View your friendship points");
-        sender.sendMessage("§6/giftbond top §7- View couples leaderboard");
-        sender.sendMessage("§6/giftbond send §7- Send gifts to other players");
-        sender.sendMessage("§6/giftbond redeem §7- Claim pending gifts");
+        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessage("commands.help_header", "&d&m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")));
+        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessage("commands.help_title", "&d&lGIFTBOND - COMANDOS")));
+        sender.sendMessage("");
+        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessage("commands.help_friends", "&e/giftbond friends &7- Ver tus puntos de amistad")));
+        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessage("commands.help_top", "&e/giftbond top &7- Ver el top 10 de parejas")));
+        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessage("commands.help_gift", "&e/regalo <jugador> &7- Enviar un regalo")));
+        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessage("commands.help_mailbox", "&e/gb redeem &7- Ver y reclamar regalos acumulados")));
         
         if (sender.hasPermission("giftbond.admin")) {
-            sender.sendMessage("§6/giftbond reload §7- Reload configuration");
-            sender.sendMessage("§6/giftbond savedata §7- Create data backup");
-            sender.sendMessage("§6/giftbond points §7- Manage points");
-            sender.sendMessage("§6/giftbond boost §7- Give boosts to players");
-            sender.sendMessage("§6/giftbond debug §7- Control debug mode");
+            sender.sendMessage("");
+            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessage("commands.admin_header", "&c&lADMINISTRACIÓN:")));
+            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessage("commands.help_reload", "&e/giftbond reload &7- Recargar configuración")));
+            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessage("commands.help_savedata", "&e/giftbond savedata &7- Crear backup de datos")));
+            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessage("commands.help_points", "&e/giftbond points &7- Gestionar puntos")));
+            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessage("commands.help_boost", "&e/giftbond boost &7- Dar boosts a jugadores")));
+            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessage("commands.help_debug", "&e/giftbond debug &7- Controlar modo debug")));
         }
         
-        sender.sendMessage(prefix + "§7Use §f/giftbond <command>§7 for more information");
+        sender.sendMessage("");
+        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessage("commands.help_footer", "&d&m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")));
     }
 
     // Método que utiliza el plugin para acceder a funcionalidades

@@ -1,5 +1,6 @@
 package com.fredygraces.giftbond.commands;
 
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -24,7 +25,8 @@ public class TopRegalosCommand implements CommandExecutor {
         }
         
         if (!(sender instanceof Player)) {
-            sender.sendMessage("§cOnly players can use this command.");
+            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', 
+                plugin.getMessage("errors.no_permission_player_only", "{prefix}&cSolo los jugadores pueden usar este comando.")));
             return true;
         }
 
@@ -33,7 +35,8 @@ public class TopRegalosCommand implements CommandExecutor {
         // Validate required components
         if (friendshipManager == null || plugin == null) {
             if (sender != null) {
-                sender.sendMessage("§cSystem error: Required components not available.");
+                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', 
+                    plugin.getMessage("errors.system_error", "{prefix}&cError del sistema: Componentes requeridos no disponibles.")));
             }
             return true;
         }
@@ -43,26 +46,35 @@ public class TopRegalosCommand implements CommandExecutor {
             friendshipManager.getTopFriendshipPairs(10);
         
         // Send message to player
-        String prefix = plugin.getPrefix();
+        player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessage("info.top_header", "&6&m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")));
+        player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessage("info.top_title", "&6&l🏆 TOP 10 PAREJAS")));
+        player.sendMessage("");
         
         if (topPairs == null) {
-            player.sendMessage(prefix + "§cError retrieving friendship data.");
+            player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessage("info.top_error", "&cError al recuperar los datos de amistad.")));
             return true;
         }
         
-        player.sendMessage(prefix + "§eTop 10 couples with most friendship points:");
-        
         if (topPairs.isEmpty()) {
-            player.sendMessage(prefix + "§7No friendship points registered yet.");
+            player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessage("info.top_no_data", "&7No hay puntos de amistad registrados aún.")));
         } else {
             for (int i = 0; i < topPairs.size(); i++) {
                 com.fredygraces.giftbond.managers.DatabaseManager.FriendshipPair pair = topPairs.get(i);
                 String player1Name = getPlayerName(pair.getPlayer1UUID());
                 String player2Name = getPlayerName(pair.getPlayer2UUID());
                 
-                player.sendMessage("§6" + (i + 1) + ". §f" + player1Name + " §4❤ §f" + player2Name + " §7- §a" + pair.getPoints() + " points");
+                String entry = plugin.getMessage("info.top_entry", "&6{rank}. &f{player1} &4❤ &f{player2} &7- &a{points} puntos")
+                        .replace("{rank}", String.valueOf(i + 1))
+                        .replace("{player1}", player1Name)
+                        .replace("{player2}", player2Name)
+                        .replace("{points}", String.valueOf(pair.getPoints()));
+                
+                player.sendMessage(ChatColor.translateAlternateColorCodes('&', entry));
             }
         }
+        
+        player.sendMessage("");
+        player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessage("info.top_footer", "&6&m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")));
         
         return true;
     }

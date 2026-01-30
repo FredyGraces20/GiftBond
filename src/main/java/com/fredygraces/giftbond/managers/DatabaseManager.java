@@ -35,6 +35,13 @@ public class DatabaseManager {
     }
 
     public Connection getConnection() {
+        try {
+            if (connection == null || connection.isClosed()) {
+                initialize();
+            }
+        } catch (SQLException e) {
+            plugin.getLogger().log(Level.SEVERE, "Failed to restore database connection", e);
+        }
         return connection;
     }
 
@@ -95,13 +102,13 @@ public class DatabaseManager {
             )
             """;
 
-        try (Statement stmt = connection.createStatement()) {
+        try (Statement stmt = getConnection().createStatement()) {
             stmt.execute(createTableSQL);
         }
 
         // Create indexes for better performance
         String createIndexSQL = "CREATE INDEX IF NOT EXISTS idx_receiver_points ON friendships(receiver_uuid, points)";
-        try (Statement stmt = connection.createStatement()) {
+        try (Statement stmt = getConnection().createStatement()) {
             stmt.execute(createIndexSQL);
         }
 
@@ -112,7 +119,7 @@ public class DatabaseManager {
                 points INTEGER DEFAULT 0
             )
             """;
-        try (Statement stmt = connection.createStatement()) {
+        try (Statement stmt = getConnection().createStatement()) {
             stmt.execute(createPersonalTableSQL);
         }
 
@@ -124,7 +131,7 @@ public class DatabaseManager {
                 expiry BIGINT DEFAULT 0
             )
             """;
-        try (Statement stmt = connection.createStatement()) {
+        try (Statement stmt = getConnection().createStatement()) {
             stmt.execute(createBoostTableSQL);
         }
 
@@ -139,7 +146,7 @@ public class DatabaseManager {
                 timestamp BIGINT NOT NULL
             )
             """;
-        try (Statement stmt = connection.createStatement()) {
+        try (Statement stmt = getConnection().createStatement()) {
             stmt.execute(createHistoryTableSQL);
         }
 
@@ -152,7 +159,7 @@ public class DatabaseManager {
                 PRIMARY KEY (player_uuid, date)
             )
             """;
-        try (Statement stmt = connection.createStatement()) {
+        try (Statement stmt = getConnection().createStatement()) {
             stmt.execute(createDailyTableSQL);
         }
     }
@@ -176,7 +183,7 @@ public class DatabaseManager {
             DO UPDATE SET points = points + excluded.points, last_interaction = excluded.last_interaction
             """;
 
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+        try (PreparedStatement pstmt = getConnection().prepareStatement(sql)) {
             pstmt.setString(1, senderUUID);
             pstmt.setString(2, receiverUUID);
             pstmt.setInt(3, points);
@@ -190,7 +197,7 @@ public class DatabaseManager {
     public int getFriendshipPoints(String senderUUID, String receiverUUID) {
         String sql = "SELECT points FROM friendships WHERE sender_uuid = ? AND receiver_uuid = ?";
 
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+        try (PreparedStatement pstmt = getConnection().prepareStatement(sql)) {
             pstmt.setString(1, senderUUID);
             pstmt.setString(2, receiverUUID);
 
@@ -211,7 +218,7 @@ public class DatabaseManager {
         // Obtener puntos de regalos RECIBIDOS (donde el jugador es receiver)
         String receivedSql = "SELECT sender_uuid, points FROM friendships WHERE receiver_uuid = ?";
 
-        try (PreparedStatement pstmt = connection.prepareStatement(receivedSql)) {
+        try (PreparedStatement pstmt = getConnection().prepareStatement(receivedSql)) {
             pstmt.setString(1, playerUUID);
 
             try (ResultSet rs = pstmt.executeQuery()) {
@@ -228,7 +235,7 @@ public class DatabaseManager {
         // Obtener puntos de regalos ENVIADOS (donde el jugador es sender)
         String sentSql = "SELECT receiver_uuid, points FROM friendships WHERE sender_uuid = ?";
 
-        try (PreparedStatement pstmt = connection.prepareStatement(sentSql)) {
+        try (PreparedStatement pstmt = getConnection().prepareStatement(sentSql)) {
             pstmt.setString(1, playerUUID);
 
             try (ResultSet rs = pstmt.executeQuery()) {
@@ -248,7 +255,7 @@ public class DatabaseManager {
     public int getTotalFriendshipPoints(String playerUUID) {
         String sql = "SELECT COALESCE(SUM(points), 0) as total FROM friendships WHERE receiver_uuid = ?";
 
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+        try (PreparedStatement pstmt = getConnection().prepareStatement(sql)) {
             pstmt.setString(1, playerUUID);
 
             try (ResultSet rs = pstmt.executeQuery()) {
@@ -271,7 +278,7 @@ public class DatabaseManager {
             LIMIT ?
             """;
 
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+        try (PreparedStatement pstmt = getConnection().prepareStatement(sql)) {
             pstmt.setInt(1, limit);
 
             try (ResultSet rs = pstmt.executeQuery()) {
@@ -299,7 +306,7 @@ public class DatabaseManager {
             DO UPDATE SET points = points + excluded.points
             """;
 
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+        try (PreparedStatement pstmt = getConnection().prepareStatement(sql)) {
             pstmt.setString(1, playerUUID);
             pstmt.setInt(2, points);
             pstmt.executeUpdate();
@@ -311,7 +318,7 @@ public class DatabaseManager {
     public int getPersonalPoints(String playerUUID) {
         String sql = "SELECT points FROM player_points WHERE player_uuid = ?";
 
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+        try (PreparedStatement pstmt = getConnection().prepareStatement(sql)) {
             pstmt.setString(1, playerUUID);
 
             try (ResultSet rs = pstmt.executeQuery()) {
@@ -333,7 +340,7 @@ public class DatabaseManager {
             DO UPDATE SET points = excluded.points
             """;
 
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+        try (PreparedStatement pstmt = getConnection().prepareStatement(sql)) {
             pstmt.setString(1, playerUUID);
             pstmt.setInt(2, points);
             pstmt.executeUpdate();
@@ -360,7 +367,7 @@ public class DatabaseManager {
             DO UPDATE SET multiplier = excluded.multiplier, expiry = excluded.expiry
             """;
 
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+        try (PreparedStatement pstmt = getConnection().prepareStatement(sql)) {
             pstmt.setString(1, playerUUID);
             pstmt.setDouble(2, multiplier);
             pstmt.setLong(3, expiry);
@@ -371,15 +378,9 @@ public class DatabaseManager {
     }
 
     public double getPersonalBoost(String playerUUID) {
-        // Verificar y reconectar si la conexión está cerrada
-        if (!ensureConnection()) {
-            plugin.getLogger().warning("Cannot get personal boost: database connection failed");
-            return 1.0;
-        }
-
         String sql = "SELECT multiplier, expiry FROM player_boosts WHERE player_uuid = ?";
 
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+        try (PreparedStatement pstmt = getConnection().prepareStatement(sql)) {
             pstmt.setString(1, playerUUID);
 
             try (ResultSet rs = pstmt.executeQuery()) {
@@ -403,7 +404,7 @@ public class DatabaseManager {
             VALUES (?, ?, ?, ?, ?)
             """;
 
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+        try (PreparedStatement pstmt = getConnection().prepareStatement(sql)) {
             pstmt.setString(1, senderUUID);
             pstmt.setString(2, receiverUUID);
             pstmt.setString(3, giftName);
@@ -436,7 +437,7 @@ public class DatabaseManager {
             LIMIT ? OFFSET ?
             """;
 
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+        try (PreparedStatement pstmt = getConnection().prepareStatement(sql)) {
             pstmt.setString(1, playerUUID);
             pstmt.setString(2, playerUUID);
             pstmt.setInt(3, limit);
@@ -483,7 +484,7 @@ public class DatabaseManager {
     public int getGiftHistoryCount(String playerUUID) {
         String sql = "SELECT COUNT(*) as count FROM gift_history WHERE sender_uuid = ? OR receiver_uuid = ?";
 
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+        try (PreparedStatement pstmt = getConnection().prepareStatement(sql)) {
             pstmt.setString(1, playerUUID);
             pstmt.setString(2, playerUUID);
 
@@ -503,7 +504,7 @@ public class DatabaseManager {
         String today = java.time.LocalDate.now().toString();
         String sql = "SELECT gift_count FROM daily_gifts WHERE player_uuid = ? AND date = ?";
 
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+        try (PreparedStatement pstmt = getConnection().prepareStatement(sql)) {
             pstmt.setString(1, playerUUID);
             pstmt.setString(2, today);
 
@@ -527,7 +528,7 @@ public class DatabaseManager {
             DO UPDATE SET gift_count = gift_count + 1
             """;
 
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+        try (PreparedStatement pstmt = getConnection().prepareStatement(sql)) {
             pstmt.setString(1, playerUUID);
             pstmt.setString(2, today);
             pstmt.executeUpdate();
@@ -540,7 +541,7 @@ public class DatabaseManager {
         String yesterday = java.time.LocalDate.now().minusDays(1).toString();
         String sql = "DELETE FROM daily_gifts WHERE date < ?";
 
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+        try (PreparedStatement pstmt = getConnection().prepareStatement(sql)) {
             pstmt.setString(1, yesterday);
             pstmt.executeUpdate();
         } catch (SQLException e) {
@@ -590,6 +591,7 @@ public class DatabaseManager {
             giftName,
             originalItems,
             sharedItems,
+            0.0, // No money
             basePoints,
             pointsAwarded
         );

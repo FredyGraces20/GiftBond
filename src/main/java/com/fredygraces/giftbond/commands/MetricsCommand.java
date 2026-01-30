@@ -1,15 +1,15 @@
 package com.fredygraces.giftbond.commands;
 
-import com.fredygraces.giftbond.GiftBond;
-import com.fredygraces.giftbond.logging.GiftBondLogger;
-import com.fredygraces.giftbond.metrics.MetricsManager;
-import com.fredygraces.giftbond.permissions.PermissionManager;
-
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+
+import com.fredygraces.giftbond.GiftBond;
+import com.fredygraces.giftbond.logging.GiftBondLogger;
+import com.fredygraces.giftbond.metrics.MetricsManager;
+import com.fredygraces.giftbond.permissions.PermissionManager;
 
 /**
  * Comando para mostrar métricas y estadísticas del plugin
@@ -48,7 +48,8 @@ public class MetricsCommand implements CommandExecutor {
             case "report" -> showMetricsReport(sender);
             case "reset" -> resetMetrics(sender);
             default -> {
-                sender.sendMessage(plugin.getPrefix() + ChatColor.RED + "Subcomando desconocido: " + subcommand);
+                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessage("errors.unknown_subcommand", "{prefix}&cSubcomando desconocido: {subcommand}")
+                        .replace("{subcommand}", subcommand)));
                 showHelp(sender);
             }
         }
@@ -57,54 +58,69 @@ public class MetricsCommand implements CommandExecutor {
     }
     
     private void showHelp(CommandSender sender) {
-        sender.sendMessage(plugin.getPrefix() + ChatColor.GOLD + "Comandos de Métricas:");
-        sender.sendMessage(ChatColor.YELLOW + "/giftbond metrics report" + ChatColor.GRAY + " - Mostrar reporte completo");
-        sender.sendMessage(ChatColor.YELLOW + "/giftbond metrics reset" + ChatColor.GRAY + " - Reiniciar contadores");
+        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessage("commands.help_header", "&d&m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")));
+        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessage("commands.metrics_help_title", "&eComandos de Métricas:")));
+        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessage("commands.metrics_help_report", "&e/giftbond metrics report &7- Mostrar reporte completo")));
+        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessage("commands.metrics_help_reset", "&e/giftbond metrics reset &7- Reiniciar contadores")));
+        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessage("commands.help_footer", "&d&m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")));
     }
     
     private void showMetricsReport(CommandSender sender) {
         try {
             var report = metricsManager.generateReport();
             
-            sender.sendMessage(plugin.getPrefix() + ChatColor.GOLD + "=== Reporte de Métricas ===");
-            sender.sendMessage(ChatColor.GREEN + "Regalos Enviados: " + ChatColor.WHITE + report.totalGiftsSent);
-            sender.sendMessage(ChatColor.GREEN + "Regalos Reclamados: " + ChatColor.WHITE + report.totalGiftsRedeemed);
-            sender.sendMessage(ChatColor.GREEN + "Puntos de Amistad: " + ChatColor.WHITE + report.totalPointsEarned);
-            sender.sendMessage(ChatColor.GREEN + "Comandos Ejecutados: " + ChatColor.WHITE + report.totalCommandsExecuted);
-            sender.sendMessage(ChatColor.GREEN + "Tiempo Promedio: " + ChatColor.WHITE + 
-                String.format("%.2f ms", report.averageResponseTimeMs));
+            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessage("commands.metrics_report_header", "{prefix}&6=== Reporte de Métricas ===")));
+            
+            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessage("commands.metrics_gifts_sent", "&aRegalos Enviados: &f{count}")
+                    .replace("{count}", String.valueOf(report.totalGiftsSent))));
+            
+            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessage("commands.metrics_gifts_redeemed", "&aRegalos Reclamados: &f{count}")
+                    .replace("{count}", String.valueOf(report.totalGiftsRedeemed))));
+            
+            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessage("commands.metrics_points_earned", "&aPuntos de Amistad: &f{count}")
+                    .replace("{count}", String.valueOf(report.totalPointsEarned))));
+            
+            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessage("commands.metrics_commands_executed", "&aComandos Ejecutados: &f{count}")
+                    .replace("{count}", String.valueOf(report.totalCommandsExecuted))));
+            
+            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessage("commands.metrics_average_time", "&aTiempo Promedio: &f{time} ms")
+                    .replace("{time}", String.format("%.2f", report.averageResponseTimeMs))));
             
             if (report.peakUsageHour >= 0) {
-                sender.sendMessage(ChatColor.GREEN + "Hora Pico: " + ChatColor.WHITE + 
-                    String.format("%02d:00", report.peakUsageHour));
+                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessage("commands.metrics_peak_hour", "&aHora Pico: &f{hour}")
+                        .replace("{hour}", String.format("%02d:00", report.peakUsageHour))));
             }
             
-            sender.sendMessage(ChatColor.GREEN + "Comando Más Usado: " + ChatColor.WHITE + report.mostUsedCommand);
-            sender.sendMessage(ChatColor.GREEN + "Jugadores Activos: " + ChatColor.WHITE + 
-                report.playerActivity.activePlayers);
+            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessage("commands.metrics_most_used_command", "&aComando Más Usado: &f{command}")
+                    .replace("{command}", report.mostUsedCommand)));
+            
+            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessage("commands.metrics_active_players", "&aJugadores Activos: &f{count}")
+                    .replace("{count}", String.valueOf(report.playerActivity.activePlayers))));
             
             // Mostrar información básica de jugadores activos
             sender.sendMessage("");
-            sender.sendMessage(ChatColor.GOLD + "Estadísticas de Jugadores:");
-            sender.sendMessage(ChatColor.YELLOW + "• Jugadores activos: " + ChatColor.WHITE + 
-                report.playerActivity.activePlayers);
-            sender.sendMessage(ChatColor.YELLOW + "• Top enviadores: " + ChatColor.WHITE + 
-                "(información disponible en próxima actualización)");
+            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessage("commands.metrics_player_stats_title", "&6Estadísticas de Jugadores:")));
+            
+            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessage("commands.metrics_active_players_count", "&e• Jugadores activos: &f{count}")
+                    .replace("{count}", String.valueOf(report.playerActivity.activePlayers))));
+            
+            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessage("commands.metrics_top_senders_title", "&e• Top enviadores: &7(próximamente)")));
             
             GiftBondLogger.info("Metrics report generated for " + 
                 (sender instanceof Player ? ((Player) sender).getName() : "CONSOLE"));
                 
         } catch (Exception e) {
-            sender.sendMessage(plugin.getPrefix() + ChatColor.RED + "Error generando reporte: " + e.getMessage());
+            String errorMsg = plugin.getMessage("commands.metrics_error", "{prefix}&cError generando reporte: {error}")
+                    .replace("{error}", e.getMessage());
+            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', errorMsg));
             GiftBondLogger.error("Error generating metrics report", e);
         }
     }
     
     private void resetMetrics(CommandSender sender) {
         // Nota: En una implementación real, aquí se reiniciarían los contadores
-        sender.sendMessage(plugin.getPrefix() + ChatColor.YELLOW + 
-            "⚠ Los contadores se reinician automáticamente cada 24 horas.");
-        sender.sendMessage(ChatColor.GRAY + "Para efectos de demostración, los datos se mantienen.");
+        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessage("commands.metrics_reset_warning", "{prefix}&e⚠ Los contadores se reinician automáticamente cada 24 horas.")));
+        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessage("commands.metrics_reset_demo", "&7Para efectos de demostración, los datos se mantienen.")));
         
         GiftBondLogger.info("Metrics reset attempted by " + 
             (sender instanceof Player ? ((Player) sender).getName() : "CONSOLE"));

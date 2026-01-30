@@ -14,6 +14,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import com.fredygraces.giftbond.GiftBond;
 import com.fredygraces.giftbond.managers.GiftManager;
 import com.fredygraces.giftbond.models.GiftItem;
+import com.fredygraces.giftbond.utils.GiftSessionManager;
 import com.fredygraces.giftbond.utils.RandomGiftGenerator;
 
 public class GiftMenu {
@@ -26,6 +27,9 @@ public class GiftMenu {
     }
 
     public void openGiftMenu(Player sender, Player receiver) {
+        // Iniciar sesión de regalo para el destinatario
+        GiftSessionManager.getInstance().startGiftSession(sender, receiver.getName());
+
         String title = getDefaultTitle(receiver.getName());
         
         // En modo auto, mostrar información de rotación en el título
@@ -40,8 +44,70 @@ public class GiftMenu {
             title = getManualTitle(receiver.getName());
         }
         
-        Inventory inventory = Bukkit.createInventory(null, 27, title);
+        // En modo auto, el menú tiene 5 filas (45 slots)
+        int size = giftManager.isAutoMode() ? 45 : 27;
+        Inventory inventory = Bukkit.createInventory(null, size, title);
         
+        if (giftManager.isAutoMode()) {
+            setupAutoGiftMenu(inventory, sender);
+        } else {
+            setupManualGiftMenu(inventory, sender);
+        }
+        
+        sender.openInventory(inventory);
+    }
+
+    /**
+     * Configura el menú en modo automático con items, dinero y fillers
+     */
+    private void setupAutoGiftMenu(Inventory inventory, Player sender) {
+        RandomGiftGenerator generator = giftManager.getRandomGiftGenerator();
+        if (generator == null) return;
+
+        // 1. Llenar filas de fillers (0-8 y 18-26)
+        ItemStack filler = createRandomFiller();
+        for (int i = 0; i < 9; i++) {
+            inventory.setItem(i, filler);
+            inventory.setItem(i + 18, filler);
+        }
+        
+        // 2. Llenar última fila con fillers y reloj (36-44)
+        for (int i = 36; i < 45; i++) {
+            if (i == 40) {
+                inventory.setItem(i, createConfigurableRotationInfoItem());
+            } else {
+                inventory.setItem(i, filler);
+            }
+        }
+
+        // 3. Colocar items de regalo (9-17)
+        Collection<GiftItem> gifts = giftManager.getAllGifts();
+        int itemIndex = 9;
+        for (GiftItem gift : gifts) {
+            if (itemIndex > 17) break;
+            
+            ItemStack item;
+            if (giftManager.hasRequiredItems(sender, gift)) {
+                item = createAvailableGiftItem(sender, getDisplayMaterial(gift), gift);
+            } else {
+                item = createUnavailableGiftItem(sender, gift);
+            }
+            inventory.setItem(itemIndex++, item);
+        }
+
+        // 4. Colocar botones de dinero (27-35)
+        List<RandomGiftGenerator.RandomMoneyGift> moneyGifts = generator.getCurrentMoneyGifts();
+        int moneyIndex = 27;
+        for (RandomGiftGenerator.RandomMoneyGift moneyGift : moneyGifts) {
+            if (moneyIndex > 35) break;
+            inventory.setItem(moneyIndex++, createMoneyGiftItem(sender, moneyGift));
+        }
+    }
+
+    /**
+     * Configura el menú en modo manual (comportamiento original)
+     */
+    private void setupManualGiftMenu(Inventory inventory, Player sender) {
         // Crear items de regalos basados en la configuración
         ItemStack[] giftItems = createConfigurableGiftItems(sender);
         
@@ -50,18 +116,85 @@ public class GiftMenu {
             inventory.setItem(i, giftItems[i]);
         }
         
-        // En modo auto, agregar item de información en el último slot
-        if (giftManager.isAutoMode() && isRotationInfoEnabled()) {
+        // Agregar item de información si está habilitado
+        if (isRotationInfoEnabled()) {
             ItemStack infoItem = createConfigurableRotationInfoItem();
             int slot = getRotationInfoSlot();
             if (slot >= 0 && slot < 27) {
                 inventory.setItem(slot, infoItem);
             } else {
-                inventory.setItem(26, infoItem); // Fallback al último slot
+                inventory.setItem(26, infoItem);
             }
         }
+    }
+
+    /**
+     * Crea un item que representa un regalo de dinero
+     */
+    private ItemStack createMoneyGiftItem(Player sender, RandomGiftGenerator.RandomMoneyGift moneyGift) {
+        ItemStack item = new ItemStack(Material.GOLD_INGOT);
+        ItemMeta meta = item.getItemMeta();
         
-        sender.openInventory(inventory);
+        double multiplier = plugin.getFriendshipManager().getActiveMultiplier(sender.getUniqueId().toString());
+        int basePoints = moneyGift.getPoints();
+        int finalPoints = (int) (basePoints * multiplier);
+        
+        // Calcular porcentaje compartido para el lore
+        int sharedMoneyPercentage = plugin.getConfigManager().getMainConfig().getInt("mailbox.shared_money_percentage", 50);
+        double costAmount = moneyGift.getAmount();
+        double receiverAmount = costAmount * (sharedMoneyPercentage / 100.0);
+        
+        if (meta != null) {
+            meta.setDisplayName("§6§l🎁 Regalo de Dinero");
+            List<String> lore = new java.util.ArrayList<>();
+            lore.add("§e§lInformación del envío");
+            lore.add("§7------------------------");
+            lore.add("§fCosto: §a$" + String.format("%,.2f", costAmount));
+            
+            if (multiplier > 1.0) {
+                lore.add("§fRecibe: §a$" + String.format("%,.2f", receiverAmount));
+                lore.add("§fPuntos: §a" + basePoints);
+                lore.add("§7------------------------");
+                lore.add("§fBoost: §b" + String.format("%.1f", multiplier) + "x");
+                lore.add("§fPuntos: §a" + finalPoints);
+            } else {
+                lore.add("§fPuntos: §a" + basePoints);
+                lore.add("§7------------------------");
+            }
+            
+            lore.add("");
+            lore.add("§eHaz clic para enviar este");
+            lore.add("§eregalo de dinero.");
+            lore.add("§7━━━━━━━━━━━━━━━━━━━━");
+            meta.setLore(lore);
+            item.setItemMeta(meta);
+        }
+        return item;
+    }
+
+    /**
+     * Crea un panel de cristal de color aleatorio para relleno
+     */
+    private ItemStack createRandomFiller() {
+        Material[] colors = {
+            Material.WHITE_STAINED_GLASS_PANE, Material.ORANGE_STAINED_GLASS_PANE,
+            Material.MAGENTA_STAINED_GLASS_PANE, Material.LIGHT_BLUE_STAINED_GLASS_PANE,
+            Material.YELLOW_STAINED_GLASS_PANE, Material.LIME_STAINED_GLASS_PANE,
+            Material.PINK_STAINED_GLASS_PANE, Material.GRAY_STAINED_GLASS_PANE,
+            Material.LIGHT_GRAY_STAINED_GLASS_PANE, Material.CYAN_STAINED_GLASS_PANE,
+            Material.PURPLE_STAINED_GLASS_PANE, Material.BLUE_STAINED_GLASS_PANE,
+            Material.BROWN_STAINED_GLASS_PANE, Material.GREEN_STAINED_GLASS_PANE,
+            Material.RED_STAINED_GLASS_PANE, Material.BLACK_STAINED_GLASS_PANE
+        };
+        
+        Material randomColor = colors[new java.util.Random().nextInt(colors.length)];
+        ItemStack filler = new ItemStack(randomColor);
+        ItemMeta meta = filler.getItemMeta();
+        if (meta != null) {
+            meta.setDisplayName(" ");
+            filler.setItemMeta(meta);
+        }
+        return filler;
     }
     
     /**
@@ -261,26 +394,52 @@ public class GiftMenu {
         }
         
         double multiplier = plugin.getFriendshipManager().getActiveMultiplier(sender.getUniqueId().toString());
-        boolean hasBoost = multiplier > 1.0;
+        int basePoints = gift.getPoints();
+        int finalPoints = (int) (basePoints * multiplier);
 
-        // Crear lore con descripción y costo
+        // Crear lore con información detallada de envío
         java.util.List<String> lore = new java.util.ArrayList<>();
-        for (String line : gift.getDescription()) {
-            String translated = ChatColor.translateAlternateColorCodes('&', line);
-            if (hasBoost && translated.contains("Premio:")) {
-                int finalPoints = (int) (gift.getPoints() * multiplier);
-                translated += ChatColor.GREEN + " (" + finalPoints + ")";
+        lore.add("§e§lInformación del envío");
+        lore.add("§7------------------------");
+        
+        // Mostrar costo en dinero si existe
+        if (gift.getMoneyRequired() > 0) {
+            lore.add("§fCosto: §a$" + String.format("%,.2f", gift.getMoneyRequired()));
+        }
+
+        // Mostrar items requeridos si existen
+        if (!gift.getRequiredItems().isEmpty()) {
+            for (com.fredygraces.giftbond.models.GiftItem.ItemRequirement req : gift.getRequiredItems()) {
+                String reqName = req.getMaterial().name().replace("_", " ").toLowerCase();
+                lore.add("§fItem: §a" + req.getAmount() + "x " + reqName);
             }
-            lore.add(translated);
         }
-
-        if (hasBoost) {
-            lore.add(ChatColor.GREEN + "Boost Activo x" + multiplier);
+        
+        lore.add("§fPuntos: §a" + basePoints);
+        lore.add("§7------------------------");
+        
+        if (multiplier > 1.0) {
+            lore.add("§fBoost: §b" + String.format("%.1f", multiplier) + "x");
+            lore.add("§fPuntos: §a" + finalPoints);
         }
-
+        
         lore.add("");
+        
+        // Añadir descripción original (QUITADO - Limpieza de lore solicitada)
+        /*
+        if (!gift.getId().startsWith("random_")) {
+            for (String line : gift.getDescription()) {
+                lore.add(ChatColor.translateAlternateColorCodes('&', line));
+            }
+            if (!gift.getDescription().isEmpty()) {
+                lore.add("");
+            }
+        }
+        */
+
         lore.add("§a✓ Disponible");
         lore.add("§7Clic para enviar este regalo");
+        lore.add("§7━━━━━━━━━━━━━━━━━━━━");
         
         if (meta != null) {
             meta.setLore(lore);
@@ -293,7 +452,7 @@ public class GiftMenu {
         if (gift == null) {
             return new ItemStack(Material.BARRIER); // Safe fallback
         }
-        
+            
         ItemStack item = new ItemStack(Material.BARRIER); // Usar barrera para indicar no disponible
         ItemMeta meta = item.getItemMeta();
         if (meta != null) {
@@ -303,29 +462,55 @@ public class GiftMenu {
                 "&cGift &7(Bloqueado)";
             meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', displayName));
         }
-        
+            
         double multiplier = plugin.getFriendshipManager().getActiveMultiplier(sender.getUniqueId().toString());
-        boolean hasBoost = multiplier > 1.0;
-
-        // Crear lore con descripción y requisitos faltantes
+        int basePoints = gift.getPoints();
+        int finalPoints = (int) (basePoints * multiplier);
+    
+        // Crear lore con información detallada
         java.util.List<String> lore = new java.util.ArrayList<>();
-        for (String line : gift.getDescription()) {
-            String translated = ChatColor.translateAlternateColorCodes('&', line);
-            if (hasBoost && translated.contains("Premio:")) {
-                int finalPoints = (int) (gift.getPoints() * multiplier);
-                translated += ChatColor.GREEN + " (" + finalPoints + ")";
-            }
-            lore.add(translated);
-        }
-
-        if (hasBoost) {
-            lore.add(ChatColor.GREEN + "Boost Activo x" + multiplier);
-        }
-
-        lore.add("");
-        lore.add("§c✗ No tienes los items necesarios");
-        lore.add("§7Consigue los items requeridos para desbloquear");
+        lore.add("§e§lInformación del envío");
+        lore.add("§7------------------------");
         
+        // Mostrar costo en dinero si existe
+        if (gift.getMoneyRequired() > 0) {
+            lore.add("§fCosto: §a$" + String.format("%,.2f", gift.getMoneyRequired()));
+        }
+
+        // Mostrar items requeridos si existen
+        if (!gift.getRequiredItems().isEmpty()) {
+            for (com.fredygraces.giftbond.models.GiftItem.ItemRequirement req : gift.getRequiredItems()) {
+                String reqName = req.getMaterial().name().replace("_", " ").toLowerCase();
+                lore.add("§fItem: §a" + req.getAmount() + "x " + reqName);
+            }
+        }
+                
+        lore.add("§fPuntos: §a" + basePoints);
+        lore.add("§7------------------------");
+        
+        if (multiplier > 1.0) {
+            lore.add("§fBoost: §b" + String.format("%.1f", multiplier) + "x");
+            lore.add("§fPuntos: §a" + finalPoints);
+        }
+        
+        lore.add("");
+    
+        // Añadir descripción original (QUITADO - Limpieza de lore solicitada)
+        /*
+        if (!gift.getId().startsWith("random_")) {
+            for (String line : gift.getDescription()) {
+                lore.add(ChatColor.translateAlternateColorCodes('&', line));
+            }
+            if (!gift.getDescription().isEmpty()) {
+                lore.add("");
+            }
+        }
+        */
+    
+        lore.add("§c✗ No tienes los requisitos necesarios");
+        lore.add("§7Consigue los items o el dinero para desbloquear");
+        lore.add("§7━━━━━━━━━━━━━━━━━━━━");
+            
         if (meta != null) {
             meta.setLore(lore);
             item.setItemMeta(meta);
