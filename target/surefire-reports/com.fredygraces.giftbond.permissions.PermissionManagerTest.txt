@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: com.fredygraces.giftbond.permissions.PermissionManagerTest
 -------------------------------------------------------------------------------
-Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.463 s -- in com.fredygraces.giftbond.permissions.PermissionManagerTest
+Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.354 sec

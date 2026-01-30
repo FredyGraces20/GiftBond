@@ -215,48 +215,48 @@ public class DatabaseManager {
     public Map<String, Integer> getPlayerFriendsWithPoints(String playerUUID) {
         Map<String, Integer> friends = new HashMap<>();
 
-        // Obtener puntos de regalos RECIBIDOS (donde el jugador es receiver)
-        String receivedSql = "SELECT sender_uuid, points FROM friendships WHERE receiver_uuid = ?";
+        // Obtener todas las relaciones donde el jugador está involucrado
+        String sql = """
+            SELECT 
+                CASE 
+                    WHEN sender_uuid = ? THEN receiver_uuid 
+                    ELSE sender_uuid 
+                END as friend_uuid,
+                points
+            FROM friendships 
+            WHERE sender_uuid = ? OR receiver_uuid = ?
+            """;
 
-        try (PreparedStatement pstmt = getConnection().prepareStatement(receivedSql)) {
+        try (PreparedStatement pstmt = getConnection().prepareStatement(sql)) {
             pstmt.setString(1, playerUUID);
+            pstmt.setString(2, playerUUID);
+            pstmt.setString(3, playerUUID);
 
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
-                    String friendUUID = rs.getString("sender_uuid");
+                    String friendUUID = rs.getString("friend_uuid");
                     int points = rs.getInt("points");
                     friends.merge(friendUUID, points, (oldValue, newValue) -> oldValue + newValue);
                 }
             }
         } catch (SQLException e) {
-            plugin.getLogger().log(Level.WARNING, "Error getting received friendship points", e);
-        }
-
-        // Obtener puntos de regalos ENVIADOS (donde el jugador es sender)
-        String sentSql = "SELECT receiver_uuid, points FROM friendships WHERE sender_uuid = ?";
-
-        try (PreparedStatement pstmt = getConnection().prepareStatement(sentSql)) {
-            pstmt.setString(1, playerUUID);
-
-            try (ResultSet rs = pstmt.executeQuery()) {
-                while (rs.next()) {
-                    String friendUUID = rs.getString("receiver_uuid");
-                    int points = rs.getInt("points");
-                    friends.merge(friendUUID, points, (oldValue, newValue) -> oldValue + newValue);
-                }
-            }
-        } catch (SQLException e) {
-            plugin.getLogger().log(Level.WARNING, "Error getting sent friendship points", e);
+            plugin.getLogger().log(Level.WARNING, "Error getting friendship points for player", e);
         }
 
         return friends;
     }
 
     public int getTotalFriendshipPoints(String playerUUID) {
-        String sql = "SELECT COALESCE(SUM(points), 0) as total FROM friendships WHERE receiver_uuid = ?";
+        // Sumar todos los puntos donde el jugador está involucrado (enviados o recibidos)
+        String sql = """
+            SELECT COALESCE(SUM(points), 0) as total 
+            FROM friendships 
+            WHERE sender_uuid = ? OR receiver_uuid = ?
+            """;
 
         try (PreparedStatement pstmt = getConnection().prepareStatement(sql)) {
             pstmt.setString(1, playerUUID);
+            pstmt.setString(2, playerUUID);
 
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
@@ -271,10 +271,29 @@ public class DatabaseManager {
 
     public List<FriendshipPair> getTopFriendshipPairs(int limit) {
         List<FriendshipPair> pairs = new ArrayList<>();
+        // Query modificada para combinar relaciones bidireccionales
         String sql = """
-            SELECT sender_uuid, receiver_uuid, points
+            SELECT 
+                CASE 
+                    WHEN sender_uuid < receiver_uuid THEN sender_uuid 
+                    ELSE receiver_uuid 
+                END as player1_uuid,
+                CASE 
+                    WHEN sender_uuid < receiver_uuid THEN receiver_uuid 
+                    ELSE sender_uuid 
+                END as player2_uuid,
+                SUM(points) as total_points
             FROM friendships
-            ORDER BY points DESC
+            GROUP BY 
+                CASE 
+                    WHEN sender_uuid < receiver_uuid THEN sender_uuid 
+                    ELSE receiver_uuid 
+                END,
+                CASE 
+                    WHEN sender_uuid < receiver_uuid THEN receiver_uuid 
+                    ELSE sender_uuid 
+                END
+            ORDER BY total_points DESC
             LIMIT ?
             """;
 
@@ -284,9 +303,9 @@ public class DatabaseManager {
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
                     pairs.add(new FriendshipPair(
-                        rs.getString("sender_uuid"),
-                        rs.getString("receiver_uuid"),
-                        rs.getInt("points")
+                        rs.getString("player1_uuid"),
+                        rs.getString("player2_uuid"),
+                        rs.getInt("total_points")
                     ));
                 }
             }

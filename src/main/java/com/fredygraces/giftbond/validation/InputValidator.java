@@ -15,9 +15,9 @@ import org.bukkit.entity.Player;
 public class InputValidator {
     
     // Patrones de validación
-    private static final Pattern PLAYER_NAME_PATTERN = Pattern.compile("^[a-zA-Z0-9_]{3,16}$");
+    private static final Pattern PLAYER_NAME_PATTERN = Pattern.compile("^[a-zA-Z0-9_.]{3,16}$");
     private static final Pattern UUID_PATTERN = Pattern.compile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
-    private static final Pattern COMMAND_ARGUMENT_PATTERN = Pattern.compile("^[\\w\\-_ ]{1,50}$");
+    private static final Pattern COMMAND_ARGUMENT_PATTERN = Pattern.compile("^[\\w\\-_ .]{1,50}$");
     
     // Límites de longitud
     private static final int MAX_PLAYER_NAME_LENGTH = 16;
@@ -51,7 +51,7 @@ public class InputValidator {
         
         if (!PLAYER_NAME_PATTERN.matcher(playerName).matches()) {
             return ValidationResult.failure(
-                "El nombre del jugador contiene caracteres inválidos. Solo se permiten letras, números y guiones bajos");
+                "El nombre del jugador contiene caracteres inválidos. Solo se permiten letras, números, guiones bajos y puntos");
         }
         
         return ValidationResult.success();

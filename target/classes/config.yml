@@ -1,128 +1,38 @@
-# ═══════════════════════════════════════════════════════════════
-# ⚙️ CONFIG.YML - Main Configuration File for GiftBond
-# ═══════════════════════════════════════════════════════════════
-# GiftBond - Advanced Friendship and Gift System
-# Author: Fredy_Graces
-# Version: 1.1.0
-# License: GPL v3.0
-# ═══════════════════════════════════════════════════════════════
-
-# ═══════════════════════════════════════════════════════════════
-# 💾 CONFIGURACIÓN DE ALMACENAMIENTO
-# ═══════════════════════════════════════════════════════════════
-# Configuración del sistema de almacenamiento dual
+# GiftBond Configuration v1.1.0
+# Essential settings only - Edit to customize
 
 storage:
   remote:
-    # Tipo de almacenamiento remoto (solo disponible: h2)
     type: "h2"
 
-# ═══════════════════════════════════════════════════════════════
-# 🎮 CONFIGURACIONES PRINCIPALES
-# ═══════════════════════════════════════════════════════════════
-
 settings:
-  # Master switch: Si es false, se desactivarán todas las restricciones de abajo
   enabled: true
-  
-  # Dual personal points: Si es true, ambos jugadores reciben puntos personales al enviar/recibir un regalo
   dual_personal_points: true
-  
-  # Boost dual personal points: Si es true, el receptor recibe los puntos con el boost del emisor
-  # Si es false, recibe solo los puntos base
   boost_dual_personal_points: true
-  
-  # Permitir regalos entre el mismo jugador (true/false)
   allow_self_gifts: false
-  
-  # Tiempo de cooldown entre regalos en segundos
   gift_cooldown: 30
-  
-  # Número máximo de amigos a mostrar en /amistad
   max_friends_display: 10
-  
-  # Requisito mínimo de horas jugadas para enviar/recibir regalos
   min_hours_played: 12
-  
-  # Activar/desactivar el requisito de horas jugadas
-  # Si es false, se ignora el requisito de horas mínimas
   enable_min_hours_requirement: true
-  
-  # Placeholder para las horas jugadas (requiere PlaceholderAPI y la expansión Statistic)
   hours_played_placeholder: "%statistic_hours_played%"
-  
-  # Límite diario de regalos (0 = sin límite)
   daily_gift_limit: 20
-  
-  # Broadcast cuando alguien alcanza el Top 1
   broadcast_top1: true
-  
-  # Comandos a ejecutar cuando una pareja alcanza el Top 1
-  # Placeholders disponibles: {player1}, {player2}, {points}
-  # Puedes usar múltiples comandos (se ejecutan en orden)
   top1_commands:
     - "discordsrv broadcast ✨ **{player1}** y **{player2}** son ahora la pareja Nº1 con **{points} puntos!** ✨"
-    # - "give {player1} diamond 1"
-    # - "give {player2} diamond 1"
-  
-  # Personalizar GUI del menú de regalos
   gui_enabled: false
 
-# ═══════════════════════════════════════════════════════════════
-# 📫 SISTEMA DE MAILBOX (REGALOS PENDIENTES)
-# ═══════════════════════════════════════════════════════════════
-# Sistema que permite guardar regalos físicos hasta que el receptor los reclame
-
 mailbox:
-  # Activar/desactivar el sistema de mailbox
   enabled: true
-  
-  # Costo mínimo para que un regalo entre en el mailbox
-  # Regalos con costo >= a este valor se enviarán al mailbox
-  # Configura 0 para que TODOS los regalos usen el mailbox
-  # Configura -1 para desactivar esta función (solo regalos gratis se entregan directamente)
   min_cost_for_mailbox: 100
-  
-  # Porcentaje de items que se comparten con el receptor (0-100)
-  # Ejemplo: 25 = El receptor recibe 25% de los items enviados
-  # Si envías 100 diamantes y shared_percentage es 25, el receptor recibe 25 diamantes
   shared_percentage: 25
-  
-  # Porcentaje de dinero que se comparte con el receptor (0-100)
-  # Ejemplo: 50 = El receptor recibe el 50% del dinero enviado
   shared_money_percentage: 50
-  
-  # Regalos gratis se entregan automáticamente (sin guardar en mailbox)
   auto_claim_free_gifts: true
-  
-  # Tiempo de almacenamiento en días (0 = permanente)
   storage_duration_days: 7
-  
-  # Límite máximo de regalos pendientes por jugador
   max_pending_gifts: 50
-  
-  # Intervalo de limpieza automática en minutos
   cleanup_interval_minutes: 60
-  
-  # Notificar al remitente cuando el destinatario reclama el regalo
   notify_sender_on_claim: true
-  
-  # Sistema de puntos dinámicos con boost
-  # Cuando está activo, los puntos se calculan al RECLAMAR basándose en el boost ACTUAL del remitente
-  # Cuando está desactivo, los puntos se calculan al ENVIAR (comportamiento original)
   dynamic_points:
     enabled: true
-    description: "Los puntos se recalculan al reclamar usando el boost actual del remitente"
-
-# ═══════════════════════════════════════════════════════════════
-# 💫 SISTEMA DE BOOSTS POR PERMISOS (PERMANENTES)
-# ═══════════════════════════════════════════════════════════════
-# Los jugadores con el permiso correspondiente obtendrán el multiplicador configurado
-# Si un jugador tiene múltiples permisos, se usa el multiplicador más alto
-#
-# NOTA: Los boosts temporales otorgados por admins (/giftbond boost) se MULTIPLICAN con estos
-# Ejemplo: VIP (x2.0) + boost temporal (x1.5) = x3.0 total
-# Cuando el boost temporal expira, el jugador mantiene su boost de permiso
 
 boosts:
   vip:
@@ -135,23 +45,5 @@ boosts:
     multiplier: 3.0
     permission: "giftbond.boost.ultra"
 
-# ═══════════════════════════════════════════════════════════════
-# 🐞 SISTEMA DE DEBUG
-# ═══════════════════════════════════════════════════════════════
-# Controla la salida de mensajes de depuración en consola
-
 debug:
-  # Activar/desactivar mensajes de debug
   enabled: false
-
-# ═══════════════════════════════════════════════════════════════
-# 📁 ARCHIVOS DE CONFIGURACIÓN ADICIONALES
-# ═══════════════════════════════════════════════════════════════
-# Este plugin usa múltiples archivos YAML para mejor organización:
-#
-# 📋 messages.yml  - Todos los mensajes editables del plugin
-# 🎁 gifts.yml     - Sistema de regalos (auto/manual)
-# 💾 database.yml  - Configuración de bases de datos (SQLite/H2)
-#
-# ¡Edita cada archivo según tus necesidades!
-# ═══════════════════════════════════════════════════════════════

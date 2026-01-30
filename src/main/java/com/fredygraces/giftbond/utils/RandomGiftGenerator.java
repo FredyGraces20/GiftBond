@@ -71,18 +71,27 @@ public class RandomGiftGenerator {
             currentGifts.add(gift);
         }
 
-        // Generar nuevos regalos de dinero (9 botones)
-        // 1-3: 1,000 a 100,000 | 10 a 100 puntos
-        for (int i = 0; i < 3; i++) {
-            currentMoneyGifts.add(new RandomMoneyGift(generateRandomDouble(1000, 100000), random.nextInt(100 - 10 + 1) + 10));
-        }
-        // 4-6: 100,000 a 1,000,000 | 200 a 500 puntos
-        for (int i = 0; i < 3; i++) {
-            currentMoneyGifts.add(new RandomMoneyGift(generateRandomDouble(100000, 1000000), random.nextInt(500 - 200 + 1) + 200));
-        }
-        // 7-9: 1,000,000 a 1,000,000,000 | 500 a 1000 puntos
-        for (int i = 0; i < 3; i++) {
-            currentMoneyGifts.add(new RandomMoneyGift(generateRandomDouble(1000000, 1000000000), random.nextInt(1000 - 500 + 1) + 500));
+        // Generar nuevos regalos de dinero configurables (9 botones)
+        for (int button = 1; button <= 9; button++) {
+            String buttonPath = "auto_mode.money_gifts.button_" + button;
+            
+            // Verificar si el botón está habilitado
+            if (!plugin.getConfigManager().getGiftsConfig().getBoolean(buttonPath + ".enabled", true)) {
+                currentMoneyGifts.add(new RandomMoneyGift(0, 0)); // Botón deshabilitado
+                continue;
+            }
+            
+            // Obtener rangos configurados
+            double priceMin = plugin.getConfigManager().getGiftsConfig().getDouble(buttonPath + ".price.min", 1000);
+            double priceMax = plugin.getConfigManager().getGiftsConfig().getDouble(buttonPath + ".price.max", 10000);
+            int pointsMin = plugin.getConfigManager().getGiftsConfig().getInt(buttonPath + ".points.min", 100);
+            int pointsMax = plugin.getConfigManager().getGiftsConfig().getInt(buttonPath + ".points.max", 500);
+            
+            // Generar valores aleatorios dentro de los rangos (números redondos)
+            int amount = (int) Math.round(generateRandomDouble(priceMin, priceMax));
+            int points = random.nextInt(pointsMax - pointsMin + 1) + pointsMin;
+            
+            currentMoneyGifts.add(new RandomMoneyGift(amount, points));
         }
         
         // Calcular tiempo de próxima rotación
@@ -240,15 +249,15 @@ public class RandomGiftGenerator {
      * Clase interna para representar un regalo de dinero
      */
     public static class RandomMoneyGift {
-        private final double amount;
+        private final int amount;  // Cambiado a int para números redondos
         private final int points;
 
-        public RandomMoneyGift(double amount, int points) {
+        public RandomMoneyGift(int amount, int points) {
             this.amount = amount;
             this.points = points;
         }
 
-        public double getAmount() {
+        public int getAmount() {  // Cambiado a int
             return amount;
         }
 

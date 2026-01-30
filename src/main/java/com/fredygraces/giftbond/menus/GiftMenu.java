@@ -95,12 +95,28 @@ public class GiftMenu {
             inventory.setItem(itemIndex++, item);
         }
 
-        // 4. Colocar botones de dinero (27-35)
+        // 4. Colocar botones de dinero (27-35) con verificación de saldo
         List<RandomGiftGenerator.RandomMoneyGift> moneyGifts = generator.getCurrentMoneyGifts();
         int moneyIndex = 27;
-        for (RandomGiftGenerator.RandomMoneyGift moneyGift : moneyGifts) {
-            if (moneyIndex > 35) break;
-            inventory.setItem(moneyIndex++, createMoneyGiftItem(sender, moneyGift));
+        for (int i = 0; i < moneyGifts.size() && moneyIndex <= 35; i++) {
+            RandomGiftGenerator.RandomMoneyGift moneyGift = moneyGifts.get(i);
+            
+            // Verificar si el botón está habilitado
+            String buttonPath = "auto_mode.money_gifts.button_" + (i + 1);
+            boolean enabled = plugin.getConfigManager().getGiftsConfig().getBoolean(buttonPath + ".enabled", true);
+            
+            if (!enabled || moneyGift.getAmount() <= 0) {
+                // Botón deshabilitado - mostrar barrera
+                inventory.setItem(moneyIndex++, createDisabledMoneyButton(i + 1));
+                continue;
+            }
+            
+            // Verificar si el jugador tiene suficiente dinero
+            if (plugin.getEconomyManager().hasEnoughMoney(sender, moneyGift.getAmount())) {
+                inventory.setItem(moneyIndex++, createMoneyGiftItem(sender, moneyGift, i + 1));
+            } else {
+                inventory.setItem(moneyIndex++, createInsufficientFundsButton(sender, moneyGift, i + 1));
+            }
         }
     }
 
@@ -131,7 +147,7 @@ public class GiftMenu {
     /**
      * Crea un item que representa un regalo de dinero
      */
-    private ItemStack createMoneyGiftItem(Player sender, RandomGiftGenerator.RandomMoneyGift moneyGift) {
+    private ItemStack createMoneyGiftItem(Player sender, RandomGiftGenerator.RandomMoneyGift moneyGift, int buttonNumber) {
         ItemStack item = new ItemStack(Material.GOLD_INGOT);
         ItemMeta meta = item.getItemMeta();
         
@@ -145,19 +161,23 @@ public class GiftMenu {
         double receiverAmount = costAmount * (sharedMoneyPercentage / 100.0);
         
         if (meta != null) {
-            meta.setDisplayName("§6§l🎁 Regalo de Dinero");
+            // Obtener nombre configurado del botón
+            String displayName = plugin.getConfigManager().getGiftsConfig()
+                .getString("auto_mode.money_gifts.button_" + buttonNumber + ".name", "§6§l🎁 Regalo de Dinero");
+            meta.setDisplayName(org.bukkit.ChatColor.translateAlternateColorCodes('&', displayName));
             List<String> lore = new java.util.ArrayList<>();
             lore.add("§e§lInformación del envío");
             lore.add("§7------------------------");
-            lore.add("§fCosto: §a$" + String.format("%,.2f", costAmount));
+            lore.add("§fCosto: §a$" + String.format("%,d", (int)costAmount));
             
             if (multiplier > 1.0) {
-                lore.add("§fRecibe: §a$" + String.format("%,.2f", receiverAmount));
+                lore.add("§fRecibe: §a$" + String.format("%,d", (int)receiverAmount));
                 lore.add("§fPuntos: §a" + basePoints);
                 lore.add("§7------------------------");
                 lore.add("§fBoost: §b" + String.format("%.1f", multiplier) + "x");
                 lore.add("§fPuntos: §a" + finalPoints);
             } else {
+                lore.add("§fRecibe: §a$" + String.format("%,d", (int)receiverAmount));
                 lore.add("§fPuntos: §a" + basePoints);
                 lore.add("§7------------------------");
             }
@@ -170,6 +190,69 @@ public class GiftMenu {
             item.setItemMeta(meta);
         }
         return item;
+    }
+    
+    /**
+     * Crea un botón de dinero deshabilitado (barrera)
+     */
+    private ItemStack createDisabledMoneyButton(int buttonNumber) {
+        ItemStack item = new ItemStack(Material.BARRIER);
+        ItemMeta meta = item.getItemMeta();
+        
+        if (meta != null) {
+            String displayName = plugin.getConfigManager().getGiftsConfig()
+                .getString("auto_mode.money_gifts.button_" + buttonNumber + ".name", "§c§lBotón Deshabilitado");
+            meta.setDisplayName(org.bukkit.ChatColor.translateAlternateColorCodes('&', displayName));
+            
+            List<String> lore = new java.util.ArrayList<>();
+            lore.add("§cEste botón está deshabilitado");
+            lore.add("§7Contacta a un administrador");
+            meta.setLore(lore);
+            item.setItemMeta(meta);
+        }
+        return item;
+    }
+    
+    /**
+     * Crea un botón que indica fondos insuficientes
+     */
+    private ItemStack createInsufficientFundsButton(Player sender, RandomGiftGenerator.RandomMoneyGift moneyGift, int buttonNumber) {
+        ItemStack item = new ItemStack(Material.RED_STAINED_GLASS_PANE);
+        ItemMeta meta = item.getItemMeta();
+        
+        if (meta != null) {
+            String displayName = plugin.getConfigManager().getGiftsConfig()
+                .getString("auto_mode.money_gifts.button_" + buttonNumber + ".name", "§c§lFondos Insuficientes");
+            meta.setDisplayName(org.bukkit.ChatColor.translateAlternateColorCodes('&', displayName));
+            
+            List<String> lore = new java.util.ArrayList<>();
+            lore.add("§cNo tienes suficiente dinero");
+            lore.add("§7Costo: §f$" + String.format("%,d", moneyGift.getAmount()));
+            lore.add("§7Tu saldo: §f$" + getFormattedIntegerBalance(sender));
+            lore.add("");
+            lore.add("§7Consigue más dinero para");
+            lore.add("§7desbloquear este regalo");
+            meta.setLore(lore);
+            item.setItemMeta(meta);
+        }
+        return item;
+    }
+    
+    /**
+     * Obtiene el balance formateado del jugador (números enteros)
+     */
+    private String getFormattedIntegerBalance(Player player) {
+        if (org.bukkit.Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
+            String balanceStr = me.clip.placeholderapi.PlaceholderAPI.setPlaceholders(player, "%vault_eco_balance%");
+            try {
+                String cleanBalance = balanceStr.replaceAll("[^0-9.,]", "").replace(",", "");
+                double balance = Double.parseDouble(cleanBalance);
+                return String.format("%,d", (int)balance);
+            } catch (NumberFormatException e) {
+                return "0";
+            }
+        }
+        return "0";
     }
 
     /**
@@ -415,6 +498,19 @@ public class GiftMenu {
             }
         }
         
+        // Mostrar cantidad que recibe la otra persona para items
+        if (!gift.getRequiredItems().isEmpty()) {
+            // Calcular cantidad que recibe basado en configuración
+            int sharedItemPercentage = plugin.getConfigManager().getMainConfig().getInt("mailbox.shared_items_percentage", 50);
+            for (com.fredygraces.giftbond.models.GiftItem.ItemRequirement req : gift.getRequiredItems()) {
+                int receiverAmount = (int) Math.floor(req.getAmount() * (sharedItemPercentage / 100.0));
+                if (receiverAmount > 0) {
+                    String reqName = req.getMaterial().name().replace("_", " ").toLowerCase();
+                    lore.add("§fRecibe: §a" + receiverAmount + "x " + reqName);
+                }
+            }
+        }
+        
         lore.add("§fPuntos: §a" + basePoints);
         lore.add("§7------------------------");
         
@@ -482,6 +578,19 @@ public class GiftMenu {
             for (com.fredygraces.giftbond.models.GiftItem.ItemRequirement req : gift.getRequiredItems()) {
                 String reqName = req.getMaterial().name().replace("_", " ").toLowerCase();
                 lore.add("§fItem: §a" + req.getAmount() + "x " + reqName);
+            }
+        }
+        
+        // Mostrar cantidad que recibe la otra persona para items
+        if (!gift.getRequiredItems().isEmpty()) {
+            // Calcular cantidad que recibe basado en configuración
+            int sharedItemPercentage = plugin.getConfigManager().getMainConfig().getInt("mailbox.shared_items_percentage", 50);
+            for (com.fredygraces.giftbond.models.GiftItem.ItemRequirement req : gift.getRequiredItems()) {
+                int receiverAmount = (int) Math.floor(req.getAmount() * (sharedItemPercentage / 100.0));
+                if (receiverAmount > 0) {
+                    String reqName = req.getMaterial().name().replace("_", " ").toLowerCase();
+                    lore.add("§fRecibe: §a" + receiverAmount + "x " + reqName);
+                }
             }
         }
                 

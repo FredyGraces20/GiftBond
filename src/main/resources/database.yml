@@ -1,29 +1,6 @@
-# ═══════════════════════════════════════════════════════════════
-# 💾 DATABASE.YML - Sistema de Almacenamiento SQLite
-# ═══════════════════════════════════════════════════════════════
-# Configuración del sistema de base de datos SQLite local
-# 
-# 📫 NOTA: El sistema de mailbox también utiliza esta misma base de datos
-# para almacenar regalos pendientes. Todas las tablas se crean automáticamente.
-# ═══════════════════════════════════════════════════════════════
-
-# ═══════════════════════════════════════════════════════════════
-# 🗄️ ALMACENAMIENTO LOCAL (SQLite)
-# ═══════════════════════════════════════════════════════════════
-# Base de datos embebida simple y confiable para todos los datos del plugin
-# Incluye: puntos de amistad, puntos personales, boosts, historial y mailbox
+# GiftBond Database Configuration v1.1.0
+# SQLite local storage for all plugin data
 
 local:
   enabled: true
-  # Base de datos SQLite en la carpeta del plugin
   database: "friendships.db"
-
-# ═══════════════════════════════════════════════════════════════
-# 📊 ESTADÍSTICAS DEL SISTEMA
-# ═══════════════════════════════════════════════════════════════
-# El sistema monitorea automáticamente:
-# - Rendimiento de lectura/escritura
-# - Tiempos de sincronización
-# - Estado de conexión de ambas bases de datos
-# - Espacio utilizado en disco
-# ═══════════════════════════════════════════════════════════════

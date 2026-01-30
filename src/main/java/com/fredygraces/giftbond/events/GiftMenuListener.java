@@ -134,13 +134,22 @@ public class GiftMenuListener implements Listener {
         debugLogger.debug("Processing gift selection for " + sender.getName() + " -> " + receiver.getName());
         debugLogger.debug("Clicked item: " + getItemDisplayName(item));
         
-        // 1. Manejar botones de dinero
+        // 1. Manejar botones de dinero (verificar por tipo de ítem y lore)
         if (item.getType() == Material.GOLD_INGOT && 
             item.hasItemMeta() && 
-            item.getItemMeta().getDisplayName().contains("Regalo de Dinero")) {
+            item.getItemMeta().hasLore()) {
             
-            handleMoneyGiftClick(sender, receiver, item);
-            return;
+            // Verificar que el lore contiene información de costo (indicador de botón de dinero)
+            List<String> lore = item.getItemMeta().getLore();
+            boolean isMoneyButton = lore.stream()
+                .anyMatch(line -> ChatColor.stripColor(line).contains("Costo: $") || 
+                                ChatColor.stripColor(line).contains("Precio: $") ||
+                                ChatColor.stripColor(line).contains("Fondos Insuficientes"));
+            
+            if (isMoneyButton) {
+                handleMoneyGiftClick(sender, receiver, item);
+                return;
+            }
         }
 
         // 2. Manejar items de relleno o info
@@ -332,9 +341,10 @@ public class GiftMenuListener implements Listener {
             double receiverAmount = gift.getMoneyRequired() * (sharedMoneyPercentage / 100.0);
             
             // Entregar dinero al receptor
-            String giveCmd = "eco give " + receiver.getName() + " " + receiverAmount;
+            String giveCmd = "eco give " + receiver.getName() + " " + String.format("%.2f", receiverAmount);
+            debugLogger.debug("[DIRECT-MONEY] Command: " + giveCmd);
             Bukkit.dispatchCommand(Bukkit.getConsoleSender(), giveCmd);
-            debugLogger.debug("[DIRECT-MONEY] Gave $" + receiverAmount + " to " + receiver.getName());
+            debugLogger.debug("[DIRECT-MONEY] Gave $" + String.format("%.2f", receiverAmount) + " to " + receiver.getName());
         }
         
         // Agregar puntos de amistad
@@ -474,11 +484,22 @@ public class GiftMenuListener implements Listener {
             if (strippedLine.contains("Costo: $")) {
                 try {
                     String amountStr = strippedLine.substring(strippedLine.indexOf("$") + 1)
-                                                 .replace(",", "");
-                    amount = Double.parseDouble(amountStr);
+                                                 .replace(",", "")
+                                                 .replace(".", "")  // Remove thousands separators
+                                                 .trim();
+                    
+                    // Handle decimal numbers (e.g., "4.000.000.000" -> "4000000000")
+                    if (amountStr.contains(".")) {
+                        // If it's a formatted number with decimal point, parse as-is
+                        amount = Double.parseDouble(amountStr);
+                    } else {
+                        // If it's a whole number, parse directly
+                        amount = Double.parseDouble(amountStr);
+                    }
+                    
                     debugLogger.debug("Parsed amount: " + amount);
                 } catch (Exception e) {
-                    debugLogger.debugWarning("Error parsing money amount: " + strippedLine);
+                    debugLogger.debugWarning("Error parsing money amount: " + strippedLine + " - Error: " + e.getMessage());
                 }
             } else if (strippedLine.contains("Puntos: ") && basePoints == 0) {
                 try {
@@ -497,17 +518,37 @@ public class GiftMenuListener implements Listener {
             return;
         }
         
+        // Verificar si el jugador tiene suficiente dinero
+        if (!plugin.getEconomyManager().hasEnoughMoney(sender, amount)) {
+            String errorMsg = plugin.getMessage("messages.insufficient_funds", 
+                "{prefix}&c❌ No tienes suficiente dinero. Necesitas &f${amount}&c.");
+            errorMsg = errorMsg.replace("{amount}", String.format("%,.2f", amount));
+            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', errorMsg));
+            debugLogger.debug("[BALANCE] Player " + sender.getName() + " has insufficient funds for $" + amount);
+            sender.closeInventory();
+            return;
+        }
+        
+        debugLogger.debug("[BALANCE] Player " + sender.getName() + " has sufficient funds for $" + amount);
+        
         // Calcular porcentaje compartido
         int sharedMoneyPercentage = plugin.getConfigManager().getMainConfig().getInt("mailbox.shared_money_percentage", 50);
+        debugLogger.debug("[MONEY-CALC] Original amount: " + amount);
+        debugLogger.debug("[MONEY-CALC] Shared percentage: " + sharedMoneyPercentage);
         double receiverAmount = amount * (sharedMoneyPercentage / 100.0);
+        debugLogger.debug("[MONEY-CALC] Receiver amount calculation: " + amount + " * (" + sharedMoneyPercentage + " / 100.0) = " + receiverAmount);
 
         // Calcular puntos con boost
         double multiplier = friendshipManager.getActiveMultiplier(sender.getUniqueId().toString());
         int finalPoints = (int) (basePoints * multiplier);
+        debugLogger.debug("[MONEY-CALC] Points calculation: " + basePoints + " * " + multiplier + " = " + finalPoints);
 
         // Ejecutar comandos de economía (vía consola para asegurar permisos)
-        String takeCmd = "eco take " + sender.getName() + " " + amount;
-        String giveCmd = "eco give " + receiver.getName() + " " + receiverAmount;
+        String takeCmd = "eco take " + sender.getName() + " " + (int)amount;
+        String giveCmd = "eco give " + receiver.getName() + " " + (int)receiverAmount;
+        
+        debugLogger.debug("[MONEY-CMD] Take command: " + takeCmd);
+        debugLogger.debug("[MONEY-CMD] Give command: " + giveCmd);
         
         Bukkit.dispatchCommand(Bukkit.getConsoleSender(), takeCmd);
         

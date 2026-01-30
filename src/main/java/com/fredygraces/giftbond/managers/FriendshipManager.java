@@ -31,7 +31,12 @@ public class FriendshipManager {
         int finalPoints = (int) (points * multiplier);
         debugLogger.debug("[BOOST] Final points calculated: " + finalPoints);
         
-        databaseManager.saveFriendshipPoints(senderUUID, receiverUUID, finalPoints);
+        // Crear clave unificada ordenando los UUIDs
+        String[] sortedUUIDs = sortUUIDs(senderUUID, receiverUUID);
+        String unifiedSender = sortedUUIDs[0];
+        String unifiedReceiver = sortedUUIDs[1];
+        
+        databaseManager.saveFriendshipPoints(unifiedSender, unifiedReceiver, finalPoints);
         
         // Otorgar puntos personales al emisor
         databaseManager.addPersonalPoints(senderUUID, finalPoints);
@@ -47,6 +52,20 @@ public class FriendshipManager {
         checkAndBroadcastTop1();
         
         return finalPoints;
+    }
+
+    /**
+     * Ordena dos UUIDs alfabéticamente para crear una clave unificada
+     * @param uuid1 Primer UUID
+     * * @param uuid2 Segundo UUID
+     * @return Array con los UUIDs ordenados [menor, mayor]
+     */
+    private String[] sortUUIDs(String uuid1, String uuid2) {
+        if (uuid1.compareTo(uuid2) <= 0) {
+            return new String[]{uuid1, uuid2};
+        } else {
+            return new String[]{uuid2, uuid1};
+        }
     }
 
     private void checkAndBroadcastTop1() {
@@ -167,7 +186,9 @@ public class FriendshipManager {
     }
 
     public int getFriendshipPoints(String senderUUID, String receiverUUID) {
-        return databaseManager.getFriendshipPoints(senderUUID, receiverUUID);
+        // Usar clave unificada para obtener puntos
+        String[] sortedUUIDs = sortUUIDs(senderUUID, receiverUUID);
+        return databaseManager.getFriendshipPoints(sortedUUIDs[0], sortedUUIDs[1]);
     }
 
     public int getTotalPoints(String playerUUID) {

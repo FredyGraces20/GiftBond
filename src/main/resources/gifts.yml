@@ -1,44 +1,12 @@
-# ═══════════════════════════════════════════════════════════════
-# 🎁 GIFTS.YML - Sistema de Regalos Inteligente
-# ═══════════════════════════════════════════════════════════════
-# Configuración completa del sistema de regalos con detección automática
-# Compatible con todas las versiones de Minecraft desde 1.16 hasta 1.21+
-# 
-# 📫 NOTA SOBRE MAILBOX: 
-# Los regalos con costo >= min_cost_for_mailbox (config.yml) se enviarán
-# al sistema de mailbox donde el receptor podrá reclamarlos usando:
-# - /regalo reclamar [jugador|all]
-# - /giftbond redeem [jugador|all]
-# 
-# Los regalos con costo < min_cost_for_mailbox se entregan directamente
-# al receptor sin pasar por el mailbox.
-# ═══════════════════════════════════════════════════════════════
+# GiftBond Gifts Configuration v1.1.0
+# Auto/Manual gift system with 9 customizable money buttons
 
-# ═══════════════════════════════════════════════════════════════
-# ⚙️ CONFIGURACIÓN GENERAL
-# ═══════════════════════════════════════════════════════════════
-
-# Modo de operación: "auto" o "manual"
-# - auto: El sistema detecta la versión y genera regalos aleatorios
-# - manual: Usa la lista de regalos definida manualmente abajo
 mode: "auto"
-
-# Versión específica para usar (cuando se desea sobreescribir la detección automática)
-# Deja vacío "" para usar detección automática, o pon la versión específica como "1.20.6" o "1.21.1"
 force_selected_version: ""
 
-# ═══════════════════════════════════════════════════════════════
-# 🎨 PERSONALIZACIÓN DEL MENÚ DE REGALOS
-# ═══════════════════════════════════════════════════════════════
-
 menu_customization:
-  # Título del menú en modo manual
   manual_title: "&d🎁 Enviar regalo a {receiver}"
-  
-  # Título del menú en modo automático
   auto_title: "&d🎁 Regalos - Rotan en {time_left}"
-  
-  # Item de información de rotación (modo automático)
   rotation_info_item:
     enabled: true
     material: CLOCK
@@ -50,204 +18,173 @@ menu_customization:
       - "&ePróximo cambio: &f{time_left}"
       - ""
       - "&7¡Aprovecha los regalos actuales!"
-    slot: 26  # Último slot (0-26)
-
-# ═══════════════════════════════════════════════════════════════
-
-# ═══════════════════════════════════════════════════════════════
-# 🎲 MODO AUTOMÁTICO - Regalos Aleatorios Inteligentes
-# ═══════════════════════════════════════════════════════════════
+    slot: 26
 
 auto_mode:
   enabled: true
-  
-  # Detección automática de versión del servidor
   detect_version: true
-  # Versión manual (solo si detect_version = false)
-  # Formato: "1.21" o "1.20.4"
   force_version: "1.21"
   
-  # Blacklist de items (nunca aparecerán como regalos)
-  # Puedes agregar más items aquí si quieres excluir algo específico
   exclude_items:
-    # Items de creativo/comandos
     - BARRIER
     - STRUCTURE_VOID
-    - STRUCTURE_BLOCK
-    - COMMAND_BLOCK
-    - CHAIN_COMMAND_BLOCK
-    - REPEATING_COMMAND_BLOCK
-    - COMMAND_BLOCK_MINECART
-    - DEBUG_STICK
-    - JIGSAW
-    - LIGHT
-    - KNOWLEDGE_BOOK
-    
-    # Spawners y eggs de spawn
     - SPAWNER
-    - "*_SPAWN_EGG"  # Todos los spawn eggs
-    
-    # Bloques técnicos
+    - "*_SPAWN_EGG"
     - AIR
-    - CAVE_AIR
-    - VOID_AIR
     - BEDROCK
-    - END_PORTAL_FRAME
-    - END_PORTAL
-    - NETHER_PORTAL
-    
-    # Items muy raros o únicos
-    - DRAGON_EGG  # Solo hay 1 por mundo
   
-  # Categorías permitidas (puedes desactivar algunas)
   allowed_categories:
-    food: true          # Comida (beef, bread, apple, etc)
-    blocks: true        # Bloques (stone, wood, dirt, etc)
-    resources: true     # Recursos (iron, gold, diamond, etc)
-    tools: true         # Herramientas (pickaxe, axe, shovel)
-    weapons: true       # Armas (sword, bow, trident)
-    armor: true         # Armaduras (helmet, chestplate, etc)
-    potions: true       # Pociones y brewing
-    plants: true        # Plantas, flores, seeds
-    misc: true          # Otros items (arrow, string, etc)
+    food: true
+    blocks: true
+    resources: true
+    tools: true
+    weapons: true
+    armor: true
+    potions: true
+    plants: true
+    misc: true
   
-  # Rotación de regalos
   rotation:
     enabled: true
-    # Intervalo de rotación en minutos (cada cuánto cambian los regalos)
     interval: 60
-    # Cuántos regalos diferentes mostrar al mismo tiempo
     active_gifts: 9
-    # Notificar a todos cuando los regalos cambien
     broadcast_on_change: true
   
-  # Rango de puntos que pueden dar los regalos
   points:
     min: 10
     max: 100
-  
-  # Rango de cantidad de items requeridos
   items:
     min: 1
     max: 64
-
-# ═══════════════════════════════════════════════════════════════
-# 📝 MODO MANUAL - Lista Fija de Regalos
-# ═══════════════════════════════════════════════════════════════
+  
+  # 9 Configurable Money Buttons
+  money_gifts:
+    button_1:
+      enabled: true
+      price:
+        min: 1000
+        max: 10000
+      points:
+        min: 100
+        max: 500
+      name: "&6&l💰 Regalo de Dinero"
+      description:
+        - "&7Envía dinero como regalo"
+        - "&7Precio: &a${min} - ${max}"
+        - "&7Puntos: &b{points_min} - {points_max}"
+      
+    button_2:
+      enabled: true
+      price:
+        min: 10000
+        max: 50000
+      points:
+        min: 500
+        max: 1500
+      name: "&e&l💰 Regalo Económico"
+      description:
+        - "&7Regalo de dinero moderado"
+        - "&7Precio: &a${min} - ${max}"
+        - "&7Puntos: &b{points_min} - {points_max}"
+      
+    button_3:
+      enabled: true
+      price:
+        min: 50000
+        max: 100000
+      points:
+        min: 1500
+        max: 3000
+      name: "&b&l💰 Regalo Premium"
+      description:
+        - "&7Regalo de dinero premium"
+        - "&7Precio: &a${min} - ${max}"
+        - "&7Puntos: &b{points_min} - {points_max}"
+      
+    button_4:
+      enabled: true
+      price:
+        min: 100000
+        max: 500000
+      points:
+        min: 3000
+        max: 8000
+      name: "&d&l💰 Regalo VIP"
+      description:
+        - "&7Regalo exclusivo VIP"
+        - "&7Precio: &a${min} - ${max}"
+        - "&7Puntos: &b{points_min} - {points_max}"
+      
+    button_5:
+      enabled: true
+      price:
+        min: 500000
+        max: 1000000
+      points:
+        min: 8000
+        max: 15000
+      name: "&5&l💰 Regalo Elite"
+      description:
+        - "&7Regalo de élite exclusivo"
+        - "&7Precio: &a${min} - ${max}"
+        - "&7Puntos: &b{points_min} - {points_max}"
+      
+    button_6:
+      enabled: true
+      price:
+        min: 1000000
+        max: 5000000
+      points:
+        min: 15000
+        max: 30000
+      name: "&c&l💰 Regalo Legendario"
+      description:
+        - "&7Regalo legendario supremo"
+        - "&7Precio: &a${min} - ${max}"
+        - "&7Puntos: &b{points_min} - {points_max}"
+      
+    button_7:
+      enabled: true
+      price:
+        min: 5000000
+        max: 10000000
+      points:
+        min: 30000
+        max: 50000
+      name: "&4&l💰 Regalo Épico"
+      description:
+        - "&7Regalo épico legendario"
+        - "&7Precio: &a${min} - ${max}"
+        - "&7Puntos: &b{points_min} - {points_max}"
+      
+    button_8:
+      enabled: true
+      price:
+        min: 10000000
+        max: 50000000
+      points:
+        min: 50000
+        max: 100000
+      name: "&6&l✨ Regalo Mítico"
+      description:
+        - "&7Regalo mítico divino"
+        - "&7Precio: &a${min} - ${max}"
+        - "&7Puntos: &b{points_min} - {points_max}"
+      
+    button_9:
+      enabled: true
+      price:
+        min: 50000000
+        max: 1000000000
+      points:
+        min: 100000
+        max: 500000
+      name: "&f&l⚡ Regalo Divino"
+      description:
+        - "&7Regalo divino supremo"
+        - "&7Precio: &a${min} - ${max}"
+        - "&7Puntos: &b{points_min} - {points_max}"
 
 manual_mode:
   enabled: false
-  
-  # Lista manual de regalos predefinidos
-  gifts:
-    # Puntos de Amistad - Regalo básico
-    friendship_points:
-      name: "&dPuntos de Amistad"
-      points: 10
-      items_required:
-        - material: PAPER
-          amount: 1
-      description:
-        - "&7Enviar puntos de amistad"
-        - "&7Premio: 10 puntos"
-        - "&7Requiere: 1 Papel"
-    
-    # Corazón - Regalo romántico
-    heart:
-      name: "&cCorazón"
-      points: 20
-      money_required: 1000.0  # Requiere $1,000 además de los items
-      items_required:
-        - material: RED_DYE
-          amount: 2
-      description:
-        - "&7Enviar un regalo de corazón"
-        - "&7Premio: 20 puntos"
-        - "&7Requiere: $1,000 + 2 Tinte Rojo"
-    
-    # Flores - Regalo clásico
-    flowers:
-      name: "&dFlores"
-      points: 15
-      items_required:
-        - material: POPPY
-          amount: 3
-      description:
-        - "&7Enviar un ramo de flores"
-        - "&7Premio: 15 puntos"
-        - "&7Requiere: 3 Amapolas"
-    
-    # Comida - Regalo útil
-    food:
-      name: "&6Comida"
-      points: 12
-      items_required:
-        - material: COOKED_BEEF
-          amount: 2
-      description:
-        - "&7Enviar un regalo de comida"
-        - "&7Premio: 12 puntos"
-        - "&7Requiere: 2 Filete"
-    
-    # Arco - Regalo aventurero
-    bow:
-      name: "&eArco"
-      points: 25
-      items_required:
-        - material: BOW
-          amount: 1
-        - material: ARROW
-          amount: 5
-      description:
-        - "&7Enviar un arco como regalo"
-        - "&7Premio: 25 puntos"
-        - "&7Requiere: 1 Arco + 5 Flechas"
-    
-    # Diamante - Regalo valioso
-    diamond:
-      name: "&bDiamante"
-      points: 30
-      money_required: 500.0   # Requiere $500 además del diamante
-      items_required:
-        - material: DIAMOND
-          amount: 1
-      description:
-        - "&7Enviar un diamante como regalo"
-        - "&7Premio: 30 puntos"
-        - "&7Requiere: $500 + 1 Diamante"
-    
-    # Libro - Regalo educativo
-    book:
-      name: "&9Libro"
-      points: 18
-      items_required:
-        - material: BOOK
-          amount: 1
-      description:
-        - "&7Enviar un libro como regalo"
-        - "&7Premio: 18 puntos"
-        - "&7Requiere: 1 Libro"
-    
-    # Pastel - Regalo dulce
-    cake:
-      name: "&6Pastel"
-      points: 22
-      items_required:
-        - material: CAKE
-          amount: 1
-      description:
-        - "&7Enviar un pastel como regalo"
-        - "&7Premio: 22 puntos"
-        - "&7Requiere: 1 Pastel"
-    
-    # Cofre - Regalo sorpresa
-    chest:
-      name: "&eCofre"
-      points: 35
-      items_required:
-        - material: CHEST
-          amount: 1
-      description:
-        - "&7Enviar un cofre como regalo"
-        - "&7Premio: 35 puntos"
-        - "&7Requiere: 1 Cofre"
+  gifts: {}

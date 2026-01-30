@@ -156,7 +156,9 @@ public class MailboxCommand implements CommandExecutor {
             // Entregar dinero
             if (gift.getMoney() > 0) {
                 totalMoney += gift.getMoney();
+                debugLogger.debug("[CLAIM-MONEY] Giving $" + gift.getMoney() + " to " + player.getName());
                 String giveCmd = "eco give " + player.getName() + " " + gift.getMoney();
+                debugLogger.debug("[CLAIM-MONEY] Executing command: " + giveCmd);
                 Bukkit.dispatchCommand(Bukkit.getConsoleSender(), giveCmd);
             }
             
